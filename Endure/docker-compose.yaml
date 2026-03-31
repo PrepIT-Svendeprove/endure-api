@@ -1,0 +1,30 @@
+name: Endure
+volumes:
+  postgres:
+  pgadmin:
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: endure
+      POSTGRES_USER: endure
+      POSTGRES_PASSWORD: endure
+    volumes:
+      - postgres:/var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U endure -d endure -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '5432:5432'
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: passw0rd
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
