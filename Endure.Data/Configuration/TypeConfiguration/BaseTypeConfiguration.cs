@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Endure.Data.Configuration.TypeConfiguration;
 
-internal abstract class BaseTypeConfiguration<T> : IEntityTypeConfiguration<T>
-    where T : BaseModel
+internal abstract class BaseTypeConfiguration<T> : BaseTypeConfiguration<T, Guid>
+    where T : BaseModel;
+
+internal abstract class BaseTypeConfiguration<T, TKey> : IEntityTypeConfiguration<T>
+    where T : BaseModel<TKey>
 {
-    public void Configure(EntityTypeBuilder<T> builder)
+    public virtual void Configure(EntityTypeBuilder<T> builder)
     {
         builder.HasKey(x => x.Id);
 

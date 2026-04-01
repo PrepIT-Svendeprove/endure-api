@@ -6,6 +6,10 @@ namespace Endure.Data;
 
 public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
+    public DbSet<AuditLog> AuditLog { get; set; }
+    public DbSet<DietaryRestriction> DietaryRestriction { get; set; }
+    public DbSet<DietaryRestrictionType> DietaryRestrictionType { get; set; }
+
     public DbSet<Warehouse> Warehouse { get; set; }
     public DbSet<StorageUnit> StorageUnit { get; set; }
     public DbSet<Product> Product { get; set; }
@@ -22,15 +26,5 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             .ApplyConfiguration(new ClimateTelemetryTypeConfiguration())
             .ApplyConfiguration(new ProductbatchTypeConfiguration())
             .ApplyConfiguration(new ProductTypeConfiguration());
-    }
-
-    public override int SaveChanges()
-    {
-        return base.SaveChanges();
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        return base.SaveChangesAsync(cancellationToken);
     }
 }

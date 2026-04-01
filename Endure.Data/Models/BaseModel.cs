@@ -1,13 +1,23 @@
 ﻿namespace Endure.Data.Models;
 
-public abstract class BaseModel
+/// <summary>
+/// An abstract model that inherits from <see cref="BaseModel{TKey}" />, and sets the key to <see cref="Guid"/>
+/// </summary>
+public abstract class BaseModel : BaseModel<Guid>;
+
+public abstract class BaseModel<TKey>
 {
     /// <summary>
     /// Identifier of the current object.
     /// </summary>
-    public int Id { get; set; }
+    public required TKey Id { get; set; }
     public long CreatedAt { get; internal set; }
     public long UpdatedAt { get; set; }
 
+    /// <summary>
+    /// Used as concurrency token, for npgsql.
+    /// 
+    /// https://www.npgsql.org/efcore/modeling/concurrency.html?tabs=fluent-api
+    /// </summary>
     public uint Version { get; set; }
 }

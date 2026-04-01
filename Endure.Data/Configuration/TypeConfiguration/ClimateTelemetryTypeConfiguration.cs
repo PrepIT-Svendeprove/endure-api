@@ -5,7 +5,7 @@ namespace Endure.Data.Configuration.TypeConfiguration;
 
 internal class ClimateTelemetryTypeConfiguration : BaseTypeConfiguration<ClimateTelemetry>
 {
-    public void Configure(EntityTypeBuilder<ClimateTelemetry> builder)
+    public override void Configure(EntityTypeBuilder<ClimateTelemetry> builder)
     {
         base.Configure(builder);
 

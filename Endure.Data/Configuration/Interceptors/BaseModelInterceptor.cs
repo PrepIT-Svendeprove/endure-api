@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Endure.Data.Configuration;
+namespace Endure.Data.Configuration.Interceptors;
 
 internal class BaseModelInterceptor : SaveChangesInterceptor
 {

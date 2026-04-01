@@ -1,7 +1,4 @@
 name: Endure
-volumes:
-  postgres:
-  pgadmin:
 
 services:
   postgres:
@@ -18,7 +15,8 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - '5432:5432'
+      - "5432:5432"
+ 
   pgadmin:
     image: dpage/pgadmin4:latest
     environment:
@@ -28,3 +26,29 @@ services:
       - pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
+  
+  rabbitmq:
+    image: rabbitmq:4.2.5
+    environment:
+      RABBITMQ_DEFAULT_USER: endure
+      RABBITMQ_DEFAULT_PASS: endure
+    configs:
+      - source: rabbitmq-plugins
+        target: /etc/rabbitmq/enabled_plugins
+    volumes:
+      - rabbitmq-lib:/var/lib/rabbitmq
+      - rabbitmq-log:/var/log/rabbitmq
+    ports:
+      - "5672:5672"     # AMQP protocol
+      - "15672:15672"   # Management UI
+      - "1883:1883"     # MQTT protocol
+     
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management,rabbitmq_mqtt]."  
+
+volumes:
+  postgres:
+  pgadmin:
+  rabbitmq-lib:
+  rabbitmq-log:

@@ -8,7 +8,7 @@ public static class StorageUnitSeeder
 {
     private static List<StorageUnit> _seededStorageUnits = [
         new StorageUnit() {
-            Id = 1,
+            Id = Guid.Parse("0e13045f-4db4-4a34-b949-fff6b2656748"),
             WarehouseId = 64001002,
             Name = "Storage unit 1",
             ShortName = "SU1",
@@ -16,7 +16,7 @@ public static class StorageUnitSeeder
             IsSlot = false
         },
         new StorageUnit {
-            Id = 2,
+            Id = Guid.Parse("2c2d414c-92dd-49b1-bacb-edbdd5ed362b"),
             WarehouseId = 64001002,
             Name = "Storage unit 2",
             ShortName = "SU2",
@@ -24,13 +24,13 @@ public static class StorageUnitSeeder
             IsSlot = true
         },
         new StorageUnit {
-            Id = 3,
+            Id = Guid.Parse("dc976961-eb66-45cb-b987-acd5b2e2c70f"),
             WarehouseId = 64001002,
             Name = "Storage unit 3",
             ShortName = "SU3",
             StorageType = StorageType.Refrigerated,
             Description = "This is a sub storage unit",
-            ParentStorageUnitId = 2,
+            ParentStorageUnitId = Guid.Parse("2c2d414c-92dd-49b1-bacb-edbdd5ed362b"),
             IsSlot = false
         }
     ];

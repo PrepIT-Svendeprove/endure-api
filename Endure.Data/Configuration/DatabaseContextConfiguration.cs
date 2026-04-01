@@ -1,4 +1,5 @@
-﻿using Endure.Data.Seeding;
+﻿using Endure.Data.Configuration.Interceptors;
+using Endure.Data.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

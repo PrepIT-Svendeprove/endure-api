@@ -9,19 +9,19 @@ public static class WarehouseSeeder
             new Warehouse() {
                 Id = 64001000,
                 Name = "Central Lager",
-                IsCurrent = true,
+                IsRoot = true,
                 ParentWarehouseId = null
             },
             new Warehouse() {
                 Id = 64001002,
                 Name = "Distribution Center 1",
-                IsCurrent = false,
+                IsRoot = false,
                 ParentWarehouseId = 64001000
             },
             new Warehouse() {
                 Id = 64001003,
                 Name = "Distribution Center 2",
-                IsCurrent = false,
+                IsRoot = false,
                 ParentWarehouseId = 64001000
             }
         ];

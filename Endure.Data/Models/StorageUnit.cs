@@ -19,7 +19,7 @@ public class StorageUnit : BaseModel
     /// <summary>
     /// Self-referencing identifier, for sub units.
     /// </summary>
-    public int? ParentStorageUnitId { get; set; }
+    public Guid? ParentStorageUnitId { get; set; }
 
     public StorageType StorageType { get; set; }
 
@@ -33,7 +33,7 @@ public class StorageUnit : BaseModel
     /// </summary>
     public required int WarehouseId { get; set; }
 
-    public Warehouse Warehouse { get; set; }
+    public Warehouse Warehouse { get; set; } = default!;
     public List<ProductBatch> Products { get; set; } = [ ];
     public List<ClimateDevice> ClimateDevices { get; set; } = [ ];
     public StorageUnit? ParentStorageUnit { get; set; }

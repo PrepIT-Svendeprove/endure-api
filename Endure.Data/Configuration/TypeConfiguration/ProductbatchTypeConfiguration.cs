@@ -6,7 +6,7 @@ namespace Endure.Data.Configuration.TypeConfiguration;
 
 internal class ProductbatchTypeConfiguration : BaseTypeConfiguration<ProductBatch>
 {
-    public void Configuration(EntityTypeBuilder<ProductBatch> builder)
+    public override void Configure(EntityTypeBuilder<ProductBatch> builder)
     {
         base.Configure(builder);
 
@@ -19,6 +19,6 @@ internal class ProductbatchTypeConfiguration : BaseTypeConfiguration<ProductBatc
 
         builder.HasOne(x => x.StorageUnit)
             .WithMany(x => x.Products)
-            .HasForeignKey(x => new { x.WarehouseId, x.Id });
+            .HasForeignKey(x => new { x.WarehouseId, x.StorageUnitId });
     }
 }

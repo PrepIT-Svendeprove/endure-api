@@ -6,7 +6,7 @@ namespace Endure.Data.Configuration.TypeConfiguration;
 
 internal class StorageUnitTypeConfiguration : BaseTypeConfiguration<StorageUnit>
 {
-    public void Configure(EntityTypeBuilder<StorageUnit> builder)
+    public override void Configure(EntityTypeBuilder<StorageUnit> builder)
     {
         base.Configure(builder);
 

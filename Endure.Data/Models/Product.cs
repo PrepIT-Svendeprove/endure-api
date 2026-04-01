@@ -1,6 +1,6 @@
 ﻿namespace Endure.Data.Models;
 
-public class Product : BaseModel
+public class Product : BaseModel<string>
 {
     public required string Name { get; set; }
     public string? Description { get; set; }

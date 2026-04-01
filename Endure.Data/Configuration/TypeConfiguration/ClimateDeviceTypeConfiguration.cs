@@ -6,7 +6,7 @@ namespace Endure.Data.Configuration.TypeConfiguration;
 
 internal class ClimateDeviceTypeConfiguration : BaseTypeConfiguration<ClimateDevice>
 {
-    public void Configure(EntityTypeBuilder<ClimateDevice> builder)
+    public override void Configure(EntityTypeBuilder<ClimateDevice> builder)
     {
         base.Configure(builder);
 
@@ -15,7 +15,7 @@ internal class ClimateDeviceTypeConfiguration : BaseTypeConfiguration<ClimateDev
 
         builder.HasOne(x => x.StorageUnit)
             .WithMany(x => x.ClimateDevices)
-            .HasForeignKey(x => new { x.StorageUnitId, x.WarehouseId })
+            .HasForeignKey(x => new { x.WarehouseId, x.StorageUnitId })
             .OnDelete(DeleteBehavior.SetNull);
     }
 }
