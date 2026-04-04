@@ -1,17 +1,52 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Endure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "AuditLog",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LogLevel = table.Column<int>(type: "integer", nullable: false),
+                    ModuleType = table.Column<int>(type: "integer", nullable: false),
+                    Log = table.Column<string>(type: "text", nullable: false),
+                    RequestId = table.Column<string>(type: "text", nullable: true),
+                    UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    Version = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditLog", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DietaryRestrictionType",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    UpdatedAt = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    Version = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DietaryRestrictionType", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Product",
                 columns: table => new
@@ -21,6 +56,7 @@ namespace Endure.Data.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -32,13 +68,14 @@ namespace Endure.Data.Migrations
                 name: "Warehouse",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    ShortName = table.Column<string>(type: "text", nullable: true),
                     IsRoot = table.Column<bool>(type: "boolean", nullable: false),
-                    ParentWarehouseId = table.Column<int>(type: "integer", nullable: true),
+                    ParentWarehouseId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -53,11 +90,34 @@ namespace Endure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DietaryRestriction",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    HashedCpr = table.Column<string>(type: "text", nullable: false),
+                    DietaryRestrictionTypeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedAt = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    Version = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DietaryRestriction", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DietaryRestriction_DietaryRestrictionType_DietaryRestrictio~",
+                        column: x => x.DietaryRestrictionTypeId,
+                        principalTable: "DietaryRestrictionType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StorageUnit",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    WarehouseId = table.Column<int>(type: "integer", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     ShortName = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
@@ -66,6 +126,7 @@ namespace Endure.Data.Migrations
                     IsSlot = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -90,7 +151,7 @@ namespace Endure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    WarehouseId = table.Column<int>(type: "integer", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     LastReceived = table.Column<long>(type: "bigint", nullable: false),
                     IsConnected = table.Column<bool>(type: "boolean", nullable: false),
@@ -98,6 +159,7 @@ namespace Endure.Data.Migrations
                     StorageUnitId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -116,7 +178,7 @@ namespace Endure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    WarehouseId = table.Column<int>(type: "integer", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
                     BestBefore = table.Column<long>(type: "bigint", nullable: false),
                     LastUpdatedAt = table.Column<long>(type: "bigint", nullable: false),
                     ProductId = table.Column<string>(type: "character varying(20)", nullable: false),
@@ -124,6 +186,7 @@ namespace Endure.Data.Migrations
                     Count = table.Column<long>(type: "bigint", nullable: false),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -148,12 +211,13 @@ namespace Endure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    WarehouseId = table.Column<int>(type: "integer", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
                     Temperature = table.Column<double>(type: "double precision", nullable: true),
                     Humidity = table.Column<double>(type: "double precision", nullable: true),
                     ClimateDeviceId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -171,6 +235,11 @@ namespace Endure.Data.Migrations
                 name: "IX_ClimateDevice_WarehouseId_StorageUnitId",
                 table: "ClimateDevice",
                 columns: new[] { "WarehouseId", "StorageUnitId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DietaryRestriction_DietaryRestrictionTypeId",
+                table: "DietaryRestriction",
+                column: "DietaryRestrictionTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductBatch_ProductId",
@@ -197,13 +266,22 @@ namespace Endure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AuditLog");
+
+            migrationBuilder.DropTable(
                 name: "ClimateTelemetry");
+
+            migrationBuilder.DropTable(
+                name: "DietaryRestriction");
 
             migrationBuilder.DropTable(
                 name: "ProductBatch");
 
             migrationBuilder.DropTable(
                 name: "ClimateDevice");
+
+            migrationBuilder.DropTable(
+                name: "DietaryRestrictionType");
 
             migrationBuilder.DropTable(
                 name: "Product");

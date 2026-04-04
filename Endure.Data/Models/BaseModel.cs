@@ -10,9 +10,11 @@ public abstract class BaseModel<TKey>
     /// <summary>
     /// Identifier of the current object.
     /// </summary>
-    public required TKey Id { get; set; }
+    public TKey Id { get; set; }
     public long CreatedAt { get; internal set; }
     public long UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     /// <summary>
     /// Used as concurrency token, for npgsql.
