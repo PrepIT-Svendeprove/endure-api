@@ -6,7 +6,7 @@ namespace Endure.Endpoints.Warehouse;
 public class DeleteWarehouse
 {
     [EndpointName("DeleteWarehouse")]
-    [EndpointDescription("Soft deletes a warehouse.")]
+    [EndpointSummary("Soft deletes a warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

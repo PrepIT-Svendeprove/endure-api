@@ -7,7 +7,7 @@ namespace Endure.Endpoints.Warehouse;
 public class PostWarehouse
 {
     [EndpointName("CreateWarehoues")]
-    [EndpointDescription("Creates a new warehouse, and creates it as the sub-warehouse of the current root warehouse.")]
+    [EndpointSummary("Creates a new warehouse, and creates it as the sub-warehouse of the current root warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity were not created.")]
     [ProducesResponseType<WarehouseDto>(StatusCodes.Status200OK, Description = "The entity were sucess fully created.")]

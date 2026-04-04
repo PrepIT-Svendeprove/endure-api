@@ -7,6 +7,7 @@ public static class MapAuditlogEndpoints
     public static RouteGroupBuilder MapAuditlogApiRoutes(this RouteGroupBuilder route)
     {
         var group = route.MapGroup("/auditlog");
+        group.WithTags("Auditlog");
 
         // GET routes
         group.MapGet("/", GetAuditlog.GetAuditlogAsync);

@@ -10,7 +10,7 @@ namespace Endure.Endpoints.Warehouse;
 public class GetWarehouse
 {
     [EndpointName("GetRootWarehouse")]
-    [EndpointDescription("Retrieves the root warehouse.")]
+    [EndpointSummary("Retrieves the root warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<WarehouseDto>(StatusCodes.Status200OK)]
@@ -32,7 +32,7 @@ public class GetWarehouse
     }
 
     [EndpointName("GetSubWarehouses")]
-    [EndpointDescription("Retrieves all warehouses that is not the current root warehouse.")]
+    [EndpointSummary("Retrieves all the warehouses that is not the root warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any sub warehouse.")]
     [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK)]
@@ -54,7 +54,7 @@ public class GetWarehouse
     }
 
     [EndpointName("GetWarehouseFromId")]
-    [EndpointDescription("Retrieves a warehouse and subwarehouses")]
+    [EndpointSummary("Retrieves a warehouse and its sub warehouses.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any warehouse with the identifier.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -79,7 +79,7 @@ public class GetWarehouse
     }
 
     [EndpointName("GetWarehouses")]
-    [EndpointDescription("Retrieves all warehouses with the parent id.")]
+    [EndpointSummary("Retrieves all warehouses with the parent id.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not founda ny warehouses with the parent id.")]
     [ProducesResponseType(StatusCodes.Status200OK)]

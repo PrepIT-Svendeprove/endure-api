@@ -7,7 +7,7 @@ namespace Endure.Endpoints.Warehouse;
 public class PutWarehouse
 {
     [EndpointName("UpdateWarehouse")]
-    [EndpointDescription("Updates a specific warehouse.")]
+    [EndpointSummary("Updates a specific warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity were not updated.")]
     [ProducesResponseType(StatusCodes.Status200OK, Description = "The entity were sucessfully updated.")]

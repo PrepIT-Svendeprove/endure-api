@@ -8,6 +8,7 @@ public static class MapWarehouseEndpoints
     public static RouteGroupBuilder MapWarehouseApiRoutes(this RouteGroupBuilder route)
     {
         var group = route.MapGroup("/warehouse");
+        group.WithTags("Warehouse");
 
         group.MapGet("/", GetWarehouse.GetSubWarehousesAsync);
         group.MapGet("/root", GetWarehouse.GetRootWarehouseAsync);
@@ -18,7 +19,7 @@ public static class MapWarehouseEndpoints
 
         group.MapPut("/update", PutWarehouse.UpdateWarehouseAsync);
 
-        group.MapDelete("/delete", DeleteWarehouse.DeleteWarehouseAsync);
+        group.MapDelete("/{id}", DeleteWarehouse.DeleteWarehouseAsync);
 
         return route;
     }
