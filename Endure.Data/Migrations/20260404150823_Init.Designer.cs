@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Endure.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260401113805_init")]
-    partial class init
+    [Migration("20260404150823_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,10 +25,49 @@ namespace Endure.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Endure.Data.Models.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Log")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("LogLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ModuleType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RequestId")
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLog");
+                });
+
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
                 {
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -37,6 +76,9 @@ namespace Endure.Data.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsConnected")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDisabled")
@@ -70,8 +112,8 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.ClimateTelemetry", b =>
                 {
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -84,6 +126,9 @@ namespace Endure.Data.Migrations
 
                     b.Property<double?>("Humidity")
                         .HasColumnType("double precision");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<double?>("Temperature")
                         .HasColumnType("double precision");
@@ -102,6 +147,65 @@ namespace Endure.Data.Migrations
                     b.ToTable("ClimateTelemetry");
                 });
 
+            modelBuilder.Entity("Endure.Data.Models.DietaryRestriction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("DietaryRestrictionTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("HashedCpr")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<long?>("UpdatedAt")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DietaryRestrictionTypeId");
+
+                    b.ToTable("DietaryRestriction");
+                });
+
+            modelBuilder.Entity("Endure.Data.Models.DietaryRestrictionType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long?>("UpdatedAt")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DietaryRestrictionType");
+                });
+
             modelBuilder.Entity("Endure.Data.Models.Product", b =>
                 {
                     b.Property<string>("Id")
@@ -113,6 +217,9 @@ namespace Endure.Data.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -134,8 +241,8 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.ProductBatch", b =>
                 {
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -148,6 +255,9 @@ namespace Endure.Data.Migrations
 
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<long>("LastUpdatedAt")
                         .HasColumnType("bigint");
@@ -179,8 +289,8 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.StorageUnit", b =>
                 {
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -190,6 +300,9 @@ namespace Endure.Data.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSlot")
                         .HasColumnType("boolean");
@@ -225,14 +338,15 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.Warehouse", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsRoot")
                         .HasColumnType("boolean");
@@ -241,8 +355,11 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ParentWarehouseId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("ParentWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ShortName")
+                        .HasColumnType("text");
 
                     b.Property<long>("UpdatedAt")
                         .HasColumnType("bigint");
@@ -279,6 +396,17 @@ namespace Endure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("ClimateDevice");
+                });
+
+            modelBuilder.Entity("Endure.Data.Models.DietaryRestriction", b =>
+                {
+                    b.HasOne("Endure.Data.Models.DietaryRestrictionType", "DietaryRestrictionType")
+                        .WithMany("DietaryRestrictions")
+                        .HasForeignKey("DietaryRestrictionTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DietaryRestrictionType");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.ProductBatch", b =>
@@ -331,6 +459,11 @@ namespace Endure.Data.Migrations
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
                 {
                     b.Navigation("ClimateTelemetry");
+                });
+
+            modelBuilder.Entity("Endure.Data.Models.DietaryRestrictionType", b =>
+                {
+                    b.Navigation("DietaryRestrictions");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.Product", b =>

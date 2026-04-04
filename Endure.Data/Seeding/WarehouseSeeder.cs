@@ -5,24 +5,34 @@ namespace Endure.Data.Seeding;
 
 public static class WarehouseSeeder
 {
+    public const string WAREHOUSE_ID_1 = "32be9f38-81ae-4e23-92fd-9c5456679a50";
+    public const string WAREHOUSE_ID_2 = "5021e764-4fe7-4e96-84a7-46375e5c9bd3";
+    public const string WAREHOUSE_ID_3 = "a04a72a5-3d62-4dae-9ce8-90cefdf04c01";
+
     private static List<Warehouse> _seededWarehouses = [
             new Warehouse() {
-                Id = 64001000,
+                Id = Guid.Parse(WAREHOUSE_ID_1),
                 Name = "Central Lager",
                 IsRoot = true,
-                ParentWarehouseId = null
+                ParentWarehouseId = null,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             },
             new Warehouse() {
-                Id = 64001002,
+                Id = Guid.Parse(WAREHOUSE_ID_2),
                 Name = "Distribution Center 1",
                 IsRoot = false,
-                ParentWarehouseId = 64001000
+                ParentWarehouseId = Guid.Parse(WAREHOUSE_ID_1),
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             },
             new Warehouse() {
-                Id = 64001003,
+                Id = Guid.Parse(WAREHOUSE_ID_3),
                 Name = "Distribution Center 2",
                 IsRoot = false,
-                ParentWarehouseId = 64001000
+                ParentWarehouseId = Guid.Parse(WAREHOUSE_ID_1),
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             }
         ];
 

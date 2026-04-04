@@ -31,7 +31,7 @@ public class StorageUnit : BaseModel
     /// <summary>
     /// The warehouse that the storage unit belongs to.
     /// </summary>
-    public required int WarehouseId { get; set; }
+    public required Guid WarehouseId { get; set; }
 
     public Warehouse Warehouse { get; set; } = default!;
     public List<ProductBatch> Products { get; set; } = [ ];

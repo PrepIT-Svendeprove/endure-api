@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Endure.Data.Configuration.TypeConfiguration;
 
-internal class WarehouseTypeConfiguration : BaseTypeConfiguration<Warehouse, int>
+internal class WarehouseTypeConfiguration : BaseTypeConfiguration<Warehouse, Guid>
 {
     public override void Configure(EntityTypeBuilder<Warehouse> builder)
     {

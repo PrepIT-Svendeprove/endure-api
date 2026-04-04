@@ -7,7 +7,7 @@ public class ProductBatch : BaseModel
 
     public required string ProductId { get; set; }
     public required Guid StorageUnitId { get; set; }
-    public required int WarehouseId { get; set; }
+    public required Guid WarehouseId { get; set; }
 
     /// <summary>
     /// The amount of items left in the batch.
