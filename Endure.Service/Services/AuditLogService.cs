@@ -4,7 +4,7 @@ using Endure.Service.Filters;
 using Endure.Service.Mappers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Endure.Service.Services.AuditLog;
+namespace Endure.Service.Services;
 
 internal class AuditLogService(DatabaseContext context, IRequestContext requestContext) : IAuditLogService
 {
@@ -21,12 +21,16 @@ internal class AuditLogService(DatabaseContext context, IRequestContext requestC
 
     public async Task<List<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter)
     {
-        return await _context
-                .AuditLog
+        var context = _context.AuditLog
+                        .OrderByDescending(x => x.CreatedAt)
+                        .Take(filter.Take)
+                        .Skip((filter.Page - 1) * filter.Take);
+
+        if (!string.IsNullOrEmpty(filter.RequestId))
+            context = context.Where(x => x.RequestId == filter.RequestId);
+
+        return await context
                 .MapToAuditLogDto()
-                .Where(x => string.IsNullOrEmpty(filter.RequestId) && x.RequestId == filter.RequestId)
-                .Take(filter.Take)
-                .Skip(filter.Page)
                 .ToListAsync();
     }
 

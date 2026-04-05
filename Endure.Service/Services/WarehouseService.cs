@@ -25,6 +25,7 @@ internal class WarehouseService(DatabaseContext context) : IWarehouseService
         return await _context
                 .Warehouse
                 .Where(x => !x.IsRoot && !x.IsDeleted)
+                .OrderByDescending(x => x.CreatedAt)
                 .MapToWarehouseDto()
                 .ToListAsync();
     } 
@@ -34,6 +35,7 @@ internal class WarehouseService(DatabaseContext context) : IWarehouseService
         return await _context
                 .Warehouse
                 .Where(x => !x.IsRoot && !x.IsDeleted && x.Id == id)
+                .OrderByDescending(x => x.CreatedAt)
                 .MapToWarehouseDto()
                 .ToListAsync();
     }
@@ -43,6 +45,7 @@ internal class WarehouseService(DatabaseContext context) : IWarehouseService
         return await _context
                     .Warehouse
                     .Where(x => !x.IsRoot && !x.IsDeleted && x.ParentWarehouseId == id)
+                    .OrderByDescending(x => x.CreatedAt)
                     .MapToWarehouseDto()
                     .ToListAsync();
     }

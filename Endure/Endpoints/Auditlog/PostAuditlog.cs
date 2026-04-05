@@ -1,5 +1,5 @@
 ﻿using Endure.Service.Dto.AuditLog;
-using Endure.Service.Services.AuditLog;
+using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Endure.Endpoints.Auditlog;

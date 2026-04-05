@@ -1,5 +1,4 @@
 ﻿using Endure.Service.Services;
-using Endure.Service.Services.AuditLog;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Endure.Service;
@@ -13,6 +12,7 @@ public static class ServiceRegistration
     {
         services.AddScoped<IRequestContext, RequestContext>();
 
+        services.AddScoped<IDietaryRestrictionTypeService, DietaryRestrictionTypeService>();
         services.AddScoped<IWarehouseService, WarehouseService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
 
