@@ -3,7 +3,6 @@
 public class ProductBatch : BaseModel
 {
     public long BestBefore { get; set; }
-    public long LastUpdatedAt { get; set; }
 
     public required string ProductId { get; set; }
     public required Guid StorageUnitId { get; set; }
