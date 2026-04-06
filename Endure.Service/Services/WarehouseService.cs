@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Endure.Service.Services;
 
-internal class WarehouseService(DatabaseContext context) : IWarehouseService
+internal class WarehouseService(DatabaseContext context) 
+    : BaseService<Warehouse>(context), IWarehouseService
 {
     private readonly DatabaseContext _context = context;    
 
@@ -82,18 +83,6 @@ internal class WarehouseService(DatabaseContext context) : IWarehouseService
     }
 
     /// <summary>
-    /// Soft deletes a warehouse.
-    /// </summary>
-    public async Task<bool> DeleteWarehouseAsync(Guid entityId)
-    {
-        return await _context.Warehouse
-            .Where(x => x.Id == entityId && !x.IsDeleted)
-            .ExecuteUpdateAsync(
-                x => x.SetProperty(y => y.IsDeleted, true)
-            ) > 0;
-    }
-
-    /// <summary>
     /// Sets IsRoot to false, of the current root warehouse.
     /// </summary>
     private async Task RemoveRootEntity(Guid id, Warehouse? entity = null)
@@ -113,14 +102,13 @@ internal class WarehouseService(DatabaseContext context) : IWarehouseService
 /// <summary>
 /// This service includes CRUD functionality for the Warehouse entity.
 /// </summary>
-public interface IWarehouseService
+public interface IWarehouseService : IBaseService
 {
     /// <summary>
     /// Creates a new warehouse, if <see cref="CreateWarehouseDto.IsRoot" /> is set on the <paramref name="entity"/> it will set the current root warehouse and set the newly created as the root warehouse.
     /// </summary>
     /// <returns>The mapped entity of CreateWarehouseDto.</returns>
     Task<WarehouseDto?> CreateWarehouseAsync(CreateWarehouseDto entity);
-    Task<bool> DeleteWarehouseAsync(Guid entityId);
 
     /// <summary>
     /// Retrievs all the warehouses that are not marked as the root warehouse.

@@ -2,17 +2,16 @@
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Endure.Endpoints.Warehouse;
+namespace Endure.Endpoints.DietaryRestriction;
 
-public class DeleteWarehouse
+public class DeleteDietaryRestriction
 {
-    [EndpointName("DeleteWarehouse")]
-    [EndpointSummary("Soft deletes a warehouse.")]
+    [EndpointName("DeleteDietaryRestriction")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public static async Task<IResult> DeleteWarehouseAsync(
-            [FromServices] IWarehouseService warehouseService,
+    public static async Task<IResult> DeleteDietaryRestrictionAsync(
+            [FromServices] IDietaryRestrictionService dietaryRestrictionService,
             [FromRoute] string id
         )
     {
@@ -21,12 +20,12 @@ public class DeleteWarehouse
             if (!Guid.TryParse(id, out Guid parsedId))
                 return Results.BadRequest("Could not parse the identifier to a Guid.");
 
-            var result = await warehouseService.SoftDeleteEntity(parsedId);
+            var results = await dietaryRestrictionService.SoftDeleteEntity(parsedId);
 
-            if (result is ServiceResult.Success)
+            if (results is ServiceResult.Success)
                 return Results.NoContent();
 
-            return Results.BadRequest();
+            return Results.BadRequest("");
         }
         catch
         {

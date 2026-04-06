@@ -14,7 +14,9 @@ public class GetWarehouse
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<WarehouseDto>(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetRootWarehouseAsync(IWarehouseService warehouseService)
+    public static async Task<IResult> GetRootWarehouseAsync(
+            [FromServices] IWarehouseService warehouseService
+        )
     {
         try
         {
@@ -36,7 +38,9 @@ public class GetWarehouse
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any sub warehouse.")]
     [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetSubWarehousesAsync(IWarehouseService warehouseService)
+    public static async Task<IResult> GetSubWarehousesAsync(
+            [FromServices] IWarehouseService warehouseService
+        )
     {
         try
         {
@@ -59,13 +63,16 @@ public class GetWarehouse
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any warehouse with the identifier.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAllWarehousesByIdAsync(
-            IWarehouseService warehouseService,
-            [FromQuery] Guid id
+            [FromServices] IWarehouseService warehouseService,
+            [FromRoute] string id
         )
     {
         try
         {
-            var warehouses = await warehouseService.GetAllByIdAsync(id);
+            if (!Guid.TryParse(id, out Guid parsedId))
+                return Results.BadRequest("Could not parse the identifier to a Guid.");
+
+            var warehouses = await warehouseService.GetAllByIdAsync(parsedId);
 
             if (warehouses.Count <= 0)
                 return Results.NoContent();
@@ -84,13 +91,16 @@ public class GetWarehouse
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not founda ny warehouses with the parent id.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAllWarehousesByParentIdAsync(
-            IWarehouseService warehouseService,
-            [FromQuery] Guid id
+            [FromServices] IWarehouseService warehouseService,
+            [FromRoute] string id
         )
     {
         try
         {
-            var warehouses = await warehouseService.GetAllByParentIdAsync(id);
+            if (!Guid.TryParse(id, out Guid parsedId))
+                return Results.BadRequest("Could not parse the identifier to a Guid.");
+
+            var warehouses = await warehouseService.GetAllByParentIdAsync(parsedId);
 
             if (warehouses.Count <= 0)
                 return Results.NoContent();

@@ -8,10 +8,10 @@ public static class MapAuditlogEndpoints
         group.WithTags("Auditlog");
 
         // GET routes
-        group.MapGet("/", GetAuditlog.GetAuditlogAsync);
+        group.MapGet("/{id}", GetAuditlog.GetAuditlogAsync);
         group.MapGet("/paginated", GetAuditlog.GetPaginatedAuditlogsAsync);
 
-        group.MapPost("/createauditlog", PostAuditlog.CreateAuditLogAsync);
+        group.MapPost("/", PostAuditlog.CreateAuditLogAsync);
 
         return route;
     }

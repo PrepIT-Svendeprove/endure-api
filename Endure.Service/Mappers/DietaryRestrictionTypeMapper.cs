@@ -22,4 +22,13 @@ internal static class DietaryRestrictionTypeMapper
             NormalizedName = entity.Name.ToUpper()
         };
     }
+
+    public static DietaryRestrictionTypeDto MapToDietaryRestrictionTypeDto(this DietaryRestrictionType entity)
+    {
+        return new DietaryRestrictionTypeDto
+        {
+            Id = entity.Id,
+            Name = entity.Name
+        };
+    }
 }

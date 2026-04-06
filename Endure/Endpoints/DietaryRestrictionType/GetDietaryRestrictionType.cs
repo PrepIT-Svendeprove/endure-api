@@ -2,7 +2,7 @@
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Endure.Endpoints.DietaryRestrictionsType;
+namespace Endure.Endpoints.DietaryRestrictionType;
 
 public class GetDietaryRestrictionType
 {
@@ -11,7 +11,7 @@ public class GetDietaryRestrictionType
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetDietaryRestrictionTypesAsync(
-            IDietaryRestrictionTypeService dietaryRestrictionTypeService,
+            [FromServices] IDietaryRestrictionTypeService dietaryRestrictionTypeService,
             [AsParameters] DietaryRestrictionTypeFilter filter
         )
     {

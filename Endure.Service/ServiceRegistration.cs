@@ -12,7 +12,9 @@ public static class ServiceRegistration
     {
         services.AddScoped<IRequestContext, RequestContext>();
 
+        services.AddScoped<ICprCryptoService, CprCryptoService>();
         services.AddScoped<IDietaryRestrictionTypeService, DietaryRestrictionTypeService>();
+        services.AddScoped<IDietaryRestrictionService, DietaryRestrictionService>();
         services.AddScoped<IWarehouseService, WarehouseService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
 

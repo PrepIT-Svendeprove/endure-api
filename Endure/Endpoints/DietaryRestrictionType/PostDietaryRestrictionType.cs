@@ -3,7 +3,7 @@ using Endure.Service.Enums;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Endure.Endpoints.DietaryRestrictionsType;
+namespace Endure.Endpoints.DietaryRestrictionType;
 
 public class PostDietaryRestrictionType
 {
@@ -12,8 +12,8 @@ public class PostDietaryRestrictionType
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> CreateDietaryRestrictionsTypeAsync(
-            IDietaryRestrictionTypeService dietaryRestrictionTypeService,
-            CreateDietaryRestrictionTypeDto entity
+            [FromServices] IDietaryRestrictionTypeService dietaryRestrictionTypeService,
+            [FromBody] CreateDietaryRestrictionTypeDto entity
         )
     {
         try

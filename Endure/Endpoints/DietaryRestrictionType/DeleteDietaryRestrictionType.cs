@@ -2,7 +2,7 @@
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Endure.Endpoints.DietaryRestrictionsType;
+namespace Endure.Endpoints.DietaryRestrictionType;
 
 public class DeleteDietaryRestrictionType
 {
@@ -11,13 +11,16 @@ public class DeleteDietaryRestrictionType
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public static async Task<IResult> DeleteDietaryRestrictionTypesAsync(
-            IDietaryRestrictionTypeService dietaryRestrictionTypeService,
-            [FromQuery] Guid id
+            [FromServices] IDietaryRestrictionTypeService dietaryRestrictionTypeService,
+            [FromRoute] string id
         )
     {
         try
         {
-            var result = await dietaryRestrictionTypeService.DeleteDietaryRestrictionTypeAsync(id);
+            if (!Guid.TryParse(id, out Guid parsedId))
+                return Results.BadRequest("Could not parse the identifier to a Guid.");
+
+            var result = await dietaryRestrictionTypeService.SoftDeleteEntity(parsedId);
 
             if (result is ServiceResult.Success)
                 return Results.NoContent();

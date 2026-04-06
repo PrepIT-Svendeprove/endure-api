@@ -12,7 +12,7 @@ public class PutWarehouse
     [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity were not updated.")]
     [ProducesResponseType(StatusCodes.Status200OK, Description = "The entity were sucessfully updated.")]
     public static async Task<IResult> UpdateWarehouseAsync(
-            IWarehouseService warehouseService,
+            [FromServices] IWarehouseService warehouseService,
             [FromBody] UpdateWarehouseDto entity
         )
     {

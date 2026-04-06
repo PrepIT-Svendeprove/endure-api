@@ -10,7 +10,8 @@ internal static class DietaryRestrictionMapper
         return entity.Select(x => new DietaryRestrictionDto
         {
             Id = x.Id,
-            Cpr = x.HashedCpr
+            Cpr = x.HashedCpr,
+            DietaryRestrictionType = x.DietaryRestrictionType.MapToDietaryRestrictionTypeDto()
         });
     }
 

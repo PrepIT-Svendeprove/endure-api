@@ -1,4 +1,5 @@
 ﻿using Endure.Data;
+using Endure.Data.Models;
 using Endure.Service.Dto.AuditLog;
 using Endure.Service.Filters;
 using Endure.Service.Mappers;
@@ -6,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
 
-internal class AuditLogService(DatabaseContext context, IRequestContext requestContext) : IAuditLogService
+internal class AuditLogService(DatabaseContext context, IRequestContext requestContext) 
+    : BaseService<AuditLog>(context), IAuditLogService
 {
-    private readonly DatabaseContext _context = context;
     private readonly IRequestContext _requestContext = requestContext;
 
     public async Task<AuditLogDto?> GetAuditLogAsync(Guid id)

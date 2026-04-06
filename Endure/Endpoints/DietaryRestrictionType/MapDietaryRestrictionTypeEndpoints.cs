@@ -1,17 +1,17 @@
-﻿namespace Endure.Endpoints.DietaryRestrictionsType;
+﻿namespace Endure.Endpoints.DietaryRestrictionType;
 
 public static class MapDietaryRestrictionTypeEndpoints
 {
     public static RouteGroupBuilder MapDietaryRestrictionsTypeApiRoutes(this RouteGroupBuilder route)
     {
-        var group = route.MapGroup("/dietaryrestrictionstype");
-        group.WithTags("DietaryRestrictionsType");
+        var group = route.MapGroup("/dietaryrestrictiontype");
+        group.WithTags("DietaryRestrictionType");
 
         group.MapGet("/", GetDietaryRestrictionType.GetDietaryRestrictionTypesAsync);
 
         group.MapPost("/", PostDietaryRestrictionType.CreateDietaryRestrictionsTypeAsync);
 
-        group.MapDelete("/", DeleteDietaryRestrictionType.DeleteDietaryRestrictionTypesAsync);
+        group.MapDelete("/{id}", DeleteDietaryRestrictionType.DeleteDietaryRestrictionTypesAsync);
 
         return route;
     }

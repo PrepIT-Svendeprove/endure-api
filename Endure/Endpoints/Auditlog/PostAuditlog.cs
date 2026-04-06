@@ -16,7 +16,7 @@ public class PostAuditlog
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public static async Task<IResult> CreateAuditLogAsync(
-            IAuditLogService auditLogService,
+            [FromServices] IAuditLogService auditLogService,
             [FromBody] CreateAuditlogDto auditlog
         )
     {

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Endure.Service.Dto.DietaryRestrictionTypeDtos;
+using System.Text.Json.Serialization;
 
 namespace Endure.Service.Dto.DietaryRestrictionDtos;
 
@@ -15,4 +16,10 @@ public sealed class DietaryRestrictionDto
     /// </summary>
     [JsonPropertyName(DietaryRestrictionConstants.CPR_NAME)]
     public required string Cpr { get; set; }
+
+    /// <summary>
+    /// The dietaryrestriction type that the dietaryrestriction were created for.
+    /// </summary>
+    [JsonPropertyName(DietaryRestrictionConstants.DIETARYRESTRICTIONTYPE_NAME)]
+    public DietaryRestrictionTypeDto? DietaryRestrictionType { get; set; }
 }
