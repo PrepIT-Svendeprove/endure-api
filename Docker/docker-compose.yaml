@@ -42,6 +42,50 @@ services:
       - "5672:5672"     # AMQP protocol
       - "15672:15672"   # Management UI
       - "1883:1883"     # MQTT protocol
+
+  authentik_server:
+      image: authentik/server:2026.2.1
+      container_name: authentik_server
+      command: server
+      restart: unless-stopped
+      depends_on:
+          postgres:
+              condition: service_healthy
+      environment:
+          AUTHENTIK_POSTGRESQL__HOST: postgres
+          AUTHENTIK_POSTGRESQL__NAME: authentik
+          AUTHENTIK_POSTGRESQL__PASSWORD: authentik
+          AUTHENTIK_POSTGRESQL__USER: authentik
+          AUTHENTIK_SECRET_KEY: very-secret-key
+      ports:
+          - "9000:9000"
+          - "9443:9443"
+      volumes:
+          - authentik_data:/data
+          - authentik_custom_temp:/templates
+      shm_size: 512mb
+
+  authentik_worker:
+      image: authentik/server:2026.2.1
+      container_name: authentik_worker
+      command: worker
+      restart: unless-stopped
+      depends_on:
+          postgres:
+              condition: service_healthy
+      environment:
+          AUTHENTIK_POSTGRESQL__HOST: postgres
+          AUTHENTIK_POSTGRESQL__NAME: authentik
+          AUTHENTIK_POSTGRESQL__PASSWORD: authentik
+          AUTHENTIK_POSTGRESQL__USER: authentik
+          AUTHENTIK_SECRET_KEY: very-secret-key
+      volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - authentik_data:/data
+          - authentik_certs:/certs
+          - authentik_custom_temp:/templates
+      shm_size: 512mb
+      user: root
      
 configs:
   rabbitmq-plugins:
