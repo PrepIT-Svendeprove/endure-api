@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Endure.Data.Configuration.TypeConfiguration;

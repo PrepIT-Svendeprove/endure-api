@@ -15,9 +15,9 @@ public static class MapWarehouseEndpoints
         group.MapGet("/{id}", GetWarehouse.GetAllWarehousesByIdAsync);
         group.MapGet("/{id}/subwarehouses", GetWarehouse.GetAllWarehousesByParentIdAsync);
         
-        group.MapPost("/create", PostWarehouse.CreateWarehouseAsync);
+        group.MapPost("/", PostWarehouse.CreateWarehouseAsync);
 
-        group.MapPut("/update", PutWarehouse.UpdateWarehouseAsync);
+        group.MapPut("/", PutWarehouse.UpdateWarehouseAsync);
 
         group.MapDelete("/{id}", DeleteWarehouse.DeleteWarehouseAsync);
 

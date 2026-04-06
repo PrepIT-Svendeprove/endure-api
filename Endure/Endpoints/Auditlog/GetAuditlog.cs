@@ -1,6 +1,6 @@
 ﻿using Endure.Service.Dto.AuditLog;
 using Endure.Service.Filters;
-using Endure.Service.Services.AuditLog;
+using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Endure.Endpoints.Auditlog;
@@ -19,13 +19,16 @@ public class GetAuditlog
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<AuditLogDto>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAuditlogAsync(
-            IAuditLogService auditlogService, 
-            [FromQuery] Guid id
+            [FromServices] IAuditLogService auditlogService, 
+            [FromRoute] string id
         )
     {
         try
         {
-            var auditLog = await auditlogService.GetAuditLogAsync(id);
+            if (!Guid.TryParse(id, out Guid parsedId))
+                return Results.BadRequest("Could not parse the identifier to a Guid.");
+
+            var auditLog = await auditlogService.GetAuditLogAsync(parsedId);
 
             if (auditLog == null)
                 return Results.NotFound();
@@ -47,7 +50,7 @@ public class GetAuditlog
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<List<AuditLogDto>>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetPaginatedAuditlogsAsync(
-            IAuditLogService auditlogService,
+            [FromServices] IAuditLogService auditlogService,
             [AsParameters] AuditlogPaginatedFilter filter
         )
     {

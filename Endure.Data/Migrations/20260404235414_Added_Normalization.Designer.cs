@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Endure.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260404150823_Init")]
-    partial class Init
+    [Migration("20260404235414_Added_Normalization")]
+    partial class Added_Normalization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -192,6 +192,10 @@ namespace Endure.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedName")
                         .IsRequired()
                         .HasColumnType("text");
 

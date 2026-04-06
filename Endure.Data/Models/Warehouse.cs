@@ -3,7 +3,7 @@
 /// <summary>
 /// The warehouse either defines a "Central lager" or "Distribution center"
 /// </summary>
-public class Warehouse : BaseModel<Guid>
+public class Warehouse : BaseModel
 {
     /// <summary>
     /// Name of the warehouse.

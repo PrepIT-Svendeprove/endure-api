@@ -12,7 +12,7 @@ public class PostWarehouse
     [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity were not created.")]
     [ProducesResponseType<WarehouseDto>(StatusCodes.Status200OK, Description = "The entity were sucess fully created.")]
     public static async Task<IResult> CreateWarehouseAsync(
-            IWarehouseService warehouseService,
+            [FromServices] IWarehouseService warehouseService,
             [FromBody] CreateWarehouseDto entity
         )
     {
