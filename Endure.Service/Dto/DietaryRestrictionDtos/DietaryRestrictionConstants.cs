@@ -1,7 +1,7 @@
 ﻿namespace Endure.Service.Dto.DietaryRestrictionDtos;
 
 /// <summary>
-/// Containts constants that represents the property names that is used for the DietaryRestriction dto's
+/// Contains constants that is used for JSON property mapping, from DietaryRestriction to JSON data.
 /// </summary>
 internal class DietaryRestrictionConstants
 {

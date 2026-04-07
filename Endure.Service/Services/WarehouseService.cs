@@ -1,6 +1,6 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Service.Dto.Warehouse;
+using Endure.Service.Dto.WarehouseDtos;
 using Endure.Service.Mappers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
