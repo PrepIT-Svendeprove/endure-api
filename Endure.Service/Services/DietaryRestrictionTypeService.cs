@@ -1,9 +1,9 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Service.Dto.DietaryRestrictionTypeDtos;
-using Endure.Service.Enums;
-using Endure.Service.Filters;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.DietaryRestrictionTypeDtos;
+using Endure.Service.Models.Enums;
+using Endure.Service.Models.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
@@ -25,11 +25,10 @@ internal class DietaryRestrictionTypeService(DatabaseContext context)
 
     public async Task<List<DietaryRestrictionTypeDto>> GetDietaryRestrictionTypesAsync(DietaryRestrictionTypeFilter filter)
     {
-        var context = _context.DietaryRestrictionType
-                            .OrderByDescending(x => x.UpdatedAt)
-                            .ThenBy(x => x.CreatedAt)
-                            .Take(filter.Take)
-                            .Skip((filter.Page <= 0 ? 0 : filter.Page - 1) * filter.Take);
+        var context = MakePaginatedQuery(filter)
+                .OrderByDescending(x => x.UpdatedAt)
+                .ThenBy(x => x.CreatedAt)
+                .AsQueryable();
 
         if (!string.IsNullOrEmpty(filter.Name))
             context = context.Where(x => x.NormalizedName.Contains(filter.Name.ToUpper()));

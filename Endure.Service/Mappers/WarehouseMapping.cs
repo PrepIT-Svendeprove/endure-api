@@ -1,5 +1,5 @@
 ﻿using Endure.Data.Models;
-using Endure.Service.Dto.Warehouse;
+using Endure.Service.Models.Dto.WarehouseDtos;
 
 namespace Endure.Service.Mappers;
 
@@ -12,7 +12,7 @@ internal static class WarehouseMapping
             Id = warehouse.Id,
             Name = warehouse.Name,
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.CreatedAt),
-            LastUpdatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.UpdatedAt),
+            UpdatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.UpdatedAt),
             IsRoot = warehouse.IsRoot,
             ParentWarehouseId = warehouse.ParentWarehouseId,
         });
@@ -36,7 +36,7 @@ internal static class WarehouseMapping
             ShortName = entity.ShortName,
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.CreatedAt),
             IsRoot = entity.IsRoot,
-            LastUpdatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.UpdatedAt),
+            UpdatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.UpdatedAt),
             ParentWarehouseId = entity.ParentWarehouseId
         };
     }

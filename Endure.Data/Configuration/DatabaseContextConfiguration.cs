@@ -14,7 +14,7 @@ public static class DatabaseContextConfiguration
     {
         services.AddSingleton<BaseModelInterceptor>();
 
-        return services.AddDbContextPool<DatabaseContext>((sp, context) =>
+        return services.AddDbContext<DatabaseContext>((sp, context) =>
             context.UseNpgsql(npgConnectionString)
                 .AddInterceptors(sp.GetRequiredService<BaseModelInterceptor>())
                 .UseSeeding((dbContext, _) =>

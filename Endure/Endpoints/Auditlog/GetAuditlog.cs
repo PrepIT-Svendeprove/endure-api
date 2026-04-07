@@ -1,5 +1,5 @@
-﻿using Endure.Service.Dto.AuditLog;
-using Endure.Service.Filters;
+﻿using Endure.Service.Models.Dto.AuditLogDtos;
+using Endure.Service.Models.Filters;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +16,7 @@ public class GetAuditlog
     [EndpointName("GetAuditlog")]
     [EndpointDescription("Retrieves a auditlog by id.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<AuditLogDto>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAuditlogAsync(
@@ -26,7 +27,7 @@ public class GetAuditlog
         try
         {
             if (!Guid.TryParse(id, out Guid parsedId))
-                return Results.BadRequest("Could not parse the identifier to a Guid.");
+                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
 
             var auditLog = await auditlogService.GetAuditLogAsync(parsedId);
 

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Endure.Service.Dto.DietaryRestrictionTypeDtos;
+namespace Endure.Service.Models.Dto.DietaryRestrictionTypeDtos;
 
 public sealed class CreateDietaryRestrictionTypeDto
 {

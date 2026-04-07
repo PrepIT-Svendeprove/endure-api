@@ -41,7 +41,7 @@ services:
     ports:
       - "5672:5672"     # AMQP protocol
       - "15672:15672"   # Management UI
-      - "1883:1883"     # MQTT protocol
+      - "8883:8883"     # MQTT protocol
 
   authentik_server:
       image: authentik/server:2026.2.1
@@ -96,3 +96,7 @@ volumes:
   pgadmin:
   rabbitmq-lib:
   rabbitmq-log:
+  
+  authentik_data:
+  authentik_certs:
+  authentik_custom_temp:

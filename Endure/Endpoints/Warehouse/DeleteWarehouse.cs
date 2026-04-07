@@ -1,4 +1,4 @@
-﻿using Endure.Service.Enums;
+﻿using Endure.Service.Models.Enums;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +9,8 @@ public class DeleteWarehouse
     [EndpointName("DeleteWarehouse")]
     [EndpointSummary("Soft deletes a warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType(StatusCodes.Status406NotAcceptable, Description = "Cannot delete the root warehouse.")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public static async Task<IResult> DeleteWarehouseAsync(
@@ -19,7 +21,12 @@ public class DeleteWarehouse
         try
         {
             if (!Guid.TryParse(id, out Guid parsedId))
-                return Results.BadRequest("Could not parse the identifier to a Guid.");
+                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
+
+            var rootWarehouseId = await warehouseService.GetRootWarehouseIdAsync();
+
+            if (rootWarehouseId == parsedId)
+                return Results.StatusCode(StatusCodes.Status406NotAcceptable);
 
             var result = await warehouseService.SoftDeleteEntity(parsedId);
 

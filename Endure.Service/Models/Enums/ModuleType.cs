@@ -1,4 +1,4 @@
-﻿namespace Endure.Service.Enums;
+﻿namespace Endure.Service.Models.Enums;
 
 public enum ModuleType
 {

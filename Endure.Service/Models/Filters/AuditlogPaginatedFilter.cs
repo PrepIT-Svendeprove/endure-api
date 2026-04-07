@@ -1,4 +1,4 @@
-﻿namespace Endure.Service.Filters;
+﻿namespace Endure.Service.Models.Filters;
 
 public class AuditlogPaginatedFilter : BasePaginatedFilter
 {
