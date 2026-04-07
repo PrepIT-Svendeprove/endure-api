@@ -48,7 +48,6 @@ internal static class WarehouseMapping
             Id = entity.Id,
             Name = entity.Name,
             ShortName = entity.ShortName,
-            IsRoot = entity.IsRoot,
             ParentWarehouseId = entity.ParentWarehouseId
         };
     }

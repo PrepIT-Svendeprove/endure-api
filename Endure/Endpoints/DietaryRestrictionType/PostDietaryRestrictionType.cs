@@ -9,8 +9,8 @@ public class PostDietaryRestrictionType
 {
     [EndpointName("CreateDietaryRestrictionType")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<List<string>>(StatusCodes.Status400BadRequest, Description = "The entity could not be created, returns a list of statuscodes that indicates what went wrong.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The entity were succesfully created.")]
     public static async Task<IResult> CreateDietaryRestrictionsTypeAsync(
             [FromServices] IDietaryRestrictionTypeService dietaryRestrictionTypeService,
             [FromBody] CreateDietaryRestrictionTypeDto entity
@@ -20,10 +20,10 @@ public class PostDietaryRestrictionType
         {
             var result = await dietaryRestrictionTypeService.CreateDietaryRestrictionTypeAsync(entity);
 
-            if (result is ServiceResult.Success)
-                return Results.Ok();
+            if (result is not { ServiceResult: ServiceResult.Success})
+                return Results.BadRequest(result.StatusCodes);
 
-            return Results.BadRequest();
+            return Results.NoContent();
         }
         catch
         {

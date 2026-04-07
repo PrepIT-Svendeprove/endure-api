@@ -12,8 +12,8 @@ public class GetWarehouse
     [EndpointName("GetRootWarehouse")]
     [EndpointSummary("Retrieves the root warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<WarehouseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Description = "The root warehouse could not been found.")]
+    [ProducesResponseType<WarehouseDto>(StatusCodes.Status200OK, Description = "Succesfully retrieved the root warehouse.")]
     public static async Task<IResult> GetRootWarehouseAsync(
             [FromServices] IWarehouseService warehouseService
         )
@@ -37,7 +37,7 @@ public class GetWarehouse
     [EndpointSummary("Retrieves all the warehouses that is not the root warehouse.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any sub warehouse.")]
-    [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK, Description = "Succesfully retrieved the subwarehouses.")]
     public static async Task<IResult> GetSubWarehousesAsync(
             [FromServices] IWarehouseService warehouseService
         )

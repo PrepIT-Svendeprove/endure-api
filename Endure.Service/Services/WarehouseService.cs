@@ -2,6 +2,8 @@
 using Endure.Data.Models;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.WarehouseDtos;
+using Endure.Service.Models.Results;
+using Endure.Service.Models.StatusCodes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
@@ -75,17 +77,21 @@ internal class WarehouseService(DatabaseContext context)
         return await _context.SaveChangesAsync() > 0 ? mappedEntity.MapToWarehouseDto() : null;
     }
 
-    public async Task<bool> UpdateWarehouseAsync(UpdateWarehouseDto entity)
+    public async Task<Result> UpdateWarehouseAsync(UpdateWarehouseDto entity)
     {
         var rootId = await GetRootWarehouseIdAsync();
 
         if (rootId != entity.Id)
-            return false;
+            return Result.Failed([WarehouseStatusCodes.ENTITY_IS_NOT_ROOT]);
 
-        var mappedEntity = entity.MapToWarehouse();
-        _context.Update(mappedEntity);
-
-        return await _context.SaveChangesAsync() > 0;
+        return await _context
+                .Warehouse
+                .Where(x => x.Id == entity.Id)
+                .ExecuteUpdateAsync(x =>
+                    x.SetProperty(y => y.Name, entity.Name)
+                    .SetProperty(y => y.ShortName, entity.ShortName)
+                    .SetProperty(y => y.ParentWarehouseId, entity.ParentWarehouseId)
+                ) > 0 ? Result.Success() : Result.Failed([]);
     }
 }
 
@@ -116,6 +122,10 @@ public interface IWarehouseService : IBaseService
     /// <summary>
     /// Updates an existing warehouse.
     /// </summary>
-    Task<bool> UpdateWarehouseAsync(UpdateWarehouseDto entity);
+    Task<Result> UpdateWarehouseAsync(UpdateWarehouseDto entity);
+
+    /// <summary>
+    /// Retrieves the root warehouses ID.
+    /// </summary>
     Task<Guid> GetRootWarehouseIdAsync();
 }

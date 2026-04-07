@@ -11,8 +11,8 @@ public class DeleteWarehouse
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status406NotAcceptable, Description = "Cannot delete the root warehouse.")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity has not been deleted.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The entity has succesfully been deleted")]
     public static async Task<IResult> DeleteWarehouseAsync(
             [FromServices] IWarehouseService warehouseService,
             [FromRoute] string id

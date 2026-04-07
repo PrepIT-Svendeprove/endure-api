@@ -12,7 +12,7 @@ public class DeleteStorageUnit
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status409Conflict, Description = "The storageunit contains sub- storageunits.")]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The storageunit were not deleted.")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The storageunit were succesfully deleted.")]
     public static async Task<IResult> DeleteStorageUnitAsync(
             [FromServices] IStorageUnitService storageUnitService,
             [FromServices] IAuditLogService auditLogService,

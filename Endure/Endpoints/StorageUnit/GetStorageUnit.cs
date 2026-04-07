@@ -9,8 +9,8 @@ public class GetStorageUnit
     [EndpointName("GetStorageUnitsByParentId")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "There was not found any storageunits with the parentid of the query parameter.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Description = "Succesfully retrieved a list of storageunits with the parentid of the query parameter.")]
     public static async Task<IResult> GetStorageUnitsByParentIdAsync(
             [FromServices] IStorageUnitService storageUnitService,
             [FromRoute] string id

@@ -16,9 +16,6 @@ public class UpdateWarehouseDto
     [JsonPropertyName(WarehouseConstants.SHORTNAME_NAME)]
     public string? ShortName { get; set; }
 
-    [JsonPropertyName(WarehouseConstants.ISROOT_NAME)]
-    public bool IsRoot { get; set; }
-
     [JsonPropertyName(WarehouseConstants.PARENTWAREHOUSEID)]
     public Guid? ParentWarehouseId { get; set; }
 }

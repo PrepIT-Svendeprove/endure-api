@@ -9,8 +9,8 @@ public class DeleteDietaryRestriction
     [EndpointName("DeleteDietaryRestriction")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity were not deleted.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The entity were succesfully deleted.")]
     public static async Task<IResult> DeleteDietaryRestrictionAsync(
             [FromServices] IDietaryRestrictionService dietaryRestrictionService,
             [FromRoute] string id
@@ -26,7 +26,7 @@ public class DeleteDietaryRestriction
             if (results is ServiceResult.Success)
                 return Results.NoContent();
 
-            return Results.BadRequest("");
+            return Results.BadRequest();
         }
         catch
         {

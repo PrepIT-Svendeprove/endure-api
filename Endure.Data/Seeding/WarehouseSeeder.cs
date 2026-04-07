@@ -9,7 +9,7 @@ public static class WarehouseSeeder
     public const string WAREHOUSE_ID_2 = "5021e764-4fe7-4e96-84a7-46375e5c9bd3";
     public const string WAREHOUSE_ID_3 = "a04a72a5-3d62-4dae-9ce8-90cefdf04c01";
 
-    private static List<Warehouse> _seededWarehouses = [
+    private static readonly List<Warehouse> _seededWarehouses = [
             new Warehouse() {
                 Id = Guid.Parse(WAREHOUSE_ID_1),
                 Name = "Central Lager",

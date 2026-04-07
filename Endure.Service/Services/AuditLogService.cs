@@ -37,8 +37,7 @@ internal class AuditLogService(DatabaseContext context, IRequestContext requestC
 
     public async Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity)
     {
-        if (entity.WarehouseId is null)
-            entity.WarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+        entity.WarehouseId ??= await _warehouseService.GetRootWarehouseIdAsync();
 
         var mappedEntity = entity.MapToAuditLog(entity.WarehouseId.Value);
         mappedEntity.RequestId = _requestContext.TraceId;

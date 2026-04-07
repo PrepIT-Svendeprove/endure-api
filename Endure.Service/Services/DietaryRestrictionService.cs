@@ -3,6 +3,8 @@ using Endure.Data.Models;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.DietaryRestrictionDtos;
 using Endure.Service.Models.Enums;
+using Endure.Service.Models.Results;
+using Endure.Service.Models.StatusCodes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
@@ -12,20 +14,24 @@ internal class DietaryRestrictionService(DatabaseContext context, ICprCryptoServ
 {
     private readonly ICprCryptoService _cprCryptoService = cprCryptoService;
 
-    public async Task<ServiceResult> CreateDietaryRestrictionAsync(CreateDietaryRestrictionDto entity)
+    public async Task<Result> CreateDietaryRestrictionAsync(CreateDietaryRestrictionDto entity)
     {
         try
         {
             entity.Cpr = _cprCryptoService.Hash(entity.Cpr);
+
+            if (await HasDietaryRestrictionType(entity.Cpr, entity.DietaryRestrictionTypeId))
+                return Result.Failed([DietaryRestrictionStatusCodes.ENTITY_ALREADY_EXISTS]);
+
             var mappedEntity = entity.MapToDietaryRestrition();
 
             await _context.AddAsync(mappedEntity);
 
-            return await _context.SaveChangesAsync() > 0 ? ServiceResult.Success : ServiceResult.Failed;
+            return await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([]);
         }
         catch
         {
-            return ServiceResult.Failed;
+            return Result.Failed([]);
         }
     }
 
@@ -46,10 +52,17 @@ internal class DietaryRestrictionService(DatabaseContext context, ICprCryptoServ
             return [];
         }
     }
+
+    private async Task<bool> HasDietaryRestrictionType(string hashedCpr, Guid dietaryRestrictionTypeId)
+    {
+        return await _context
+                .DietaryRestriction
+                .AnyAsync(x => x.DietaryRestrictionTypeId == dietaryRestrictionTypeId && x.HashedCpr == hashedCpr);
+    }
 }
 
 public interface IDietaryRestrictionService : IBaseService
 {
-    Task<ServiceResult> CreateDietaryRestrictionAsync(CreateDietaryRestrictionDto entity);
+    Task<Result> CreateDietaryRestrictionAsync(CreateDietaryRestrictionDto entity);
     Task<List<DietaryRestrictionDto>> GetDietaryRestrictionsByCpr(string cpr);
 }

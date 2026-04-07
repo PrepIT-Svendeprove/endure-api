@@ -2,8 +2,9 @@
 using Endure.Data.Models;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.StorageUnitDtos;
-using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
+using Endure.Service.Models.StatusCodes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
@@ -13,11 +14,11 @@ internal sealed class StorageUnitService(DatabaseContext context, IWarehouseServ
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
 
-    public async Task<ServiceResult> CreateStorageUnitAsync(CreateStorageUnitDto entity)
+    public async Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity)
     {
         // Ensure that the parent that is trying to be added, is actually eligible as a parent.
-        if (entity.ParentStorageUnitId is Guid id && !await IsStorageUnitEligibleAsParentAsync(id))
-            return ServiceResult.Failed;
+        if (entity.ParentStorageUnitId.HasValue && !await IsStorageUnitEligibleAsParentAsync(entity.ParentStorageUnitId.Value))
+            return Result.Failed([StorageUnitStatusCodes.PARENT_NOT_ELIGIBLE]);
 
         var rootId = await _warehouseService.GetRootWarehouseIdAsync();
 
@@ -25,7 +26,35 @@ internal sealed class StorageUnitService(DatabaseContext context, IWarehouseServ
 
         await _context.AddAsync(mappedEntity);
 
-        return await _context.SaveChangesAsync() > 0 ? ServiceResult.Success : ServiceResult.Failed;
+        return await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([]);
+    }
+
+    public async Task<Result> UpdateStorageUnitAsync(UpdateStorageUnitDto entity)
+    {
+        var dbEntity = await _context.StorageUnit.FirstOrDefaultAsync(x => x.Id == entity.Id && !x.IsDeleted && x.Warehouse.IsRoot);
+
+        if (dbEntity is null)
+            return Result.Failed([StorageUnitStatusCodes.ENTITY_MISSING]);
+
+        // If the storageunit has any sub- units, then they should not be allowed to update the slot value.
+        if (dbEntity.IsSlot && !entity.IsSlot && await HasSubStorageUnitsAsync(entity.Id))
+            return Result.Failed([StorageUnitStatusCodes.CONTAINING_SUBUNITS]);
+
+        // Check if the ParentStorageId has changed, and if it has ensure that the parent is actually eligible as a parent.
+        if (!dbEntity.ParentStorageUnitId.HasValue && entity.ParentStorageUnitId.HasValue && dbEntity.ParentStorageUnitId != entity.ParentStorageUnitId && !await IsStorageUnitEligibleAsParentAsync(entity.ParentStorageUnitId.Value))
+            return Result.Failed([StorageUnitStatusCodes.PARENT_NOT_ELIGIBLE]);
+
+        return await _context
+                .StorageUnit
+                .Where(x => x.Id == entity.Id && !x.IsDeleted)
+                .ExecuteUpdateAsync(x => 
+                    x.SetProperty(y => y.Name, entity.Name)
+                    .SetProperty(y => y.ShortName, entity.ShortName)
+                    .SetProperty(y => y.Description, entity.Description)
+                    .SetProperty(y => y.ParentStorageUnitId, entity.ParentStorageUnitId)
+                    .SetProperty(y => y.StorageType, entity.StorageType)
+                    .SetProperty(y => y.IsSlot, entity.IsSlot)
+                ) > 0 ? Result.Success() : Result.Failed([]);
     }
 
     public async Task<bool> HasSubStorageUnitsAsync(Guid id)
@@ -68,7 +97,7 @@ internal sealed class StorageUnitService(DatabaseContext context, IWarehouseServ
     {
         return await _context
                 .StorageUnit
-                .Where(x => x.Id == id && !x.IsDeleted)
+                .Where(x => x.Id == id && !x.IsDeleted && x.Warehouse.IsRoot)
                 .AnyAsync(x => !x.IsSlot);
     }
 }
@@ -78,7 +107,7 @@ public interface IStorageUnitService : IBaseService
     /// <summary>
     /// Creates a new storage units, for the root warehouse.
     /// </summary>
-    Task<ServiceResult> CreateStorageUnitAsync(CreateStorageUnitDto entity);
+    Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity);
     Task<List<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter);
     Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id);
     Task<List<StorageUnitDto>> GetStorageUnitsByParentIdAsync(Guid id);
@@ -87,4 +116,9 @@ public interface IStorageUnitService : IBaseService
     /// Checks if the <paramref name="id" /> is a parent for any non-deleted storage units.
     /// </summary>
     Task<bool> HasSubStorageUnitsAsync(Guid id);
+
+    /// <summary>
+    /// Updates a storage unit.
+    /// </summary>
+    Task<Result> UpdateStorageUnitAsync(UpdateStorageUnitDto entity);
 }

@@ -10,9 +10,8 @@ public class GetDietaryRestriction
     [EndpointName("GetDietaryRestrictions")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to CPR number, regex: [0-9]{10}.")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "There was not found any entities with the CPR number.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Description = "Succesfully retrieved a list of dietaryrestriction.")]
     public static async Task<IResult> GetDietaryRestrictionByCprAsync(
             [FromServices] IDietaryRestrictionService dietaryRestrictionService,
             [FromRoute] string cpr

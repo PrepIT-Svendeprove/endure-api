@@ -11,8 +11,8 @@ public class PostStorageUnit
 {
     [EndpointName("CreateStorageUnit")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<List<string>>(StatusCodes.Status400BadRequest, Description = "The entity could not be created, returns a list of statuscodes that indicates what went wrong.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The entity has succesfully been created.")]
     public static async Task<IResult> CreateStorageUnitAsync(
             [FromServices] IStorageUnitService storageUnitService,
             [FromServices] IAuditLogService auditLogService,
@@ -23,10 +23,10 @@ public class PostStorageUnit
         {
             var result = await storageUnitService.CreateStorageUnitAsync(storageUnit);
 
-            if (result is ServiceResult.Success)
-                return Results.NoContent();
+            if (result is not { ServiceResult: ServiceResult.Success })
+                return Results.BadRequest(result.StatusCodes);
 
-            return Results.BadRequest();
+            return Results.NoContent();
         }
         catch(Exception e)
         {

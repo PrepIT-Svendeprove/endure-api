@@ -9,6 +9,8 @@ public static class MapStorageUnitEndpoints
 
         group.MapPost("/", PostStorageUnit.CreateStorageUnitAsync);
 
+        group.MapPut("/", PutStorageUnit.UpdateStorageUnitAsync);
+
         group.MapGet("/{id}", GetStorageUnit.GetStorageUnitByIdAsync);
         group.MapGet("/paginated", GetStorageUnit.GetPaginatedStorageUnitsAsync);
         group.MapGet("/{id}/fromparent", GetStorageUnit.GetStorageUnitsByParentIdAsync);
