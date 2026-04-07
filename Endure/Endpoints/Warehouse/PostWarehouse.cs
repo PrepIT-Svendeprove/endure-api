@@ -1,4 +1,4 @@
-﻿using Endure.Service.Dto.WarehouseDtos;
+﻿using Endure.Service.Models.Dto.WarehouseDtos;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 

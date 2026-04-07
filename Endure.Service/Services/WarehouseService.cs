@@ -1,18 +1,24 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Service.Dto.WarehouseDtos;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.WarehouseDtos;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Endure.Service.Services;
 
-internal class WarehouseService(DatabaseContext context) 
+internal class WarehouseService(DatabaseContext context)
     : BaseService<Warehouse>(context), IWarehouseService
 {
-    private readonly DatabaseContext _context = context;    
+    public async Task<Guid> GetRootWarehouseIdAsync()
+    {
+        return await _context
+                .Warehouse
+                .Where(x => x.IsRoot)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync();
+    }
 
-    public async Task<WarehouseDto?> GetCurrentRootWarehouseAsync()
+    public async Task<WarehouseDto?> GetRootWarehouseAsync()
     {
         return await _context
                 .Warehouse
@@ -29,7 +35,7 @@ internal class WarehouseService(DatabaseContext context)
                 .OrderByDescending(x => x.CreatedAt)
                 .MapToWarehouseDto()
                 .ToListAsync();
-    } 
+    }
 
     public async Task<List<WarehouseDto>> GetAllByIdAsync(Guid id)
     {
@@ -50,7 +56,7 @@ internal class WarehouseService(DatabaseContext context)
                     .MapToWarehouseDto()
                     .ToListAsync();
     }
-    
+
     public async Task<WarehouseDto?> CreateWarehouseAsync(CreateWarehouseDto entity)
     {
         var mappedEntity = entity.MapToWarehouse();
@@ -65,37 +71,21 @@ internal class WarehouseService(DatabaseContext context)
 
         await _context.AddAsync(mappedEntity);
 
-        if (entity.IsRoot)
-            await RemoveRootEntity(mappedEntity.Id);
 
         return await _context.SaveChangesAsync() > 0 ? mappedEntity.MapToWarehouseDto() : null;
     }
 
     public async Task<bool> UpdateWarehouseAsync(UpdateWarehouseDto entity)
     {
+        var rootId = await GetRootWarehouseIdAsync();
+
+        if (rootId != entity.Id)
+            return false;
+
         var mappedEntity = entity.MapToWarehouse();
         _context.Update(mappedEntity);
 
-        if (entity.IsRoot)
-            await RemoveRootEntity(mappedEntity.Id);
-
         return await _context.SaveChangesAsync() > 0;
-    }
-
-    /// <summary>
-    /// Sets IsRoot to false, of the current root warehouse.
-    /// </summary>
-    private async Task RemoveRootEntity(Guid id, Warehouse? entity = null)
-    {
-        var currentRootWarehouse = entity is null ? await _context
-                                            .Warehouse
-                                            .FirstOrDefaultAsync(x => x.IsRoot && x.Id != id) : entity;
-
-        if (currentRootWarehouse is null)
-            return;
-
-        currentRootWarehouse.IsRoot = false;
-        _context.Update(currentRootWarehouse);
     }
 }
 
@@ -121,10 +111,11 @@ public interface IWarehouseService : IBaseService
     /// <summary>
     /// Retrieves the current warehouse that is marked as the root warehouse.
     /// </summary>
-    Task<WarehouseDto?> GetCurrentRootWarehouseAsync();
+    Task<WarehouseDto?> GetRootWarehouseAsync();
 
     /// <summary>
     /// Updates an existing warehouse.
     /// </summary>
     Task<bool> UpdateWarehouseAsync(UpdateWarehouseDto entity);
+    Task<Guid> GetRootWarehouseIdAsync();
 }

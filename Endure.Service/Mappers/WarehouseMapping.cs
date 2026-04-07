@@ -1,5 +1,5 @@
 ﻿using Endure.Data.Models;
-using Endure.Service.Dto.WarehouseDtos;
+using Endure.Service.Models.Dto.WarehouseDtos;
 
 namespace Endure.Service.Mappers;
 

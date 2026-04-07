@@ -1,4 +1,4 @@
-﻿using Endure.Service.Enums;
+﻿using Endure.Service.Models.Enums;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +8,7 @@ public class DeleteDietaryRestrictionType
 {
     [EndpointName("DeleteDietaryRestrictionType")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public static async Task<IResult> DeleteDietaryRestrictionTypesAsync(
@@ -18,7 +19,7 @@ public class DeleteDietaryRestrictionType
         try
         {
             if (!Guid.TryParse(id, out Guid parsedId))
-                return Results.BadRequest("Could not parse the identifier to a Guid.");
+                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
 
             var result = await dietaryRestrictionTypeService.SoftDeleteEntity(parsedId);
 

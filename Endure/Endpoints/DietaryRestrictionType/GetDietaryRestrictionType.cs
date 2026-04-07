@@ -1,4 +1,4 @@
-﻿using Endure.Service.Filters;
+﻿using Endure.Service.Models.Filters;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 

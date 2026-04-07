@@ -1,4 +1,4 @@
-﻿using Endure.Service.Dto.AuditLog;
+﻿using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 

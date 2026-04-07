@@ -1,6 +1,7 @@
 ﻿using Endure.Endpoints.Auditlog;
 using Endure.Endpoints.DietaryRestriction;
 using Endure.Endpoints.DietaryRestrictionType;
+using Endure.Endpoints.StorageUnit;
 using Endure.Endpoints.Warehouse;
 using Endure.Middleware;
 
@@ -16,6 +17,7 @@ public static class MinimalApiConfiguration
 
         appGroup.MapDietaryRestrictionsTypeApiRoutes();
         appGroup.MapDietaryRestrictionsApiRoutes();
+        appGroup.MapStorageUnitApiRoutes();
         appGroup.MapWarehouseApiRoutes();
         appGroup.MapAuditlogApiRoutes();
 

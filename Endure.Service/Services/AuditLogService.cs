@@ -1,16 +1,17 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Service.Dto.AuditLog;
-using Endure.Service.Filters;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.AuditLogDtos;
+using Endure.Service.Models.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
 
-internal class AuditLogService(DatabaseContext context, IRequestContext requestContext) 
+internal class AuditLogService(DatabaseContext context, IRequestContext requestContext, IWarehouseService warehouseService) 
     : BaseService<AuditLog>(context), IAuditLogService
 {
     private readonly IRequestContext _requestContext = requestContext;
+    private readonly IWarehouseService _warehouseService = warehouseService;
 
     public async Task<AuditLogDto?> GetAuditLogAsync(Guid id)
     {
@@ -22,10 +23,9 @@ internal class AuditLogService(DatabaseContext context, IRequestContext requestC
 
     public async Task<List<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter)
     {
-        var context = _context.AuditLog
-                        .OrderByDescending(x => x.CreatedAt)
-                        .Take(filter.Take)
-                        .Skip((filter.Page - 1) * filter.Take);
+        var context = MakePaginatedQuery(filter)
+            .OrderByDescending(x => x.CreatedAt)
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(filter.RequestId))
             context = context.Where(x => x.RequestId == filter.RequestId);
@@ -37,7 +37,10 @@ internal class AuditLogService(DatabaseContext context, IRequestContext requestC
 
     public async Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity)
     {
-        var mappedEntity = entity.MapToAuditLog();
+        if (entity.WarehouseId is null)
+            entity.WarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+
+        var mappedEntity = entity.MapToAuditLog(entity.WarehouseId.Value);
         mappedEntity.RequestId = _requestContext.TraceId;
 
         await _context.AddRangeAsync();

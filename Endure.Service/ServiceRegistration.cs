@@ -15,6 +15,7 @@ public static class ServiceRegistration
         services.AddScoped<ICprCryptoService, CprCryptoService>();
         services.AddScoped<IDietaryRestrictionTypeService, DietaryRestrictionTypeService>();
         services.AddScoped<IDietaryRestrictionService, DietaryRestrictionService>();
+        services.AddScoped<IStorageUnitService, StorageUnitService>();
         services.AddScoped<IWarehouseService, WarehouseService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
 

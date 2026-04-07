@@ -1,6 +1,6 @@
 ﻿using Endure.Data.Models;
-using Endure.Service.Dto.AuditLog;
-using Endure.Service.Enums;
+using Endure.Service.Models.Dto.AuditLogDtos;
+using Endure.Service.Models.Enums;
 
 namespace Endure.Service.Mappers;
 
@@ -25,12 +25,12 @@ internal static class AuditlogMapping
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public static AuditLog MapToAuditLog(this CreateAuditlogDto entity)
+    public static AuditLog MapToAuditLog(this CreateAuditlogDto entity, Guid warehouseId)
     {
         return new AuditLog
         {
             Log = entity.LogData,
-            WarehouseId = entity.WarehouseId,
+            WarehouseId = warehouseId,
             ModuleType = (Data.Models.Enums.ModuleType)entity.ModuleType,
             LogLevel = (Data.Models.Enums.LogLevel)entity.LogLevel
         };

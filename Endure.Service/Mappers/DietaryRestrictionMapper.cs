@@ -1,5 +1,5 @@
 ﻿using Endure.Data.Models;
-using Endure.Service.Dto.DietaryRestrictionDtos;
+using Endure.Service.Models.Dto.DietaryRestrictionDtos;
 
 namespace Endure.Service.Mappers;
 

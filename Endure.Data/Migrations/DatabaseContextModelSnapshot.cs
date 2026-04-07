@@ -260,9 +260,6 @@ namespace Endure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("LastUpdatedAt")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("ProductId")
                         .IsRequired()
                         .HasColumnType("character varying(20)");

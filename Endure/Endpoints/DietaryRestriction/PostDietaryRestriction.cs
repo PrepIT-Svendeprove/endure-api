@@ -1,5 +1,5 @@
-﻿using Endure.Service.Dto.DietaryRestrictionDtos;
-using Endure.Service.Enums;
+﻿using Endure.Service.Models.Dto.DietaryRestrictionDtos;
+using Endure.Service.Models.Enums;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 

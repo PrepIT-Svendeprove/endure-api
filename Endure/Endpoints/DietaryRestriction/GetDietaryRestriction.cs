@@ -9,6 +9,7 @@ public class GetDietaryRestriction
 
     [EndpointName("GetDietaryRestrictions")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to CPR number, regex: [0-9]{10}.")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -18,7 +19,7 @@ public class GetDietaryRestriction
         )
     {
         if (!Regex.IsMatch(cpr, "^[0-9]{10}$"))
-            return Results.BadRequest("The provided CPR number is not in a valid format. Regex: [0-9]{10}");
+            return Results.UnprocessableEntity("The provided CPR number is not in a valid format. Regex: [0-9]{10}");
 
         try
         {

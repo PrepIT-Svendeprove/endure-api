@@ -96,3 +96,7 @@ volumes:
   pgadmin:
   rabbitmq-lib:
   rabbitmq-log:
+  
+  authentik_data:
+  authentik_certs:
+  authentik_custom_temp:

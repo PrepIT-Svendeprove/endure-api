@@ -1,8 +1,8 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Service.Dto.DietaryRestrictionDtos;
-using Endure.Service.Enums;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.DietaryRestrictionDtos;
+using Endure.Service.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
