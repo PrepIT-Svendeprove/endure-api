@@ -3,7 +3,7 @@ using Endure.Service.Models.Dto.WarehouseDtos;
 
 namespace Endure.Service.Mappers;
 
-internal static class WarehouseMapping
+internal static class WarehouseMapper
 {
     public static IQueryable<WarehouseDto> MapToWarehouseDto(this IQueryable<Warehouse> entity)
     {

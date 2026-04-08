@@ -2,17 +2,38 @@
 using Endure.Data.Models;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.StorageUnitDtos;
+using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
+using Endure.Service.Services.Internal;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Endure.Service.Services;
 
-internal sealed class StorageUnitService(DatabaseContext context, IWarehouseService warehouseService)
+internal sealed class StorageUnitService(
+        IInternalProductBatchService productBatchService,
+        IWarehouseService warehouseService,
+        DatabaseContext context
+    )
     : BaseService<StorageUnit>(context), IStorageUnitService
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IInternalProductBatchService _productBatchService = productBatchService;
+
+    protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<StorageUnit, bool>>? predicate = null)
+    {
+        if (await HasSubStorageUnitsAsync(id))
+            return ServiceResult.Failed; 
+
+        var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+
+        // Remove all of the product batches that were in the storage unit.
+        await _productBatchService.RemoveProductBatchesFromStorageUnitAsync(id);
+
+        return await base.SoftDeleteEntity(id, x => x.WarehouseId == rootWarehouseId);
+    }
 
     public async Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity)
     {
