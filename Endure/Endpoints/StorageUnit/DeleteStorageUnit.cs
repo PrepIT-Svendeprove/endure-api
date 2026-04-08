@@ -8,6 +8,10 @@ namespace Endure.Endpoints.StorageUnit;
 public class DeleteStorageUnit
 {
     [EndpointName("DeleteStorageUnit")]
+    [EndpointSummary("""
+            Deletes a storageunit, if the storage unit contains productbatches that are not deleted, they will be marked as deleted.
+            If it contains sub- storageunits, you will not be able to delete the storageunit, before you have marked the sub- units as deleted.
+        """)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status409Conflict, Description = "The storageunit contains sub- storageunits.")]

@@ -4,7 +4,7 @@ using Endure.Service.Models.Enums;
 
 namespace Endure.Service.Mappers;
 
-internal static class AuditlogMapping
+internal static class AuditlogMapper
 {
     public static IQueryable<AuditLogDto> MapToAuditLogDto(this IQueryable<AuditLog> entity)
     {

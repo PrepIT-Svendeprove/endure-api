@@ -1,16 +1,11 @@
 ﻿namespace Endure.Data.Models;
 
-/// <summary>
-/// An abstract model that inherits from <see cref="BaseModel{TKey}" />, and sets the key to <see cref="Guid"/>
-/// </summary>
-public abstract class BaseModel : BaseModel<Guid>;
-
-public abstract class BaseModel<TKey>
+public abstract class BaseModel
 {
     /// <summary>
     /// Identifier of the current object.
     /// </summary>
-    public TKey Id { get; set; }
+    public Guid Id { get; set; }
     public long CreatedAt { get; internal set; }
     public long UpdatedAt { get; set; }
 
