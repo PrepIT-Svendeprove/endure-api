@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Endure.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260408074616_Changed_CountType")]
-    partial class Changed_CountType
+    [Migration("20260411200522_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,9 +44,6 @@ namespace Endure.Data.Migrations
                     b.Property<int>("LogLevel")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ModuleType")
-                        .HasColumnType("integer");
-
                     b.Property<string>("RequestId")
                         .HasColumnType("text");
 
@@ -60,6 +57,8 @@ namespace Endure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
 
                     b.ToTable("AuditLog");
                 });
@@ -320,7 +319,7 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ParentStorageUnitId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortName")
@@ -340,7 +339,7 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("WarehouseId", "Id");
 
-                    b.HasIndex("WarehouseId", "ParentStorageUnitId");
+                    b.HasIndex("WarehouseId", "ParentId");
 
                     b.ToTable("StorageUnit");
                 });
@@ -364,7 +363,7 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ParentWarehouseId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortName")
@@ -381,9 +380,20 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentWarehouseId");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Warehouse");
+                });
+
+            modelBuilder.Entity("Endure.Data.Models.AuditLog", b =>
+                {
+                    b.HasOne("Endure.Data.Models.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
@@ -447,7 +457,7 @@ namespace Endure.Data.Migrations
 
                     b.HasOne("Endure.Data.Models.StorageUnit", "ParentStorageUnit")
                         .WithMany("ChildStorageUnits")
-                        .HasForeignKey("WarehouseId", "ParentStorageUnitId")
+                        .HasForeignKey("WarehouseId", "ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentStorageUnit");
@@ -459,7 +469,7 @@ namespace Endure.Data.Migrations
                 {
                     b.HasOne("Endure.Data.Models.Warehouse", "ParentWarehouse")
                         .WithMany("ChildWarehouses")
-                        .HasForeignKey("ParentWarehouseId")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentWarehouse");

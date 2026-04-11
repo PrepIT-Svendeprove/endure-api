@@ -21,7 +21,7 @@ internal class StorageUnitTypeConfiguration : BaseTypeConfiguration<StorageUnit>
         // Configure self-referencing relationship, to allow for an infinite number of storage units.
         builder.HasOne(x => x.ParentStorageUnit)
             .WithMany(x => x.ChildStorageUnits)
-            .HasForeignKey(x => new { x.WarehouseId, x.ParentStorageUnitId })
+            .HasForeignKey(x => new { x.WarehouseId, x.ParentId })
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

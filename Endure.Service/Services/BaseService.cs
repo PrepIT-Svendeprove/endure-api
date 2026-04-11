@@ -42,22 +42,26 @@ public abstract class BaseService<T>(DatabaseContext context) : IBaseService
     }
 
     public async Task<ServiceResult> SoftDeleteEntity(Guid id)
-        => await SoftDeleteEntity(id);
+        => await SoftDeleteEntity(id, null);
 
-    public virtual async Task<bool> IsDeleted<T>(Guid id)
-        where T : BaseModel
-    {
-        return await _context.Set<T>().AnyAsync(x => x.Id == id && !x.IsDeleted);
-    }
+    public virtual async Task<bool> IsDeleted<TModel>(Guid id)
+        where TModel : BaseModel
+        => !await _context.Set<TModel>().AnyAsync(x => x.Id == id && !x.IsDeleted);
 
-    public virtual async Task<bool> IsDeleted(Guid id)
+    public virtual async Task<bool> Exists<TModel>(Guid id)
+        where TModel : BaseModel
+        => await _context.Set<TModel>().AnyAsync(x => x.Id == id);
+
+    /// <summary>
+    /// Checks if the warehouseId is a root warehouse, and if it has a parentId.
+    /// </summary>
+    protected async Task<bool> ShouldSynchronizeWithParent(Guid warehouseId)
     {
-        return await _context.Set<T>().AnyAsync(x => x.Id == id && !x.IsDeleted);
+        return await _context.Warehouse.AnyAsync(x => x.Id == warehouseId && x.ParentId != null);
     }
 }
 
 public interface IBaseService
 {
-    Task<bool> IsDeleted(Guid id);
     Task<ServiceResult> SoftDeleteEntity(Guid id);
 }

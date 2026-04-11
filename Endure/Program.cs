@@ -1,9 +1,8 @@
-using Endure.Data.Configuration;
+using Endure.Dispatcher.Publisher;
 using Endure.Endpoints;
 using Endure.Middleware;
 using Endure.Service;
 using Endure.Service.Options;
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,14 +13,13 @@ builder.Services.AddTransient<TraceMiddleware>();
 
 builder.Services.Configure<CprHashingOptions>(builder.Configuration.GetSection(CprHashingOptions.SectionName));
 
-builder.Services.RegisterServices();
-builder.Services.ConfigureDatabaseContext(builder.Configuration.GetConnectionString("EndureDbConnection") ?? throw new NullReferenceException("Could not get EndureDbConnection string."));
+builder.Services.RegisterDispatcherServices(builder.Configuration);
+builder.Services.RegisterServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
+// Keep this for both development and product, as we will need it to demonstrate all of the endpoints available.
+app.MapOpenApi();
 
 app.MapMinimalApiRoutes();
 

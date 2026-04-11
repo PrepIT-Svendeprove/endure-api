@@ -20,9 +20,7 @@ public class Warehouse : BaseModel
     /// <summary>
     /// The Warehouse parentId, is only set if a warehouse is a sub-warehouse.
     /// </summary>
-    public Guid? ParentWarehouseId { get; set; }
+    public Guid? ParentId { get; set; }
 
-    public Warehouse? ParentWarehouse { get; set; }
     public List<StorageUnit> StorageUnits { get; set; } = [ ];
-    public List<Warehouse> ChildWarehouses { get; set; } = [ ];
 }

@@ -20,7 +20,7 @@ public class PostProduct
         {
             var result = await productService.CreateProductAsync(product);
 
-            if (result is not { ServiceResult: ServiceResult.Failed })
+            if (result is not { ServiceResult: ServiceResult.Success })
                 return Results.BadRequest(result.StatusCodes);
 
             return Results.NoContent();

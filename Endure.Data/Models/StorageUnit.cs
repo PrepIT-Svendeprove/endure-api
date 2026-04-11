@@ -22,7 +22,7 @@ public class StorageUnit : BaseModel
     /// <summary>
     /// Self-referencing identifier, for sub units.
     /// </summary>
-    public Guid? ParentStorageUnitId { get; set; }
+    public Guid? ParentId { get; set; }
 
     /// <summary>
     /// The type of products that the storageunit is supposed to be used for.

@@ -14,7 +14,7 @@ internal static class WarehouseMapper
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.CreatedAt),
             UpdatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.UpdatedAt),
             IsRoot = warehouse.IsRoot,
-            ParentWarehouseId = warehouse.ParentWarehouseId,
+            ParentWarehouseId = warehouse.ParentId,
         });
     }
 
@@ -37,7 +37,7 @@ internal static class WarehouseMapper
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.CreatedAt),
             IsRoot = entity.IsRoot,
             UpdatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.UpdatedAt),
-            ParentWarehouseId = entity.ParentWarehouseId
+            ParentWarehouseId = entity.ParentId
         };
     }
 
@@ -48,7 +48,7 @@ internal static class WarehouseMapper
             Id = entity.Id,
             Name = entity.Name,
             ShortName = entity.ShortName,
-            ParentWarehouseId = entity.ParentWarehouseId
+            ParentId = entity.ParentWarehouseId
         };
     }
 }

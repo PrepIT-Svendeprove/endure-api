@@ -12,7 +12,7 @@ internal static class StorageUnitMapper
             Name = entity.Name,
             ShortName = entity.ShortName,
             Description = entity.Description,
-            ParentStorageUnitId = entity.ParentStorageUnitId,
+            ParentId = entity.ParentStorageUnitId,
             StorageType = entity.StorageType,
             IsSlot = entity.IsSlot,
             WarehouseId = warehouseId
@@ -29,7 +29,7 @@ internal static class StorageUnitMapper
             ShortName = x.ShortName,
             IsSlot = x.IsSlot,
             StorageType = x.StorageType,
-            ParentStorageUnitId= x.ParentStorageUnitId
+            ParentStorageUnitId= x.ParentId
         });
     }
 }

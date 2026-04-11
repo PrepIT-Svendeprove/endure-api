@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.AuditLog;
 using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Enums;
 
@@ -13,11 +14,25 @@ internal static class AuditlogMapper
             Id = x.Id,
             WarehouseId = x.WarehouseId,
             LogLevel = (LogLevel)x.LogLevel,
-            ModuleType = (ModuleType)x.ModuleType,
             LogData = x.Log,
             RequestId = x.RequestId,
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(x.CreatedAt)
         });
+    }
+
+    public static AuditLog MapToAuditLog(this AuditLogCreatedEventMessage entity)
+    {
+        return new AuditLog
+        {
+            Id = entity.Id,
+            RequestId = entity.RequestId,
+            LogLevel = entity.LogLevel,
+            WarehouseId = entity.WarehouseId,
+            Log = entity.LogData,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            IsDeleted = false
+        };
     }
 
     /// <summary>
@@ -31,7 +46,6 @@ internal static class AuditlogMapper
         {
             Log = entity.LogData,
             WarehouseId = warehouseId,
-            ModuleType = (Data.Models.Enums.ModuleType)entity.ModuleType,
             LogLevel = (Data.Models.Enums.LogLevel)entity.LogLevel
         };
     }

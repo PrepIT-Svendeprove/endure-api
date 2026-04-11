@@ -6,7 +6,7 @@ public abstract class BaseModel
     /// Identifier of the current object.
     /// </summary>
     public Guid Id { get; set; }
-    public long CreatedAt { get; internal set; }
+    public long CreatedAt { get; set; }
     public long UpdatedAt { get; set; }
 
     public bool IsDeleted { get; set; }

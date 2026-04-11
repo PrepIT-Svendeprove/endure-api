@@ -12,31 +12,12 @@ namespace Endure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AuditLog",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LogLevel = table.Column<int>(type: "integer", nullable: false),
-                    ModuleType = table.Column<int>(type: "integer", nullable: false),
-                    Log = table.Column<string>(type: "text", nullable: false),
-                    RequestId = table.Column<string>(type: "text", nullable: true),
-                    UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
-                    CreatedAt = table.Column<long>(type: "bigint", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    Version = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AuditLog", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "DietaryRestrictionType",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    NormalizedName = table.Column<string>(type: "text", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -51,8 +32,9 @@ namespace Endure.Data.Migrations
                 name: "Product",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    EAN = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
@@ -72,7 +54,7 @@ namespace Endure.Data.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     ShortName = table.Column<string>(type: "text", nullable: true),
                     IsRoot = table.Column<bool>(type: "boolean", nullable: false),
-                    ParentWarehouseId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -82,8 +64,8 @@ namespace Endure.Data.Migrations
                 {
                     table.PrimaryKey("PK_Warehouse", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Warehouse_Warehouse_ParentWarehouseId",
-                        column: x => x.ParentWarehouseId,
+                        name: "FK_Warehouse_Warehouse_ParentId",
+                        column: x => x.ParentId,
                         principalTable: "Warehouse",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -113,6 +95,31 @@ namespace Endure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AuditLog",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LogLevel = table.Column<int>(type: "integer", nullable: false),
+                    Log = table.Column<string>(type: "text", nullable: false),
+                    RequestId = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    Version = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuditLog_Warehouse_WarehouseId",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouse",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StorageUnit",
                 columns: table => new
                 {
@@ -121,7 +128,7 @@ namespace Endure.Data.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     ShortName = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    ParentStorageUnitId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true),
                     StorageType = table.Column<int>(type: "integer", nullable: false),
                     IsSlot = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
@@ -133,8 +140,8 @@ namespace Endure.Data.Migrations
                 {
                     table.PrimaryKey("PK_StorageUnit", x => new { x.WarehouseId, x.Id });
                     table.ForeignKey(
-                        name: "FK_StorageUnit_StorageUnit_WarehouseId_ParentStorageUnitId",
-                        columns: x => new { x.WarehouseId, x.ParentStorageUnitId },
+                        name: "FK_StorageUnit_StorageUnit_WarehouseId_ParentId",
+                        columns: x => new { x.WarehouseId, x.ParentId },
                         principalTable: "StorageUnit",
                         principalColumns: new[] { "WarehouseId", "Id" },
                         onDelete: ReferentialAction.Restrict);
@@ -180,10 +187,9 @@ namespace Endure.Data.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
                     BestBefore = table.Column<long>(type: "bigint", nullable: false),
-                    LastUpdatedAt = table.Column<long>(type: "bigint", nullable: false),
-                    ProductId = table.Column<string>(type: "character varying(20)", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     StorageUnitId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Count = table.Column<long>(type: "bigint", nullable: false),
+                    Count = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false),
                     UpdatedAt = table.Column<long>(type: "bigint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -232,6 +238,11 @@ namespace Endure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuditLog_WarehouseId",
+                table: "AuditLog",
+                column: "WarehouseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClimateDevice_WarehouseId_StorageUnitId",
                 table: "ClimateDevice",
                 columns: new[] { "WarehouseId", "StorageUnitId" });
@@ -252,14 +263,14 @@ namespace Endure.Data.Migrations
                 columns: new[] { "WarehouseId", "StorageUnitId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_StorageUnit_WarehouseId_ParentStorageUnitId",
+                name: "IX_StorageUnit_WarehouseId_ParentId",
                 table: "StorageUnit",
-                columns: new[] { "WarehouseId", "ParentStorageUnitId" });
+                columns: new[] { "WarehouseId", "ParentId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Warehouse_ParentWarehouseId",
+                name: "IX_Warehouse_ParentId",
                 table: "Warehouse",
-                column: "ParentWarehouseId");
+                column: "ParentId");
         }
 
         /// <inheritdoc />

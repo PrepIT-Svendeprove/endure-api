@@ -1,5 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.StorageUnit;
+using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.StorageUnitDtos;
 using Endure.Service.Models.Enums;
@@ -15,11 +17,13 @@ namespace Endure.Service.Services;
 internal sealed class StorageUnitService(
         IInternalProductBatchService productBatchService,
         IWarehouseService warehouseService,
+        IMessagePublisher messagePublisher,
         DatabaseContext context
     )
     : BaseService<StorageUnit>(context), IStorageUnitService
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IMessagePublisher _messagePublisher = messagePublisher;
     private readonly IInternalProductBatchService _productBatchService = productBatchService;
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<StorageUnit, bool>>? predicate = null)
@@ -47,7 +51,23 @@ internal sealed class StorageUnitService(
 
         await _context.AddAsync(mappedEntity);
 
-        return await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([]);
+        var result = await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([]);
+
+        // Synchronize with the root warehouse if that warehouse has a parent.
+        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(rootId))
+            await _messagePublisher.PublishAsync(new StorageUnitCreatedEventMessage
+            {
+                Id = mappedEntity.Id,
+                Name = mappedEntity.Name,
+                ShortName = mappedEntity.ShortName,
+                Description = mappedEntity.Description,
+                IsSlot = mappedEntity.IsSlot,
+                StorageType = mappedEntity.StorageType,
+                ParentStorageUnitId = mappedEntity.ParentId,
+                WarehouseId = rootId
+            });
+
+        return result;
     }
 
     public async Task<Result> UpdateStorageUnitAsync(UpdateStorageUnitDto entity)
@@ -62,34 +82,48 @@ internal sealed class StorageUnitService(
             return Result.Failed([StorageUnitStatusCodes.CONTAINING_SUBUNITS]);
 
         // Check if the ParentStorageId has changed, and if it has ensure that the parent is actually eligible as a parent.
-        if (!dbEntity.ParentStorageUnitId.HasValue && entity.ParentStorageUnitId.HasValue && dbEntity.ParentStorageUnitId != entity.ParentStorageUnitId && !await IsStorageUnitEligibleAsParentAsync(entity.ParentStorageUnitId.Value))
+        if (!dbEntity.ParentId.HasValue && entity.ParentStorageUnitId.HasValue && dbEntity.ParentId != entity.ParentStorageUnitId && !await IsStorageUnitEligibleAsParentAsync(entity.ParentStorageUnitId.Value))
             return Result.Failed([StorageUnitStatusCodes.PARENT_NOT_ELIGIBLE]);
 
-        return await _context
+        var result = await _context
                 .StorageUnit
                 .Where(x => x.Id == entity.Id && !x.IsDeleted)
                 .ExecuteUpdateAsync(x => 
                     x.SetProperty(y => y.Name, entity.Name)
                     .SetProperty(y => y.ShortName, entity.ShortName)
                     .SetProperty(y => y.Description, entity.Description)
-                    .SetProperty(y => y.ParentStorageUnitId, entity.ParentStorageUnitId)
+                    .SetProperty(y => y.ParentId, entity.ParentStorageUnitId)
                     .SetProperty(y => y.StorageType, entity.StorageType)
                     .SetProperty(y => y.IsSlot, entity.IsSlot)
                 ) > 0 ? Result.Success() : Result.Failed([]);
+
+        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(dbEntity.WarehouseId))
+            await _messagePublisher.PublishAsync(new StorageUnitUpdatedEventMessage
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Description = entity.Description,
+                IsSlot = entity.IsSlot,
+                ShortName = entity.ShortName,
+                StorageType = entity.StorageType,
+                ParentStorageUnitId = entity.ParentStorageUnitId,
+            });
+
+        return result;
     }
 
     public async Task<bool> HasSubStorageUnitsAsync(Guid id)
     {
         return await _context
                 .StorageUnit
-                .AnyAsync(x => x.ParentStorageUnitId == id && !x.IsDeleted);
+                .AnyAsync(x => x.ParentId == id && !x.IsDeleted);
     }
 
     public async Task<List<StorageUnitDto>> GetStorageUnitsByParentIdAsync(Guid id)
     {
         return await _context
                 .StorageUnit
-                .Where(x => x.ParentStorageUnitId == id && !x.IsDeleted && !x.ParentStorageUnit.IsDeleted)
+                .Where(x => x.ParentId == id && !x.IsDeleted && !x.ParentStorageUnit.IsDeleted)
                 .MapToStorageUnitDto()
                 .ToListAsync();
     }

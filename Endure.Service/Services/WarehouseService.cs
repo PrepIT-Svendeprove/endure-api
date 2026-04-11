@@ -1,16 +1,25 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage;
+using Endure.Dispatcher.EventMessage.Warehouse;
+using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.WarehouseDtos;
+using Endure.Service.Models.Enums;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
 
-internal class WarehouseService(DatabaseContext context)
+internal class WarehouseService(
+        DatabaseContext context,
+        IMessagePublisher messagePublisher
+    )
     : BaseService<Warehouse>(context), IWarehouseService
 {
+    private readonly IMessagePublisher _messagePublisher = messagePublisher;
+
     public async Task<Guid> GetRootWarehouseIdAsync()
     {
         return await _context
@@ -53,7 +62,7 @@ internal class WarehouseService(DatabaseContext context)
     {
         return await _context
                     .Warehouse
-                    .Where(x => !x.IsRoot && !x.IsDeleted && x.ParentWarehouseId == id)
+                    .Where(x => !x.IsRoot && !x.IsDeleted && x.ParentId == id)
                     .OrderByDescending(x => x.CreatedAt)
                     .MapToWarehouseDto()
                     .ToListAsync();
@@ -68,7 +77,7 @@ internal class WarehouseService(DatabaseContext context)
         {
             rootWarehouse = await _context.Warehouse.FirstOrDefaultAsync(x => x.Id == mappedEntity.Id && !x.IsDeleted);
 
-            mappedEntity.ParentWarehouseId = rootWarehouse?.ParentWarehouseId;
+            mappedEntity.ParentId = rootWarehouse?.ParentId;
         }
 
         await _context.AddAsync(mappedEntity);
@@ -84,14 +93,25 @@ internal class WarehouseService(DatabaseContext context)
         if (rootId != entity.Id)
             return Result.Failed([WarehouseStatusCodes.ENTITY_IS_NOT_ROOT]);
 
-        return await _context
+        var result = await _context
                 .Warehouse
                 .Where(x => x.Id == entity.Id)
                 .ExecuteUpdateAsync(x =>
                     x.SetProperty(y => y.Name, entity.Name)
                     .SetProperty(y => y.ShortName, entity.ShortName)
-                    .SetProperty(y => y.ParentWarehouseId, entity.ParentWarehouseId)
+                    .SetProperty(y => y.ParentId, entity.ParentWarehouseId)
                 ) > 0 ? Result.Success() : Result.Failed([]);
+
+        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(entity.Id))
+            await _messagePublisher.PublishAsync(new WarehouseUpdatedEventMessage
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                ParentWarehouseId = entity.ParentWarehouseId,
+                ShortName = entity.ShortName
+            });
+
+        return result;
     }
 }
 

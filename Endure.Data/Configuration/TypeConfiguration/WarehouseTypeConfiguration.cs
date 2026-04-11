@@ -9,10 +9,5 @@ internal class WarehouseTypeConfiguration : BaseTypeConfiguration<Warehouse>
     public override void Configure(EntityTypeBuilder<Warehouse> builder)
     {
         base.Configure(builder);
-
-        builder.HasOne(x => x.ParentWarehouse)
-            .WithMany(x => x.ChildWarehouses)
-            .HasForeignKey(x => x.ParentWarehouseId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

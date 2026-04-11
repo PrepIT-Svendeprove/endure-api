@@ -1,17 +1,25 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
+using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Filters;
+using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
 
-internal class AuditLogService(DatabaseContext context, IRequestContext requestContext, IWarehouseService warehouseService) 
+internal class AuditLogService(
+        DatabaseContext context,
+        IRequestContext requestContext,
+        IWarehouseService warehouseService,
+        IDispatcherAuditLogService dispatcherAuditLogService
+    )
     : BaseService<AuditLog>(context), IAuditLogService
 {
     private readonly IRequestContext _requestContext = requestContext;
     private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IDispatcherAuditLogService _dispatcherAuditLogService = dispatcherAuditLogService;
 
     public async Task<AuditLogDto?> GetAuditLogAsync(Guid id)
     {
@@ -42,9 +50,7 @@ internal class AuditLogService(DatabaseContext context, IRequestContext requestC
         var mappedEntity = entity.MapToAuditLog(entity.WarehouseId.Value);
         mappedEntity.RequestId = _requestContext.TraceId;
 
-        await _context.AddRangeAsync();
-
-        return await _context.SaveChangesAsync() > 0;
+        return await _dispatcherAuditLogService.CreateAuditLogAsync(mappedEntity);
     }
 }
 

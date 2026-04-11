@@ -34,7 +34,6 @@ public class PostStorageUnit
             {
                 LogData = e.Message,
                 LogLevel = LogLevel.Error,
-                ModuleType = ModuleType.Inventory
             });
 
             return Results.InternalServerError();

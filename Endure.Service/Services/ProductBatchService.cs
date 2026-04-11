@@ -1,5 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.ProductBatch;
+using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.ProductBatchDtos;
 using Endure.Service.Models.Enums;
@@ -13,11 +15,13 @@ namespace Endure.Service.Services;
 
 internal class ProductBatchService(
         IWarehouseService warehouseService,
+        IMessagePublisher messagePublisher,
         DatabaseContext context
-    ) 
+    )
     : BaseService<ProductBatch>(context), IProductBatchService
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IMessagePublisher _messagePublisher = messagePublisher;
 
     protected override IQueryable<ProductBatch> MakePaginatedQuery(BasePaginatedFilter filter)
         => base.MakePaginatedQuery(filter).OrderByDescending(x => x.BestBefore);
@@ -27,19 +31,44 @@ internal class ProductBatchService(
         // Ensure that we are only trying to delete the entity from the root warehouse, as it should not be possible to remove it from sub-warehouses from the root warehouse.
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        return await base.SoftDeleteEntity(id, x => x.WarehouseId == rootWarehouseId);
+        var result = await base.SoftDeleteEntity(id, x => x.WarehouseId == rootWarehouseId);
+
+        // Synchronize with the root's parent, if it exists.
+        if (result is ServiceResult.Success && await ShouldSynchronizeWithParent(rootWarehouseId))
+            await _messagePublisher.PublishAsync(new ProductBatchDeletedEventMessage
+            {
+                Id = id,
+                IsSoftDeleted = true,
+                WarehouseId = rootWarehouseId
+            });
+
+        return result;
     }
 
     public async Task<Result> CreateProductBatch(CreateProductBatchDto productBatch)
     {
-        if (await _warehouseService.IsDeleted(productBatch.WarehouseId) || await IsDeleted<StorageUnit>(productBatch.StorageUnitId) || await IsDeleted<Product>(productBatch.ProductId))
+        if (await IsDeleted<Warehouse>(productBatch.WarehouseId) || await IsDeleted<StorageUnit>(productBatch.StorageUnitId) || await IsDeleted<Product>(productBatch.ProductId))
             return Result.Failed([ProductBatchStatusCodes.RELATION_DOES_NOT_EXIST]);
 
         var mapppedEntity = productBatch.MapToProductBatch();
 
         await _context.AddAsync(mapppedEntity);
 
-        return await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([ProductBatchStatusCodes.ENTITY_UNCHANGED]);
+        var result = await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([ProductBatchStatusCodes.ENTITY_UNCHANGED]);
+
+        // If the requested warehouse is the root warehouse, we should try and synchronize with its root warehouse if it has one.
+        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(productBatch.WarehouseId))
+            await _messagePublisher.PublishAsync(new ProductBatchCreatedEventMessage
+            {
+                Id = mapppedEntity.Id,
+                Count = productBatch.Count,
+                BestBefore = productBatch.BestBefore,
+                ProductId = productBatch.ProductId,
+                StorageUnitId = productBatch.StorageUnitId,
+                WarehouseId = productBatch.WarehouseId,
+            });
+
+        return result;
     }
 
     public async Task<ProductBatchDto?> GetProductBatchById(Guid id)

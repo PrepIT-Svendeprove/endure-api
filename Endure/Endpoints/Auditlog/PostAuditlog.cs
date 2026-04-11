@@ -27,7 +27,7 @@ public class PostAuditlog
 
             return Results.BadRequest();
         }
-        catch
+        catch(Exception e)
         {
             return Results.InternalServerError();
         }

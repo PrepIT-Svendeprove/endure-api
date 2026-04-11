@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Endure.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260407103834_ttt")]
-    partial class ttt
+    [Migration("20260411203749_Removed_Relation")]
+    partial class Removed_Relation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,9 +44,6 @@ namespace Endure.Data.Migrations
                     b.Property<int>("LogLevel")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ModuleType")
-                        .HasColumnType("integer");
-
                     b.Property<string>("RequestId")
                         .HasColumnType("text");
 
@@ -61,6 +58,8 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("WarehouseId");
+
                     b.ToTable("AuditLog");
                 });
 
@@ -70,6 +69,7 @@ namespace Endure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<long>("CreatedAt")
@@ -116,6 +116,7 @@ namespace Endure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ClimateDeviceId")
@@ -212,14 +213,19 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.Product", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("uuid");
 
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EAN")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
@@ -249,13 +255,14 @@ namespace Endure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<long>("BestBefore")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Count")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
 
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
@@ -263,9 +270,8 @@ namespace Endure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasColumnType("character varying(20)");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("StorageUnitId")
                         .HasColumnType("uuid");
@@ -294,6 +300,7 @@ namespace Endure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<long>("CreatedAt")
@@ -312,7 +319,7 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ParentStorageUnitId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortName")
@@ -332,7 +339,7 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("WarehouseId", "Id");
 
-                    b.HasIndex("WarehouseId", "ParentStorageUnitId");
+                    b.HasIndex("WarehouseId", "ParentId");
 
                     b.ToTable("StorageUnit");
                 });
@@ -356,7 +363,7 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ParentWarehouseId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortName")
@@ -373,9 +380,18 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentWarehouseId");
-
                     b.ToTable("Warehouse");
+                });
+
+            modelBuilder.Entity("Endure.Data.Models.AuditLog", b =>
+                {
+                    b.HasOne("Endure.Data.Models.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
@@ -439,22 +455,12 @@ namespace Endure.Data.Migrations
 
                     b.HasOne("Endure.Data.Models.StorageUnit", "ParentStorageUnit")
                         .WithMany("ChildStorageUnits")
-                        .HasForeignKey("WarehouseId", "ParentStorageUnitId")
+                        .HasForeignKey("WarehouseId", "ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentStorageUnit");
 
                     b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("Endure.Data.Models.Warehouse", b =>
-                {
-                    b.HasOne("Endure.Data.Models.Warehouse", "ParentWarehouse")
-                        .WithMany("ChildWarehouses")
-                        .HasForeignKey("ParentWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ParentWarehouse");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
@@ -483,8 +489,6 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.Warehouse", b =>
                 {
-                    b.Navigation("ChildWarehouses");
-
                     b.Navigation("StorageUnits");
                 });
 #pragma warning restore 612, 618

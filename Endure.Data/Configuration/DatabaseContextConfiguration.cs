@@ -23,7 +23,6 @@ public static class DatabaseContextConfiguration
 
                     context
                         .SeedWarehouse()
-                        .SeedStorageUnit()
                         .SaveChanges();
                 })
                 .UseAsyncSeeding(async (dbContext, _, ctx) =>
@@ -31,7 +30,6 @@ public static class DatabaseContextConfiguration
                     var context = (DatabaseContext)dbContext;
 
                     await context.SeedWarehouseAsync();
-                    await context.SeedStorageUnitAsync();
 
                     await context.SaveChangesAsync(ctx);
                 })
