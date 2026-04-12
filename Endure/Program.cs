@@ -2,7 +2,6 @@ using Endure.Dispatcher.Publisher;
 using Endure.Endpoints;
 using Endure.Middleware;
 using Endure.Service;
-using Endure.Service.Options;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddTransient<TraceMiddleware>();
-
-builder.Services.Configure<CprHashingOptions>(builder.Configuration.GetSection(CprHashingOptions.SectionName));
 
 builder.Services.RegisterDispatcherServices(builder.Configuration);
 builder.Services.RegisterServices(builder.Configuration);

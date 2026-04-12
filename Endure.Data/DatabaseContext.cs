@@ -7,8 +7,6 @@ namespace Endure.Data;
 public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
     public DbSet<AuditLog> AuditLog { get; set; }
-    public DbSet<DietaryRestriction> DietaryRestriction { get; set; }
-    public DbSet<DietaryRestrictionType> DietaryRestrictionType { get; set; }
 
     public DbSet<Warehouse> Warehouse { get; set; }
     public DbSet<StorageUnit> StorageUnit { get; set; }

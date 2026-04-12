@@ -7,14 +7,6 @@ internal class InternalProductBatchService(DatabaseContext context) : IInternalP
 {
     private readonly DatabaseContext _context = context;
 
-    public async Task<bool> RemoveProductBatchesFromStorageUnitAsync(Guid storageUnitId)
-    {
-        return await _context
-                .ProductBatch
-                .Where(x => x.StorageUnitId == storageUnitId)
-                .ExecuteUpdateAsync(x => x.SetProperty(y => y.IsDeleted, true)) > 0;
-    }
-
     public async Task<bool> IsRelyingOnProductId(Guid id)
     {
         return await _context
@@ -25,11 +17,6 @@ internal class InternalProductBatchService(DatabaseContext context) : IInternalP
 
 internal interface IInternalProductBatchService
 {
-    /// <summary>
-    /// Removes all of the productbatches that is in a specific storageunit.
-    /// </summary>
-    Task<bool> RemoveProductBatchesFromStorageUnitAsync(Guid storageUnitId);
-
     /// <summary>
     /// Checks if any productbatch is relying on a specific product across warehouses.
     /// </summary>

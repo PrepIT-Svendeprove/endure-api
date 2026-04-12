@@ -1,13 +1,9 @@
-﻿using Endure.Dispatcher.RabbitMQ;
-using Endure.Endpoints.Auditlog;
-using Endure.Endpoints.DietaryRestriction;
-using Endure.Endpoints.DietaryRestrictionType;
+﻿using Endure.Endpoints.Auditlog;
 using Endure.Endpoints.Product;
 using Endure.Endpoints.ProductBatch;
 using Endure.Endpoints.StorageUnit;
 using Endure.Endpoints.Warehouse;
 using Endure.Middleware;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Endure.Endpoints;
 
@@ -19,8 +15,6 @@ public static class MinimalApiConfiguration
 
         var appGroup = app.MapGroup("/api");
 
-        appGroup.MapDietaryRestrictionsTypeApiRoutes();
-        appGroup.MapDietaryRestrictionsApiRoutes();
         appGroup.MapProductBatchApiRoutes();
         appGroup.MapProductApiRoutes();
         appGroup.MapStorageUnitApiRoutes();

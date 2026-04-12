@@ -18,9 +18,6 @@ public static class ServiceRegistration
 
         services.AddScoped<IRequestContext, RequestContext>();
 
-        services.AddScoped<ICprCryptoService, CprCryptoService>();
-        services.AddScoped<IDietaryRestrictionTypeService, DietaryRestrictionTypeService>();
-        services.AddScoped<IDietaryRestrictionService, DietaryRestrictionService>();
         services.AddScoped<IProductBatchService, ProductBatchService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IStorageUnitService, StorageUnitService>();
