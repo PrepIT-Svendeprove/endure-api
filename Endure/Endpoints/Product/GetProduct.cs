@@ -25,7 +25,7 @@ public class GetProduct
 
             return Results.Ok(result);
         }
-        catch
+        catch(Exception ex)
         {
             return Results.InternalServerError();
         }

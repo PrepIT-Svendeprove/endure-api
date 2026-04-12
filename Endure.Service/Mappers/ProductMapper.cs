@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.Product;
 using Endure.Service.Models.Dto.ProductDtos;
 
 namespace Endure.Service.Mappers;
@@ -23,6 +24,62 @@ internal static class ProductMapper
             EAN = product.EAN,
             Name = product.Name,
             Description = product.Description
+        };
+    }
+
+    internal static Product MapToProduct(this ProductCreateEventMessage message)
+    {
+        return new Product
+        {
+            Id = message.Id,
+            EAN = message.Ean,
+            Name = message.Name,
+            Description = message.Description,
+            CreatedAt = message.CreatedAt,
+            UpdatedAt = message.UpdatedAt,
+            WarehouseId = message.WarehouseId
+        };
+    }
+
+    internal static Product MapToProduct(this ProductUpdateEventMessage message)
+    {
+        return new Product
+        {
+            Id = message.Id,
+            EAN = message.Ean,
+            Name = message.Name,
+            Description = message.Description,
+            CreatedAt = message.CreatedAt,
+            UpdatedAt = message.UpdatedAt,
+            WarehouseId = message.WarehouseId
+        };
+    }
+
+    internal static ProductUpdateEventMessage MapToProductUpdateEventMessage(this Product message)
+    {
+        return new ProductUpdateEventMessage
+        {
+            Id = message.Id,
+            Ean = message.EAN,
+            Name = message.Name,
+            Description = message.Description,
+            CreatedAt = message.CreatedAt,
+            UpdatedAt = message.UpdatedAt,
+            WarehouseId = message.WarehouseId
+        };
+    }
+
+    internal static ProductCreateEventMessage MapToProductCreateEventMessage(this Product message)
+    {
+        return new ProductCreateEventMessage
+        {
+            Id = message.Id,
+            Ean = message.EAN,
+            Name = message.Name,
+            Description = message.Description,
+            CreatedAt = message.CreatedAt,
+            UpdatedAt = message.UpdatedAt,
+            WarehouseId = message.WarehouseId
         };
     }
 

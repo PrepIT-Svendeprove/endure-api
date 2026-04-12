@@ -6,6 +6,7 @@ using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
+using Endure.Service.Services.Dispatcher;
 using Endure.Service.Services.Internal;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -13,12 +14,16 @@ using System.Linq.Expressions;
 namespace Endure.Service.Services;
 
 internal class ProductService(
-        IInternalProductBatchService productBatchService, 
+        IInternalProductBatchService productBatchService,
+        IDispatcherProductService dispatcherProductService,
+        IWarehouseService warehouseService,
         DatabaseContext context
     ) 
     : BaseService<Product>(context), IProductService
 {
     private readonly IInternalProductBatchService _productBatchService = productBatchService;
+    private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IDispatcherProductService _dispatcherProductService = dispatcherProductService;
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<Product, bool>>? predicate = null)
     {
@@ -26,7 +31,7 @@ internal class ProductService(
         if (await _productBatchService.IsRelyingOnProductId(id))
             return ServiceResult.Failed;
 
-        return await base.SoftDeleteEntity(id);
+        return await _dispatcherProductService.DeleteProductAsync(id);
     }
 
     public async Task<Result> CreateProductAsync(CreateProductDto entity)
@@ -35,10 +40,12 @@ internal class ProductService(
         if (await _context.Product.AnyAsync(x => x.EAN == entity.EAN && !x.IsDeleted))
             return Result.Failed([ProductStatusCodes.EAN_EXISTS]);
 
-        var mappedEntity = entity.MapToProduct();
-        await _context.AddAsync(mappedEntity);
+        var warehouseRootId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        return await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([]);
+        var mappedEntity = entity.MapToProduct();
+        mappedEntity.WarehouseId = warehouseRootId;
+
+        return await _dispatcherProductService.CreateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 
     public async Task<Result> UpdateProductAsync(ProductDto entity)

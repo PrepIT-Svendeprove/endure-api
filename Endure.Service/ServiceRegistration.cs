@@ -26,6 +26,7 @@ public static class ServiceRegistration
 
         services.AddScoped<IDispatcherAuditLogService, DispatcherAuditLogService>();
         services.AddScoped<IDispatcherProductBatchService, DispatcherProductBatchService>();
+        services.AddScoped<IDispatcherProductService, DispatcherProductService>();
         services.AddScoped<IDispatcherWarehouseService, DispatcherWarehouseService>();
         services.AddScoped<IDispatcherStorageUnitService, DispatcherStorageUnitService>();
 

@@ -1,6 +1,5 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage.ProductBatch;
 using Endure.Dispatcher.EventMessage.StorageUnit;
 using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
@@ -67,20 +66,19 @@ internal class DispatcherStorageUnitService(
                      .SetProperty(y => y.IsSlot, entity.IsSlot)
                 ) > 0;
 
-        if (result)
-            await SynchronizeWithParent(new StorageUnitUpdatedEventMessage
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                ShortName = entity.ShortName,
-                Description = entity.Description,
-                StorageType = entity.StorageType,
-                ParentId = entity.ParentId,
-                WarehouseId = entity.WarehouseId,
-                IsSlot = entity.IsSlot,
-                CreatedAt = entity.CreatedAt,
-                UpdatedAt = entity.UpdatedAt,
-            });
+        await SynchronizeWithParent(new StorageUnitUpdatedEventMessage
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            Description = entity.Description,
+            StorageType = entity.StorageType,
+            ParentId = entity.ParentId,
+            WarehouseId = entity.WarehouseId,
+            IsSlot = entity.IsSlot,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+        });
 
         return result;
     }

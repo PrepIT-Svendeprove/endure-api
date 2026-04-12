@@ -21,7 +21,8 @@ internal class BaseDispatcherService<T>(
     protected async Task<bool> RootWarehouseHasParentAsync()
         => await _context.Warehouse.AnyAsync(x => x.IsRoot && !x.IsDeleted && x.ParentId != null);
 
-    protected async Task SynchronizeWithParent(BaseEventMessage message)
+    protected async Task SynchronizeWithParent<T>(T message)
+        where T : BaseEventMessage
     {
         // If the root warehouse has a parent set, we should try and synchronize with the parent.
         if (!await RootWarehouseHasParentAsync())

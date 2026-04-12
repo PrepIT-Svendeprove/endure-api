@@ -18,4 +18,6 @@ public class ProductDto
     /// Description of the product.
     /// </summary>
     public string? Description { get; set; }
+
+    public Guid WarehouseId { get; set; }
 }

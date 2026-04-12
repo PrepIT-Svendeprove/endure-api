@@ -1,6 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
 using Endure.Dispatcher.EventMessage;
+using Endure.Dispatcher.EventMessage.Product;
 using Endure.Dispatcher.EventMessage.ProductBatch;
 using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
@@ -20,6 +21,11 @@ internal class DispatcherProductBatchService(
 
     public async Task<bool> CreateProductBatchAsync(ProductBatch batch)
     {
+        var product = await _context.Product.FirstOrDefaultAsync(x => x.Id == batch.ProductId && x.WarehouseId == batch.WarehouseId);
+
+        if (product is null)
+            return false;
+
         await _context.AddAsync(batch);
 
         var result = await _context.SaveChangesAsync() > 0;
@@ -35,7 +41,17 @@ internal class DispatcherProductBatchService(
                     StorageUnitId = batch.StorageUnitId,
                     WarehouseId = batch.WarehouseId,
                     CreatedAt = batch.CreatedAt,
-                    UpdatedAt = batch.UpdatedAt
+                    UpdatedAt = batch.UpdatedAt,
+                    Product = new ProductCreateEventMessage
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Name,
+                        Ean = product.EAN,
+                        WarehouseId = product.WarehouseId,
+                        CreatedAt = product.CreatedAt,
+                        UpdatedAt = product.CreatedAt
+                    }
                 }
             );
 
@@ -52,6 +68,16 @@ internal class DispatcherProductBatchService(
             );
 
             return true;
+        }
+
+        // Check if the product already exists, if it does not and it has been included in the event message create it.
+        if (message.Product is not null && !await _context.Product.AnyAsync(x => x.Id == message.ProductId && x.WarehouseId == message.WarehouseId))
+        {
+            var mappedProductentity = message.Product.MapToProduct();
+
+            await _context.AddAsync(mappedProductentity);
+
+            await _context.SaveChangesAsync();
         }
 
         var mapppedEntity = message.MapToProductBatch();

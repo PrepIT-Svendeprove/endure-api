@@ -6,5 +6,7 @@ public class Product : BaseModel
     public required string EAN { get; set; }
     public string? Description { get; set; }
 
+    public Guid WarehouseId { get; set; }
+
     public List<ProductBatch> ProductBatches { get; set; } = [ ];
 }

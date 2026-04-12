@@ -11,5 +11,7 @@ internal class ProductTypeConfiguration : BaseTypeConfiguration<Product>
 
         builder.Property(x => x.Id)
             .HasMaxLength(20);
+
+        builder.HasKey(x => new { x.WarehouseId, x.Id });
     }
 }

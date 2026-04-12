@@ -70,6 +70,10 @@ internal class ProductBatchService(
                 .MapToProductBatchDto()
                 .ToListAsync();
     }
+
+
+    private async Task<bool> IsDeleted<TModel>(Guid id)
+        => !await _context.ProductBatch.AnyAsync(x => x.Id == id && !x.IsDeleted);
 }
 
 public interface IProductBatchService : IBaseService

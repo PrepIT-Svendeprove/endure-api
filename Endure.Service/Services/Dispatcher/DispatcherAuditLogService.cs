@@ -11,10 +11,8 @@ internal sealed class DispatcherAuditLogService(
         DatabaseContext context,
         IMessagePublisher messagePublisher
     )
-    : BaseService<AuditLog>(context), IDispatcherAuditLogService
+    : BaseDispatcherService<AuditLog>(context, messagePublisher), IDispatcherAuditLogService
 {
-    private readonly IMessagePublisher _messagePublisher = messagePublisher;
-
     public async Task<bool> CreateAuditLogAsync(AuditLog auditLog)
     {
         // If the entity already exists, we should not try to add it again.
@@ -25,8 +23,8 @@ internal sealed class DispatcherAuditLogService(
 
         var result = await _context.SaveChangesAsync() > 0;
 
-        if (result && await ShouldSynchronizeWithParent(auditLog.WarehouseId))
-            await _messagePublisher.PublishAsync(new AuditLogCreatedEventMessage
+        if (result)
+            await SynchronizeWithParent(new AuditLogCreatedEventMessage
             {
                 Id = auditLog.Id,
                 LogData = auditLog.Log,

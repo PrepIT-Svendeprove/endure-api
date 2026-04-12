@@ -28,6 +28,17 @@ internal static class WarehouseMapper
         };
     }
 
+    public static Warehouse MapToWarehouse(this UpdateWarehouseDto entity)
+    {
+        return new Warehouse
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            ParentId = entity.ParentId
+        };
+    }
+
     public static WarehouseDto MapToWarehouseDto(this Warehouse entity)
     {
         return new WarehouseDto

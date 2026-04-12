@@ -14,7 +14,7 @@ internal class ProductbatchTypeConfiguration : BaseTypeConfiguration<ProductBatc
         builder.HasKey(x => new { x.WarehouseId, x.Id });
         builder.HasOne(x => x.Product)
             .WithMany(x => x.ProductBatches)
-            .HasForeignKey(x => x.ProductId)
+            .HasForeignKey(x => new { x.WarehouseId, x.ProductId })
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.StorageUnit)

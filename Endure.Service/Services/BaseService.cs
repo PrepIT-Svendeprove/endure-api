@@ -8,12 +8,8 @@ using System.Linq.Expressions;
 
 namespace Endure.Service.Services;
 
-public abstract class BaseService<T>(DatabaseContext context) : BaseService<T, Guid>(context)
-    where T : BaseModel<Guid>;
-
-public abstract class BaseService<T, TKey>(DatabaseContext context) : IBaseService
-    where T : BaseModel<TKey>
-    where TKey : notnull, IEquatable<TKey>
+public abstract class BaseService<T>(DatabaseContext context) : IBaseService
+    where T : BaseModel
 {
     protected readonly DatabaseContext _context = context;
 
@@ -24,7 +20,7 @@ public abstract class BaseService<T, TKey>(DatabaseContext context) : IBaseServi
             .Skip((filter.Page <= 0 ? 0 : filter.Page - 1) * filter.Take)
             .Where(x => !x.IsDeleted);
 
-    protected virtual async Task<ServiceResult> SoftDeleteEntity(TKey id, Expression<Func<T, bool>>? predicate = null)
+    protected virtual async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<T, bool>>? predicate = null)
     {
         var query = _context
             .Set<T>()
@@ -48,12 +44,8 @@ public abstract class BaseService<T, TKey>(DatabaseContext context) : IBaseServi
         return ServiceResult.Failed;
     }
 
-    public async Task<ServiceResult> SoftDeleteEntity(TKey id)
+    public async Task<ServiceResult> SoftDeleteEntity(Guid id)
         => await SoftDeleteEntity(id, null);
-
-    public virtual async Task<bool> IsDeleted<TModel>(TKey id)
-        where TModel : BaseModel<TKey>
-        => !await _context.Set<TModel>().AnyAsync(x => x.Id == id && !x.IsDeleted);
 
     /// <summary>
     /// Checks if the warehouseId is a root warehouse, and if it has a parentId.

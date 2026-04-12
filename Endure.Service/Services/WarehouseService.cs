@@ -8,17 +8,19 @@ using Endure.Service.Models.Dto.WarehouseDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
+using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endure.Service.Services;
 
 internal class WarehouseService(
         DatabaseContext context,
-        IMessagePublisher messagePublisher
+        IMessagePublisher messagePublisher,
+        IDispatcherWarehouseService dispatcherWarehouseService
     )
     : BaseService<Warehouse>(context), IWarehouseService
 {
-    private readonly IMessagePublisher _messagePublisher = messagePublisher;
+    private readonly IDispatcherWarehouseService _dispatcherWarehouseService = dispatcherWarehouseService;
 
     public async Task<Guid> GetRootWarehouseIdAsync()
     {
@@ -88,30 +90,14 @@ internal class WarehouseService(
 
     public async Task<Result> UpdateWarehouseAsync(UpdateWarehouseDto entity)
     {
+        var mappedEntity = entity.MapToWarehouse();
+
         var rootId = await GetRootWarehouseIdAsync();
 
         if (rootId != entity.Id)
             return Result.Failed([WarehouseStatusCodes.ENTITY_IS_NOT_ROOT]);
 
-        var result = await _context
-                .Warehouse
-                .Where(x => x.Id == entity.Id)
-                .ExecuteUpdateAsync(x =>
-                    x.SetProperty(y => y.Name, entity.Name)
-                    .SetProperty(y => y.ShortName, entity.ShortName)
-                    .SetProperty(y => y.ParentId, entity.ParentWarehouseId)
-                ) > 0 ? Result.Success() : Result.Failed([]);
-
-        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(entity.Id))
-            await _messagePublisher.PublishAsync(new WarehouseUpdatedEventMessage
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                ParentId = entity.ParentWarehouseId,
-                ShortName = entity.ShortName
-            });
-
-        return result;
+        return await _dispatcherWarehouseService.UpdateWarehouseAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 }
 
