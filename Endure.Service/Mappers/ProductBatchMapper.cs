@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.ProductBatch;
 using Endure.Service.Models.Dto.ProductBatchDtos;
 
 namespace Endure.Service.Mappers;
@@ -25,6 +26,22 @@ internal static class ProductBatchMapper
             ProductId = entity.ProductId,
             StorageUnitId = entity.StorageUnitId,
             WarehouseId = entity.WarehouseId
+        };
+    }
+
+    internal static ProductBatch MapToProductBatch(this ProductBatchCreatedEventMessage entity)
+    {
+        return new ProductBatch
+        {
+            Id = entity.Id,
+            BestBefore = entity.BestBefore,
+            Count = entity.Count,
+            UpdatedAt = entity.UpdatedAt,
+            CreatedAt = entity.CreatedAt,
+            IsDeleted = false,
+            StorageUnitId = entity.StorageUnitId,
+            WarehouseId = entity.WarehouseId,
+            ProductId = entity.ProductId,
         };
     }
 }

@@ -11,5 +11,5 @@ public class WarehouseUpdatedEventMessage : BaseEventMessage
 
     public string? ShortName { get; set; }
 
-    public Guid? ParentWarehouseId { get; set; }
+    public Guid? ParentId { get; set; }
 }

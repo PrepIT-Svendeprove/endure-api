@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.Warehouse;
 using Endure.Service.Models.Dto.WarehouseDtos;
 
 namespace Endure.Service.Mappers;
@@ -41,14 +42,16 @@ internal static class WarehouseMapper
         };
     }
 
-    public static Warehouse MapToWarehouse(this UpdateWarehouseDto entity)
+    public static Warehouse MapToWarehouse(this WarehouseUpdatedEventMessage message)
     {
         return new Warehouse
         {
-            Id = entity.Id,
-            Name = entity.Name,
-            ShortName = entity.ShortName,
-            ParentId = entity.ParentWarehouseId
+            Id = message.Id,
+            Name = message.Name,
+            ShortName = message.ShortName,
+            CreatedAt = message.CreatedAt,
+            UpdatedAt = message.UpdatedAt,
+            ParentId = message.ParentId,
         };
     }
 }

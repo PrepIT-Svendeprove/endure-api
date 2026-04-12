@@ -18,7 +18,7 @@ public class StorageUnitCreatedEventMessage : BaseEventMessage
 
     public bool IsSlot { get; set; }
 
-    public Guid? ParentStorageUnitId { get; set; }
+    public Guid? ParentId { get; set; }
 
     public Guid WarehouseId { get; set; }
 }

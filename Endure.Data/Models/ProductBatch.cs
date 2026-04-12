@@ -15,4 +15,5 @@ public class ProductBatch : BaseModel
 
     public Product Product { get; set; } = default!;
     public StorageUnit StorageUnit { get; set; } = default!;
+    public Warehouse Warehouse { get; set; } = default!;
 }

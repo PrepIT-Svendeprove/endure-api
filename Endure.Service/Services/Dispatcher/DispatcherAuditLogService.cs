@@ -17,6 +17,10 @@ internal sealed class DispatcherAuditLogService(
 
     public async Task<bool> CreateAuditLogAsync(AuditLog auditLog)
     {
+        // If the entity already exists, we should not try to add it again.
+        if (await _context.AuditLog.AnyAsync(x => x.Id == auditLog.Id && x.WarehouseId == auditLog.WarehouseId))
+            return true;
+
         await _context.AddAsync(auditLog);
 
         var result = await _context.SaveChangesAsync() > 0;
@@ -38,10 +42,6 @@ internal sealed class DispatcherAuditLogService(
 
     public async Task<bool> CreateAuditLogAsync(AuditLogCreatedEventMessage auditLogEventMessage)
     {
-        // If the entity already exists, we should not try to add it again.
-        if (await Exists(auditLogEventMessage.Id, auditLogEventMessage.WarehouseId))
-            return true;
-
         var mappedEntity = auditLogEventMessage.MapToAuditLog();
 
         return await CreateAuditLogAsync(mappedEntity);

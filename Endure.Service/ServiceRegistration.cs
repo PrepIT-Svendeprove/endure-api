@@ -28,6 +28,9 @@ public static class ServiceRegistration
         services.AddScoped<IAuditLogService, AuditLogService>();
 
         services.AddScoped<IDispatcherAuditLogService, DispatcherAuditLogService>();
+        services.AddScoped<IDispatcherProductBatchService, DispatcherProductBatchService>();
+        services.AddScoped<IDispatcherWarehouseService, DispatcherWarehouseService>();
+        services.AddScoped<IDispatcherStorageUnitService, DispatcherStorageUnitService>();
 
         // Internal services
         services.AddScoped<IInternalProductBatchService, InternalProductBatchService>();

@@ -1,5 +1,5 @@
 ﻿using Endure.Dispatcher;
-using Endure.Dispatcher.Consumer.Consumers;
+using Endure.Messaging.Consumer.Consumers;
 
 namespace Endure.Messaging.Consumer;
 

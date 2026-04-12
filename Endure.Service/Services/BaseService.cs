@@ -38,6 +38,9 @@ public abstract class BaseService<T>(DatabaseContext context) : IBaseService
         if (result > 0)
             return ServiceResult.Success;
 
+        if (result == 0)
+            return ServiceResult.NoChanges;
+
         return ServiceResult.Failed;
     }
 
@@ -48,7 +51,7 @@ public abstract class BaseService<T>(DatabaseContext context) : IBaseService
         where TModel : BaseModel
         => !await _context.Set<TModel>().AnyAsync(x => x.Id == id && !x.IsDeleted);
 
-    public virtual async Task<bool> Exists<TModel>(Guid id)
+    public virtual async Task<bool> ExistsAsync<TModel>(Guid id)
         where TModel : BaseModel
         => await _context.Set<TModel>().AnyAsync(x => x.Id == id);
 

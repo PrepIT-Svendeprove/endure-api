@@ -29,7 +29,9 @@ public class StorageUnitUpdatedEventMessage : BaseEventMessage
     /// <summary>
     /// The parent storage unit, is only set if the unit is a sub-unit.
     /// </summary>
-    public Guid? ParentStorageUnitId { get; set; }
+    public Guid? ParentId { get; set; }
+
+    public Guid WarehouseId { get; set; }
 
     /// <summary>
     /// The type of products that the storage unit is supposed to be used for.

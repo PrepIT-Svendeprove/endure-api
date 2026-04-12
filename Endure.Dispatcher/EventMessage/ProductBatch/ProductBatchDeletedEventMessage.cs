@@ -8,6 +8,4 @@ public class ProductBatchDeletedEventMessage : BaseEventMessage
     public Guid Id { get; set; }
 
     public Guid WarehouseId { get; set; }
-
-    public bool IsSoftDeleted { get; set; }
 }

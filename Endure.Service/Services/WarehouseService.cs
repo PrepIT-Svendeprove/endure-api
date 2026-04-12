@@ -107,7 +107,7 @@ internal class WarehouseService(
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                ParentWarehouseId = entity.ParentWarehouseId,
+                ParentId = entity.ParentWarehouseId,
                 ShortName = entity.ShortName
             });
 

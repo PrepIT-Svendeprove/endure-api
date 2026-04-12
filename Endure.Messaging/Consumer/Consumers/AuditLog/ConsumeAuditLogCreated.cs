@@ -2,27 +2,40 @@
 using Endure.Dispatcher.RabbitMQ;
 using Endure.Service.Services.Dispatcher;
 
-namespace Endure.Dispatcher.Consumer.Consumers.AuditLog;
+namespace Endure.Messaging.Consumer.Consumers.AuditLog;
 
-internal class ConsumeAuditLogCreated(
+internal sealed class ConsumeAuditLogCreated(
         IRabbitMqConsumerConnection rabbitMqConnection,
-        IServiceScopeFactory scopeFactory
+        IServiceScopeFactory scopeFactory,
+        ILogger<ConsumeAuditLogCreated> loggerService
     )
-    : BaseRabbitMqConsumer<AuditLogCreatedEventMessage>(rabbitMqConnection, scopeFactory)
-{   
-    protected override async Task HandleMessageAsync(AuditLogCreatedEventMessage message, CancellationToken cancellationToken)
+    : BaseRabbitMqConsumer<AuditLogCreatedEventMessage>(
+            rabbitMqConnection, 
+            scopeFactory,
+            loggerService
+        )
+{
+    private readonly ILogger<ConsumeAuditLogCreated> _loggerService = loggerService;
+
+    protected override async Task HandleMessageAsync(AuditLogCreatedEventMessage message, Guid requestId, CancellationToken cancellationToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
         var auditLogService = scope.ServiceProvider.GetRequiredService<IDispatcherAuditLogService>();
 
-        Console.WriteLine("Message recieved - AuditLogCreatedEventMessage");
-
         if (!await auditLogService.CreateAuditLogAsync(message))
         {
-            Console.WriteLine("Did not create AuditLog.");
+            _loggerService.LogWarning($"""
+                    Could not create entity
+                        Type: {typeof(AuditLogCreatedEventMessage).Name}
+                        RequestId: {requestId}
+                """);
             return;
         }
 
-        Console.WriteLine("AuditLog created");
+        _loggerService.LogInformation($"""
+                Entity created:
+                    Type: {typeof(AuditLogCreatedEventMessage).Name}
+                    RequestId: {requestId}
+            """);
     }
 }

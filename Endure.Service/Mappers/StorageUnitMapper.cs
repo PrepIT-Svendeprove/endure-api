@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Endure.Dispatcher.EventMessage.StorageUnit;
 using Endure.Service.Models.Dto.StorageUnitDtos;
 
 namespace Endure.Service.Mappers;
@@ -16,6 +17,54 @@ internal static class StorageUnitMapper
             StorageType = entity.StorageType,
             IsSlot = entity.IsSlot,
             WarehouseId = warehouseId
+        };
+    }
+
+    public static StorageUnit MapToStorageUnit(this StorageUnitCreatedEventMessage entity)
+    {
+        return new StorageUnit
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            StorageType = entity.StorageType,
+            Description = entity.Description,
+            IsSlot = entity.IsSlot,
+            ParentId = entity.ParentId,
+            WarehouseId = entity.WarehouseId,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+        };
+    }
+
+    public static StorageUnit MapToStorageUnit(this UpdateStorageUnitDto entity)
+    {
+        return new StorageUnit
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            Description = entity.Description,
+            ParentId = entity.ParentId,
+            StorageType = entity.StorageType,
+            IsSlot = entity.IsSlot
+        };
+    }
+
+    public static StorageUnit MapToStorageUnit(this StorageUnitUpdatedEventMessage entity)
+    {
+        return new StorageUnit
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            Description = entity.Description,
+            ParentId = entity.ParentId,
+            WarehouseId = entity.WarehouseId,
+            StorageType = entity.StorageType,
+            IsSlot = entity.IsSlot,
+            UpdatedAt = entity.UpdatedAt,
+            CreatedAt = entity.CreatedAt,
         };
     }
 

@@ -1,4 +1,4 @@
-﻿using Endure.Dispatcher.Consumer.Consumers;
+﻿using Endure.Messaging.Consumer.Consumers;
 
 namespace Endure.Messaging.Consumer;
 
@@ -11,6 +11,7 @@ internal sealed class RabbitMqConsumeWorker(IEnumerable<IRabbitMqConsumer> consu
         foreach (var consumer in _consumers)
             await consumer.RegisterAsync(cancellationToken);
 
+        Console.WriteLine($"Declared {_consumers.Count()} listeners");
         Console.WriteLine("Waiting for messages");
 
         await Task.Delay(Timeout.Infinite, cancellationToken);

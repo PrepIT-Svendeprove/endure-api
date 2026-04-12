@@ -4,20 +4,24 @@ using Endure.Dispatcher.RabbitMQ;
 using Endure.Dispatcher.Util;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 
-namespace Endure.Dispatcher.Consumer.Consumers;
+namespace Endure.Messaging.Consumer.Consumers;
 
 internal abstract class BaseRabbitMqConsumer<TMessage>(
         IRabbitMqConsumerConnection rabbitMqConnection,
-        IServiceScopeFactory serviceScopeFactory
+        IServiceScopeFactory serviceScopeFactory,
+        ILogger loggerService
     )
     : IRabbitMqConsumer
     where TMessage : BaseEventMessage
 {
     protected readonly IRabbitMqConsumerConnection _rabbitMqConnection = rabbitMqConnection;
     protected readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
+    private readonly ILogger _loggerService = loggerService;
+
     protected IConnection? _connection;
     protected IChannel? _channel;
 
@@ -47,28 +51,56 @@ internal abstract class BaseRabbitMqConsumer<TMessage>(
             consumer,
             cancellationToken
         );
+
+        Console.WriteLine($"Setup Declared: {typeof(TMessage).Name}");
     }
 
     private async Task RecievedMessageAsync(object sender, BasicDeliverEventArgs eventArgs, CancellationToken cancellationToken)
     {
+        var requestId = Guid.NewGuid();
+        _loggerService.LogInformation($"""
+                Received Message
+                    Type: {typeof(TMessage).Name}
+                    RequestId: {requestId}
+            """);
+        
         try
         {
             var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
             var message = JsonSerializer.Deserialize<TMessage>(json, DispatchSerializerOptions.Options) 
                 ?? throw new InvalidOperationException($"Could not deserialize {typeof(TMessage).Name}");
 
-            await HandleMessageAsync(message, cancellationToken);
+            _loggerService.LogInformation($"""
+                    Beginning to handle message
+                        Type: {typeof(TMessage).Name}
+                        RequestId: {requestId}
+                """);
+
+            await HandleMessageAsync(message, requestId, cancellationToken);
+
+            _loggerService.LogInformation($"""
+                    Beginning AMQP Ack
+                        Type: {typeof(TMessage).Name}
+                        RequestId: {requestId}
+                """);
+
             await _channel!.BasicAckAsync(eventArgs.DeliveryTag, false, cancellationToken);
         }
         catch (Exception ex)
         {
+            _loggerService.LogError($"""
+                    Failed while handling message
+                        Type: {typeof(TMessage).Name}
+                        RequestId: {requestId}
+                """);
+
             await OnError(ex, eventArgs, cancellationToken);
             // There is no reason for it to requeue it, so we should just send it to the dead-letter queue instead.
             await _channel!.BasicNackAsync(eventArgs.DeliveryTag, false, false, cancellationToken);
         }
     }
 
-    protected abstract Task HandleMessageAsync(TMessage message, CancellationToken cancellationToken);
+    protected abstract Task HandleMessageAsync(TMessage message, Guid requestId, CancellationToken cancellationToken);
 
     protected virtual Task OnError(Exception ex, BasicDeliverEventArgs args, CancellationToken cancellationToken)
         => Task.CompletedTask;

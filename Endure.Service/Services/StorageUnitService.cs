@@ -1,42 +1,33 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage.StorageUnit;
-using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.StorageUnitDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
-using Endure.Service.Services.Internal;
+using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Endure.Service.Services;
 
 internal sealed class StorageUnitService(
-        IInternalProductBatchService productBatchService,
         IWarehouseService warehouseService,
-        IMessagePublisher messagePublisher,
+        IDispatcherStorageUnitService dispatcherStorageUnitService,
         DatabaseContext context
     )
     : BaseService<StorageUnit>(context), IStorageUnitService
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
-    private readonly IMessagePublisher _messagePublisher = messagePublisher;
-    private readonly IInternalProductBatchService _productBatchService = productBatchService;
+    private readonly IDispatcherStorageUnitService _dispatcherStorageUnitService = dispatcherStorageUnitService;
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<StorageUnit, bool>>? predicate = null)
     {
-        if (await HasSubStorageUnitsAsync(id))
-            return ServiceResult.Failed; 
+        if (await _context.ProductBatch.AnyAsync(x => x.StorageUnitId == id && !x.IsDeleted))
+            return ServiceResult.Failed;
 
-        var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
-
-        // Remove all of the product batches that were in the storage unit.
-        await _productBatchService.RemoveProductBatchesFromStorageUnitAsync(id);
-
-        return await base.SoftDeleteEntity(id, x => x.WarehouseId == rootWarehouseId);
+        return await _dispatcherStorageUnitService.DeleteStorageUnitAsync(id);
     }
 
     public async Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity)
@@ -48,26 +39,9 @@ internal sealed class StorageUnitService(
         var rootId = await _warehouseService.GetRootWarehouseIdAsync();
 
         var mappedEntity = entity.MapToStorageUnit(rootId);
+        mappedEntity.WarehouseId = rootId;
 
-        await _context.AddAsync(mappedEntity);
-
-        var result = await _context.SaveChangesAsync() > 0 ? Result.Success() : Result.Failed([]);
-
-        // Synchronize with the root warehouse if that warehouse has a parent.
-        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(rootId))
-            await _messagePublisher.PublishAsync(new StorageUnitCreatedEventMessage
-            {
-                Id = mappedEntity.Id,
-                Name = mappedEntity.Name,
-                ShortName = mappedEntity.ShortName,
-                Description = mappedEntity.Description,
-                IsSlot = mappedEntity.IsSlot,
-                StorageType = mappedEntity.StorageType,
-                ParentStorageUnitId = mappedEntity.ParentId,
-                WarehouseId = rootId
-            });
-
-        return result;
+        return await _dispatcherStorageUnitService.CreateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 
     public async Task<Result> UpdateStorageUnitAsync(UpdateStorageUnitDto entity)
@@ -81,35 +55,13 @@ internal sealed class StorageUnitService(
         if (dbEntity.IsSlot && !entity.IsSlot && await HasSubStorageUnitsAsync(entity.Id))
             return Result.Failed([StorageUnitStatusCodes.CONTAINING_SUBUNITS]);
 
-        // Check if the ParentStorageId has changed, and if it has ensure that the parent is actually eligible as a parent.
-        if (!dbEntity.ParentId.HasValue && entity.ParentStorageUnitId.HasValue && dbEntity.ParentId != entity.ParentStorageUnitId && !await IsStorageUnitEligibleAsParentAsync(entity.ParentStorageUnitId.Value))
+        // Check if the ParentId has changed, and if it has ensured that the parent is actually eligible as a parent.
+        if (!dbEntity.ParentId.HasValue && entity.ParentId.HasValue && dbEntity.ParentId != entity.ParentId && !await IsStorageUnitEligibleAsParentAsync(entity.ParentId.Value))
             return Result.Failed([StorageUnitStatusCodes.PARENT_NOT_ELIGIBLE]);
 
-        var result = await _context
-                .StorageUnit
-                .Where(x => x.Id == entity.Id && !x.IsDeleted)
-                .ExecuteUpdateAsync(x => 
-                    x.SetProperty(y => y.Name, entity.Name)
-                    .SetProperty(y => y.ShortName, entity.ShortName)
-                    .SetProperty(y => y.Description, entity.Description)
-                    .SetProperty(y => y.ParentId, entity.ParentStorageUnitId)
-                    .SetProperty(y => y.StorageType, entity.StorageType)
-                    .SetProperty(y => y.IsSlot, entity.IsSlot)
-                ) > 0 ? Result.Success() : Result.Failed([]);
+        var mappedEntity = entity.MapToStorageUnit();
 
-        if (result is { ServiceResult: ServiceResult.Success } && await ShouldSynchronizeWithParent(dbEntity.WarehouseId))
-            await _messagePublisher.PublishAsync(new StorageUnitUpdatedEventMessage
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                Description = entity.Description,
-                IsSlot = entity.IsSlot,
-                ShortName = entity.ShortName,
-                StorageType = entity.StorageType,
-                ParentStorageUnitId = entity.ParentStorageUnitId,
-            });
-
-        return result;
+        return await _dispatcherStorageUnitService.UpdateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 
     public async Task<bool> HasSubStorageUnitsAsync(Guid id)
