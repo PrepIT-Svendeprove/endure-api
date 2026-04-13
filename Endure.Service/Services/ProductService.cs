@@ -7,28 +7,25 @@ using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
 using Endure.Service.Services.Dispatcher;
-using Endure.Service.Services.Internal;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Endure.Service.Services;
 
 internal class ProductService(
-        IInternalProductBatchService productBatchService,
         IDispatcherProductService dispatcherProductService,
         IWarehouseService warehouseService,
         DatabaseContext context
-    ) 
+    )
     : BaseService<Product>(context), IProductService
 {
-    private readonly IInternalProductBatchService _productBatchService = productBatchService;
     private readonly IWarehouseService _warehouseService = warehouseService;
     private readonly IDispatcherProductService _dispatcherProductService = dispatcherProductService;
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<Product, bool>>? predicate = null)
     {
         // If the product id is being relied on, we should not be able to remove that product.
-        if (await _productBatchService.IsRelyingOnProductId(id))
+        if (await _context.ProductBatch.AnyAsync(x => x.ProductId == id && !x.IsDeleted))
             return ServiceResult.Failed;
 
         return await _dispatcherProductService.DeleteProductAsync(id);
@@ -48,7 +45,7 @@ internal class ProductService(
         return await _dispatcherProductService.CreateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 
-    public async Task<Result> UpdateProductAsync(ProductDto entity)
+    public async Task<Result> UpdateProductAsync(UpdateProductDto entity)
     {
         var dbEntity = await _context.Product.FirstOrDefaultAsync(x => x.Id == entity.Id && !x.IsDeleted);
 
@@ -58,15 +55,9 @@ internal class ProductService(
         if (!dbEntity.EAN.Equals(entity.EAN))
             return Result.Failed([ProductStatusCodes.EAN_CANNOT_BE_CHANGED]);
 
-        var result = await _context
-                        .Product
-                        .Where(x => x.Id == entity.Id && !x.IsDeleted)
-                        .ExecuteUpdateAsync(x =>
-                            x.SetProperty(y => y.Name, entity.Name)
-                             .SetProperty(y => y.Description, entity.Description)
-                        );
+        var mappedEntity = entity.MapToProduct();
 
-        return result > 0 ? Result.Success() : Result.Failed([ProductStatusCodes.ENTITY_UNCHANGED]);
+        return await _dispatcherProductService.UpdateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 
     public async Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter)
@@ -100,7 +91,7 @@ public interface IProductService : IBaseService
     /// <summary>
     /// Updates an exisiting product.
     /// </summary>
-    Task<Result> UpdateProductAsync(ProductDto entity);
+    Task<Result> UpdateProductAsync(UpdateProductDto entity);
 
     /// <summary>
     /// Retrieves a paginated list of products.

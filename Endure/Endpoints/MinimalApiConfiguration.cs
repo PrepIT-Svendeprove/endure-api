@@ -1,5 +1,6 @@
 ﻿using Endure.Endpoints.Auditlog;
 using Endure.Endpoints.ClimateDevice;
+using Endure.Endpoints.ClimateTelemetry;
 using Endure.Endpoints.Product;
 using Endure.Endpoints.ProductBatch;
 using Endure.Endpoints.StorageUnit;
@@ -17,6 +18,7 @@ public static class MinimalApiConfiguration
         var appGroup = app.MapGroup("/api");
 
         appGroup.MapProductBatchApiRoutes();
+        appGroup.MapClimateTelemetryApiRoutes();
         appGroup.MapProductApiRoutes();
         appGroup.MapClimateDeviceApiRoutes();
         appGroup.MapStorageUnitApiRoutes();

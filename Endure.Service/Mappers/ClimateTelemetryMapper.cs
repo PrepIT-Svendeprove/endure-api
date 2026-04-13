@@ -1,6 +1,7 @@
 ﻿using Endure.Data.Models;
 using Endure.Dispatcher.Mqtt.Topic.ClimateTelemetry;
 using Endure.Dispatcher.RabbitMQ.EventMessage.ClimateTelemetry;
+using Endure.Service.Models.Dto.ClimateTelemetry;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Endure.Service.Mappers;
@@ -44,5 +45,16 @@ internal static class ClimateTelemetryMapper
             Humidity = telemetry.Humidity,
             Temperature = telemetry.Temperature
         };
+    }
+
+    internal static IQueryable<ClimateTelemetryDto> MapToClimateTelemetryDto(this IQueryable<ClimateTelemetry> query)
+    {
+        return query.Select(x => new ClimateTelemetryDto
+        {
+            Id = x.Id,
+            Temperature = x.Temperature,
+            Humidity = x.Humidity,
+            CreatedAt = DateTimeOffset.FromUnixTimeSeconds(x.CreatedAt)
+        });
     }
 }

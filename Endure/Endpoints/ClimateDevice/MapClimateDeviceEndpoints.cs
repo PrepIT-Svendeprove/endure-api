@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks.Dataflow;
-
-namespace Endure.Endpoints.ClimateDevice;
+﻿namespace Endure.Endpoints.ClimateDevice;
 
 public static class MapClimateDeviceEndpoints
 {

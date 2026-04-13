@@ -55,6 +55,17 @@ internal static class ProductMapper
         };
     }
 
+    internal static Product MapToProduct(this UpdateProductDto product)
+    {
+        return new Product
+        {
+            Id = product.Id,
+            Name = product.Name,
+            EAN = product.EAN,
+            Description = product.Description
+        };
+    }
+
     internal static ProductUpdateEventMessage MapToProductUpdateEventMessage(this Product message)
     {
         return new ProductUpdateEventMessage

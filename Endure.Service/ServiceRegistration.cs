@@ -1,7 +1,6 @@
 ﻿using Endure.Data.Configuration;
 using Endure.Service.Services;
 using Endure.Service.Services.Dispatcher;
-using Endure.Service.Services.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,9 +38,7 @@ public static class ServiceRegistration
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IStorageUnitService, StorageUnitService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
-
-        // Internal services
-        services.AddScoped<IInternalProductBatchService, InternalProductBatchService>();
+        services.AddScoped<IClimateTelemetryService, ClimateTelemetryService>();
 
         return services;
     }
