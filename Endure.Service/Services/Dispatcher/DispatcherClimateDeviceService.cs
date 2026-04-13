@@ -23,13 +23,6 @@ internal sealed class DispatcherClimateDeviceService(
 
     public async Task<bool> CreateClimateDeviceAsync(ClimateDevice device)
     {
-        // If the entity already exists, then there is no reason to try and add it again.
-        if (await _context.ClimateDevice.AnyAsync(x => x.Id == device.Id && x.WareHouseId == device.WareHouseId))
-        {
-            await SynchronizeWithParent(device.MapToClimateDeviceCreatedEventMessage());
-            return true;
-        }
-
         await _context.AddAsync(device);
 
         var result = await _context.SaveChangesAsync() > 0;

@@ -1,0 +1,48 @@
+﻿using Endure.Data.Models;
+using Endure.Dispatcher.Mqtt.Topic.ClimateTelemetry;
+using Endure.Dispatcher.RabbitMQ.EventMessage.ClimateTelemetry;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+
+namespace Endure.Service.Mappers;
+
+internal static class ClimateTelemetryMapper
+{
+    internal static ClimateTelemetry MapToClimateTelemetry(this ClimateTelemetryCreatedEventMessage message)
+    {
+        return new ClimateTelemetry
+        {
+            Id = message.Id,
+            Humidity = message.Humidity,
+            Temperature = message.Temperature,
+            ClimateDeviceId = message.ClimateDeviceId,
+            WarehouseId = message.WarehouseId,
+            UpdatedAt = message.UpdatedAt,
+            CreatedAt = message.CreatedAt,
+        };
+    }
+
+    internal static ClimateTelemetryCreatedEventMessage MapToClimateTelemetryCreatedEventMessage(this ClimateTelemetry telemetry)
+    {
+        return new ClimateTelemetryCreatedEventMessage
+        {
+            Id = telemetry.Id,
+            ClimateDeviceId = telemetry.ClimateDeviceId,
+            WarehouseId = telemetry.WarehouseId,
+            Humidity = telemetry.Humidity,
+            Temperature = telemetry.Temperature,
+            CreatedAt = telemetry.CreatedAt,
+            UpdatedAt = telemetry.UpdatedAt
+        };
+    }
+
+    internal static ClimateTelemetry MapToClimateClimateTelemetry(this ClimateTelemetryTopic telemetry, Guid climateDeviceId, Guid wareHouseId)
+    {
+        return new ClimateTelemetry
+        {
+            ClimateDeviceId = climateDeviceId,
+            WarehouseId = wareHouseId,
+            Humidity = telemetry.Humidity,
+            Temperature = telemetry.Temperature
+        };
+    }
+}
