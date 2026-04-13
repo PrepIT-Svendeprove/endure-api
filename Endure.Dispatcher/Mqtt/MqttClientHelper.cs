@@ -12,7 +12,7 @@ internal sealed class MqttClientHelper(
     public MqttClientOptions MqttOptions { get; private set; }
     public MqttClientFactory Factory { get; private set; }
 
-    public async Task<IMqttClient> CreateMqttClient()
+    public async Task<IMqttClient> CreateMqttClientAsync()
     {
         Factory = new MqttClientFactory();
         var client = Factory.CreateMqttClient();
@@ -21,11 +21,6 @@ internal sealed class MqttClientHelper(
                 .WithTcpServer(_options.Broker, _options.Port)
                 .WithCredentials(_options.UserName, _options.Password)
                 .WithClientId(_options.ClientId)
-                //.WithTlsOptions(
-                //    new MqttClientTlsOptionsBuilder()
-                //        .UseTls()
-                //        .Build()
-                //)
                 .Build();
 
         return client;
@@ -37,5 +32,5 @@ public interface IMqttClientHelper
     MqttClientFactory Factory { get; }
     MqttClientOptions MqttOptions { get; }
 
-    Task<IMqttClient> CreateMqttClient();
+    Task<IMqttClient> CreateMqttClientAsync();
 }

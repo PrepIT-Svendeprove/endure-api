@@ -1,5 +1,6 @@
 ﻿using Endure.Service.Models.Dto.ProductDtos;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +11,7 @@ public class GetProduct
     [EndpointName("GetPaginatedProducts")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "No entities were found")]
-    [ProducesResponseType<List<ProductDto>>(StatusCodes.Status200OK, Description = "Returns a list of entities")]
+    [ProducesResponseType<PaginatedResult<ProductDto>>(StatusCodes.Status200OK, Description = "Returns a list of entities")]
     public static async Task<IResult> GetPaginatedProductsAsync(
             [FromServices] IProductService productService,
             [AsParameters] ProductPaginatedFilter filter 
@@ -19,9 +20,6 @@ public class GetProduct
         try
         {
             var result = await productService.GetPaginatedProducts(filter);
-
-            if (result.Count <= 0)
-                return Results.NoContent();
 
             return Results.Ok(result);
         }

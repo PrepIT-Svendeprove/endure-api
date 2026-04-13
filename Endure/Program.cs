@@ -1,3 +1,4 @@
+using Endure.Dispatcher.Mqtt;
 using Endure.Dispatcher.RabbitMQ;
 using Endure.Endpoints;
 using Endure.Middleware;
@@ -11,6 +12,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddTransient<TraceMiddleware>();
 
 builder.Services.RegisterRabbitMqPublisherExtensions(builder.Configuration);
+builder.Services.RegisterMqttPublisherExtensions(builder.Configuration);
 builder.Services.RegisterServices(builder.Configuration);
 
 var app = builder.Build();

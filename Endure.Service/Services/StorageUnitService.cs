@@ -89,15 +89,15 @@ internal sealed class StorageUnitService(
                 .FirstOrDefaultAsync();
     }
 
-    public async Task<List<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter)
+    public async Task<PaginatedResult<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter)
     {
         var context = MakePaginatedQuery(filter)
             .OrderByDescending(x => x.Name)
             .ThenBy(x => x.ShortName);
 
-        return await context
-                .MapToStorageUnitDto()
-                .ToListAsync();
+        var maxPages = await context.CountAsync();
+
+        return new PaginatedResult<StorageUnitDto>(await context.MapToStorageUnitDto().ToListAsync(), maxPages);
     }
 
     private async Task<bool> IsStorageUnitEligibleAsParentAsync(Guid id)
@@ -115,7 +115,7 @@ public interface IStorageUnitService : IBaseService
     /// Creates a new storage units, for the root warehouse.
     /// </summary>
     Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity);
-    Task<List<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter);
+    Task<PaginatedResult<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter);
     Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id);
     Task<List<StorageUnitDto>> GetStorageUnitsByParentIdAsync(Guid id);
 

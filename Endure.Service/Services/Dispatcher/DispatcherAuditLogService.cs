@@ -17,7 +17,19 @@ internal sealed class DispatcherAuditLogService(
     {
         // If the entity already exists, we should not try to add it again.
         if (await _context.AuditLog.AnyAsync(x => x.Id == auditLog.Id && x.WarehouseId == auditLog.WarehouseId))
+        {
+            await SynchronizeWithParent(new AuditLogCreatedEventMessage
+            {
+                Id = auditLog.Id,
+                LogData = auditLog.Log,
+                LogLevel = auditLog.LogLevel,
+                WarehouseId = auditLog.WarehouseId,
+                CreatedAt = auditLog.CreatedAt,
+                RequestId = auditLog.RequestId,
+                UpdatedAt = auditLog.UpdatedAt
+            });
             return true;
+        }
 
         await _context.AddAsync(auditLog);
 

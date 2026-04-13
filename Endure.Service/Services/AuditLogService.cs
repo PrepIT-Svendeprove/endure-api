@@ -3,6 +3,7 @@ using Endure.Data.Models;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ internal class AuditLogService(
                 .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<List<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter)
+    public async Task<PaginatedResult<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter)
     {
         var context = MakePaginatedQuery(filter)
             .OrderByDescending(x => x.CreatedAt)
@@ -37,9 +38,14 @@ internal class AuditLogService(
         if (!string.IsNullOrEmpty(filter.RequestId))
             context = context.Where(x => x.RequestId == filter.RequestId);
 
-        return await context
-                .MapToAuditLogDto()
-                .ToListAsync();
+        if (filter.WarehouseId.HasValue)
+            context = context.Where(x => x.WarehouseId == filter.WarehouseId);
+        else
+            context = context.Where(x => x.Warehouse!.IsRoot);
+
+        var maxPages = await context.CountAsync();
+
+        return new PaginatedResult<AuditLogDto>(await context.MapToAuditLogDto().ToListAsync(), maxPages);
     }
 
     public async Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity)
@@ -68,5 +74,5 @@ public interface IAuditLogService
     /// <returns>
     ///     The paginated auditlogs.
     /// </returns>
-    Task<List<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter);
+    Task<PaginatedResult<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter);
 }

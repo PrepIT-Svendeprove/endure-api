@@ -78,7 +78,7 @@ internal class DispatcherProductService(
             return ServiceResult.RelationNotFound;
 
         var result = await SoftDeleteEntity(id, x => x.WarehouseId == rootWarehouseId);
-
+        
         await SynchronizeWithParent(new ProductDeleteEventMessage
         {
             Id = id,

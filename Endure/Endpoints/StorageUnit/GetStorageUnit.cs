@@ -48,9 +48,6 @@ public class GetStorageUnit
         {
             var result = await storageUnitService.GetPaginatedStorageUnitsAsync(id);
 
-            if (result.Count <= 0)
-                return Results.NoContent();
-
             return Results.Ok(result);
         }
         catch

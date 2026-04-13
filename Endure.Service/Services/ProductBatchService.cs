@@ -47,28 +47,39 @@ internal class ProductBatchService(
                 .FirstOrDefaultAsync();
     }
 
-    public async Task<List<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter)
+    public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter)
     {
-        return await MakePaginatedQuery(filter)
-                .Where(x => x.ProductId == filter.Id)
-                .MapToProductBatchDto()
-                .ToListAsync();
+        var context = MakePaginatedQuery(filter)
+                .Where(x => x.ProductId == filter.Id);
+
+        var maxPages = await context.CountAsync();
+
+        return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
+
+        //return await MakePaginatedQuery(filter)
+        //        .Where(x => x.ProductId == filter.Id)
+        //        .MapToProductBatchDto()
+        //        .ToListAsync();
     }
 
-    public async Task<List<ProductBatchDto>> GetPaginatedProductsByWarehouseId(ProductBatchFilter filter)
+    public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByWarehouseId(ProductBatchFilter filter)
     {
-        return await MakePaginatedQuery(filter)
-                .Where(x => x.WarehouseId == filter.Id)
-                .MapToProductBatchDto()
-                .ToListAsync();
+        var context = MakePaginatedQuery(filter)
+                .Where(x => x.WarehouseId == filter.Id);
+
+        var maxPages = await context.CountAsync();
+
+        return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
     }
 
-    public async Task<List<ProductBatchDto>> GetPaginatedProductsByStorageUnitId(ProductBatchFilter filter)
+    public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByStorageUnitId(ProductBatchFilter filter)
     {
-        return await MakePaginatedQuery(filter)
-                .Where(x => x.StorageUnitId == filter.Id && x.WarehouseId == filter.WarehouseId)
-                .MapToProductBatchDto()
-                .ToListAsync();
+        var context = MakePaginatedQuery(filter)
+                .Where(x => x.StorageUnitId == filter.Id && x.WarehouseId == filter.WarehouseId);
+
+        var maxPages = await context.CountAsync();
+
+        return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
     }
 
 
@@ -86,17 +97,17 @@ public interface IProductBatchService : IBaseService
     /// <summary>
     /// Retrieves a paginated list of products from a product.
     /// </summary>
-    Task<List<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter);
+    Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter);
 
     /// <summary>
     /// Retrieves a paginated list of products from a warehouse.
     /// </summary>
-    Task<List<ProductBatchDto>> GetPaginatedProductsByWarehouseId(ProductBatchFilter filter);
+    Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByWarehouseId(ProductBatchFilter filter);
 
     /// <summary>
     /// Retrieves a paginated list of products from a storage unit.
     /// </summary>
-    Task<List<ProductBatchDto>> GetPaginatedProductsByStorageUnitId(ProductBatchFilter filter);
+    Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByStorageUnitId(ProductBatchFilter filter);
 
     /// <summary>
     /// Retrieves a specific productbatch by its id.

@@ -69,15 +69,15 @@ internal class ProductService(
         return result > 0 ? Result.Success() : Result.Failed([ProductStatusCodes.ENTITY_UNCHANGED]);
     }
 
-    public async Task<List<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter)
+    public async Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter)
     {
         var context = MakePaginatedQuery(filter)
             .OrderByDescending(x => x.Name)
             .ThenBy(x => x.EAN);
 
-        return await context
-                .MapToProductDto()
-                .ToListAsync();
+        var maxPages = await context.CountAsync();
+
+        return new PaginatedResult<ProductDto>(await context.MapToProductDto().ToListAsync(), maxPages);
     }
 
     public async Task<ProductDto?> GetProductById(Guid id)
@@ -105,7 +105,7 @@ public interface IProductService : IBaseService
     /// <summary>
     /// Retrieves a paginated list of products.
     /// </summary>
-    Task<List<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter);
+    Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter);
 
     /// <summary>
     /// Retrives a single product, by ID.

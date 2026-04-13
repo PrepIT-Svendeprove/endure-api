@@ -10,12 +10,12 @@ internal class ClimateDeviceTypeConfiguration : BaseTypeConfiguration<ClimateDev
     {
         base.Configure(builder);
 
-        builder.HasKey(x => new { x.WarehouseId, x.Id });
-        builder.HasIndex(x => new { x.WarehouseId, x.StorageUnitId });
+        builder.HasKey(x => new { x.WareHouseId, x.Id });
+        builder.HasIndex(x => new { x.WareHouseId, x.StorageUnitId });
 
         builder.HasOne(x => x.StorageUnit)
             .WithMany(x => x.ClimateDevices)
-            .HasForeignKey(x => new { x.WarehouseId, x.StorageUnitId })
+            .HasForeignKey(x => new { x.WareHouseId, x.StorageUnitId })
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

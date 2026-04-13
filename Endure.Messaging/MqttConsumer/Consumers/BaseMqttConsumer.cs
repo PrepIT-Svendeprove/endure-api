@@ -11,12 +11,15 @@ namespace Endure.Messaging.MqttConsumer.Consumers;
 
 internal abstract class BaseMqttConsumer<TTopic>(
         IMqttClientHelper mqttClientHelper,
+        IServiceScopeFactory serviceScopeFactory,
         ILogger loggerService
     ) : IMqttConsumer
     where TTopic : BaseTopic
 {
-    private readonly IMqttClientHelper _mqttClientHelper = mqttClientHelper;
+    protected readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
     private readonly ILogger _loggerService = loggerService;
+
+    private readonly IMqttClientHelper _mqttClientHelper = mqttClientHelper;
 
     protected static TopicAttribute Topic => typeof(TTopic).GetTopic();
 
@@ -24,7 +27,11 @@ internal abstract class BaseMqttConsumer<TTopic>(
 
     public async Task RegisterAsync(CancellationToken cancellationToken)
     {
-        _mqttClient ??= await _mqttClientHelper.CreateMqttClient();
+        // We only want to consume topics that are marked as subscribers.
+        if (Topic.Type is not TopicAttribute.TopicType.Subscribe)
+            return;
+
+        _mqttClient ??= await _mqttClientHelper.CreateMqttClientAsync();
 
         _mqttClient.ApplicationMessageReceivedAsync += RecievedMessageAsync;
 
@@ -47,6 +54,8 @@ internal abstract class BaseMqttConsumer<TTopic>(
 
     private async Task RecievedMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
+        var cancellationToken = new CancellationTokenSource().Token;
+
         var requestId = Guid.NewGuid();
 
         _loggerService.LogInformation($"""
@@ -65,6 +74,8 @@ internal abstract class BaseMqttConsumer<TTopic>(
                         Type: {typeof(TTopic).Name}
                         RequestId: {requestId}
                 """);
+            
+            await HandleMessageAsync(message, arg.ClientId, requestId, cancellationToken);
 
         }
         catch (Exception ex)
@@ -78,7 +89,7 @@ internal abstract class BaseMqttConsumer<TTopic>(
         }
     }
 
-    protected abstract Task HandleMessageAsync(TTopic message, Guid requestId, CancellationToken cancellationToken);
+    protected abstract Task HandleMessageAsync(TTopic message, string clientId, Guid requestId, CancellationToken cancellationToken);
 }
 
 internal interface IMqttConsumer

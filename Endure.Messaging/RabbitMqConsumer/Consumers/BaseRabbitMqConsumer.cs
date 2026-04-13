@@ -42,7 +42,7 @@ internal abstract class BaseRabbitMqConsumer<TMessage>(
         );
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
-        consumer.ReceivedAsync += (_, args) => RecievedMessageAsync(_, args, cancellationToken);
+        consumer.ReceivedAsync += (_, args) => RecievedMessageAsync(_, args);
 
         await _channel.BasicConsumeAsync(
             QueueName,
@@ -54,8 +54,10 @@ internal abstract class BaseRabbitMqConsumer<TMessage>(
         Console.WriteLine($"Setup Declared: {typeof(TMessage).Name}");
     }
 
-    private async Task RecievedMessageAsync(object sender, BasicDeliverEventArgs eventArgs, CancellationToken cancellationToken)
+    private async Task RecievedMessageAsync(object sender, BasicDeliverEventArgs eventArgs)
     {
+        var cancellationToken = new CancellationTokenSource().Token;
+
         var requestId = Guid.NewGuid();
         _loggerService.LogInformation($"""
                 Received Message

@@ -1,5 +1,6 @@
 ﻿using Endure.Service.Models.Dto.ProductBatchDtos;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,7 +39,7 @@ public class GetProductBatch
     [EndpointName("GetPaginatedProductsByProductId")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "No entities were found")]
-    [ProducesResponseType<ProductBatchDto>(StatusCodes.Status200OK, Description = "Found entities with the requested id.")]
+    [ProducesResponseType<PaginatedResult<ProductBatchDto>>(StatusCodes.Status200OK, Description = "Found entities with the requested id.")]
     public static async Task<IResult> GetPaginatedProductsByProductIdAsync(
             [FromServices] IProductBatchService productBatchService,
             [AsParameters] ProductBatchFilter filter
@@ -47,9 +48,6 @@ public class GetProductBatch
         try
         {
             var result = await productBatchService.GetPaginatedProductsByProductId(filter);
-
-            if (result.Count <= 0)
-                return Results.NoContent();
 
             return Results.Ok(result);
         }
@@ -62,7 +60,7 @@ public class GetProductBatch
     [EndpointName("GetPaginatedProductsByWarehouseId")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "No entities were found")]
-    [ProducesResponseType<ProductBatchDto>(StatusCodes.Status200OK, Description = "Found entities with the requested id.")]
+    [ProducesResponseType<PaginatedResult<ProductBatchDto>>(StatusCodes.Status200OK, Description = "Found entities with the requested id.")]
     public static async Task<IResult> GetPaginatedProductsByWarehouseIdAsync(
             [FromServices] IProductBatchService productBatchService,
             [AsParameters] ProductBatchFilter filter
@@ -71,10 +69,7 @@ public class GetProductBatch
         try
         {
             var result = await productBatchService.GetPaginatedProductsByWarehouseId(filter);
-
-            if (result.Count <= 0)
-                return Results.NoContent();
-
+            
             return Results.Ok(result);
         }
         catch(Exception ex)
@@ -86,7 +81,7 @@ public class GetProductBatch
     [EndpointName("GetpaginatedProductsByStorageUnitId")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "No entities were found")]
-    [ProducesResponseType<ProductBatchDto>(StatusCodes.Status200OK, Description = "Found entities with the requested ids.")]
+    [ProducesResponseType<PaginatedResult<ProductBatchDto>>(StatusCodes.Status200OK, Description = "Found entities with the requested ids.")]
     public static async Task<IResult> GetPaginatedProductsByStorageUnitIdAsync(
             [FromServices] IProductBatchService productBatchService,
             [AsParameters] ProductBatchFilter filter
@@ -95,9 +90,6 @@ public class GetProductBatch
         try
         {
             var result = await productBatchService.GetPaginatedProductsByStorageUnitId(filter);
-
-            if (result.Count <= 0)
-                return Results.NoContent();
 
             return Results.Ok(result);
         }

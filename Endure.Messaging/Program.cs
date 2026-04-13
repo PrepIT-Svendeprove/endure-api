@@ -4,11 +4,12 @@ using Endure.Service;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.RegisterServices(builder.Configuration);
+builder.Services.RegisterWorkerServices(builder.Configuration);
 
 // Configure all of the consumer services, and workers.
 builder.Services.RegisterRabbitMqDispatcherServices(builder.Configuration);
 builder.Services.RegisterMqttDispatcherServices(builder.Configuration);
+
 
 var host = builder.Build();
 host.Run();

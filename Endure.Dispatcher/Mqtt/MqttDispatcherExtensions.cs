@@ -13,4 +13,14 @@ public static class MqttDispatcherExtensions
 
         return services;
     }
+
+    public static IServiceCollection RegisterMqttPublisherExtensions(this IServiceCollection services, IConfigurationManager config)
+    {
+        services.AddSingleton<IMqttClientHelper, MqttClientHelper>();
+        services.AddSingleton<IMqttPublisher, MqttPublisher>();
+
+        services.Configure<MqttOptions>(config.GetSection(MqttOptions.SectionName));
+
+        return services;
+    }
 }
