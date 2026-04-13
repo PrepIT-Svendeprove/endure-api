@@ -15,17 +15,17 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "5433:5432"
+      - "5432:5432"
  
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:9
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: passw0rd
     volumes:
       - pgadmin:/var/lib/pgadmin
     ports:
-      - "5051:80"
+      - "5050:80"
   
   rabbitmq:
     image: rabbitmq:4.2.5
@@ -39,9 +39,9 @@ services:
       - rabbitmq-lib:/var/lib/rabbitmq
       - rabbitmq-log:/var/log/rabbitmq
     ports:
-      - "5673:5672"     # AMQP protocol
-      - "15673:15672"   # Management UI
-      - "8884:8883"     # MQTT protocol
+      - "5672:5672"     # AMQP protocol
+      - "15672:15672"   # Management UI
+      - "1883:1883"     # MQTTS protocol
 
   # authentik_server:
   #     image: authentik/server:2026.2.1

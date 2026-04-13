@@ -1,5 +1,5 @@
 ﻿using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage.AuditLog;
+using Endure.Dispatcher.RabbitMQ.EventMessage.AuditLog;
 using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Enums;
 

@@ -1,7 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage.Product;
-using Endure.Dispatcher.Publisher;
+using Endure.Dispatcher.RabbitMQ.EventMessage.Product;
+using Endure.Dispatcher.RabbitMQ.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Enums;
 using Microsoft.EntityFrameworkCore;

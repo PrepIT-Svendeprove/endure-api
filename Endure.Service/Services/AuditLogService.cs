@@ -1,6 +1,5 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Filters;

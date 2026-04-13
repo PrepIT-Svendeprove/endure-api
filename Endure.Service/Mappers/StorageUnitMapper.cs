@@ -1,5 +1,5 @@
 ﻿using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage.StorageUnit;
+using Endure.Dispatcher.RabbitMQ.EventMessage.StorageUnit;
 using Endure.Service.Models.Dto.StorageUnitDtos;
 
 namespace Endure.Service.Mappers;
@@ -78,7 +78,7 @@ internal static class StorageUnitMapper
             ShortName = x.ShortName,
             IsSlot = x.IsSlot,
             StorageType = x.StorageType,
-            ParentStorageUnitId= x.ParentId
+            ParentStorageUnitId = x.ParentId
         });
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage.Warehouse;
+using Endure.Dispatcher.RabbitMQ.EventMessage.Warehouse;
 using Endure.Service.Models.Dto.WarehouseDtos;
 
 namespace Endure.Service.Mappers;

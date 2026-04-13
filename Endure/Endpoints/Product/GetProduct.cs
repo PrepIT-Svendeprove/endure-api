@@ -10,7 +10,7 @@ public class GetProduct
     [EndpointName("GetPaginatedProducts")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "No entities were found")]
-    [ProducesResponseType(StatusCodes.Status200OK, Description = "Returns a list of entities")]
+    [ProducesResponseType<List<ProductDto>>(StatusCodes.Status200OK, Description = "Returns a list of entities")]
     public static async Task<IResult> GetPaginatedProductsAsync(
             [FromServices] IProductService productService,
             [AsParameters] ProductPaginatedFilter filter 

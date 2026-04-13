@@ -1,11 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Dispatcher.EventMessage;
-using Endure.Dispatcher.EventMessage.Warehouse;
-using Endure.Dispatcher.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.WarehouseDtos;
-using Endure.Service.Models.Enums;
 using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
 using Endure.Service.Services.Dispatcher;
@@ -15,7 +11,6 @@ namespace Endure.Service.Services;
 
 internal class WarehouseService(
         DatabaseContext context,
-        IMessagePublisher messagePublisher,
         IDispatcherWarehouseService dispatcherWarehouseService
     )
     : BaseService<Warehouse>(context), IWarehouseService

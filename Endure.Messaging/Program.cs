@@ -1,4 +1,5 @@
-using Endure.Messaging.Consumer;
+using Endure.Messaging.MqttConsumer;
+using Endure.Messaging.RabbitMqConsumer;
 using Endure.Service;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -6,7 +7,8 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.RegisterServices(builder.Configuration);
 
 // Configure all of the consumer services, and workers.
-builder.Services.RegisterDispatcherServices(builder.Configuration);
+builder.Services.RegisterRabbitMqDispatcherServices(builder.Configuration);
+builder.Services.RegisterMqttDispatcherServices(builder.Configuration);
 
 var host = builder.Build();
 host.Run();
