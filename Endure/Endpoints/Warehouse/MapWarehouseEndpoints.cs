@@ -10,10 +10,11 @@ public static class MapWarehouseEndpoints
         var group = route.MapGroup("/warehouse");
         group.WithTags("Warehouse");
 
-        group.MapGet("/", GetWarehouse.GetSubWarehousesAsync);
+        group.MapGet("/subwarehouse", GetWarehouse.GetSubWarehousesAsync);
+        group.MapGet("/{warehouseId}/subwarehouse/count", GetWarehouse.GetSubWarehouseCountByWarehouseIdAsync);
         group.MapGet("/root", GetWarehouse.GetRootWarehouseAsync);
         group.MapGet("/{id}", GetWarehouse.GetAllWarehousesByIdAsync);
-        group.MapGet("/{id}/subwarehouses", GetWarehouse.GetAllWarehousesByParentIdAsync);
+        group.MapGet("/", GetWarehouse.GetAllWarehousesAsync);
         
         group.MapPost("/", PostWarehouse.CreateWarehouseAsync);
 

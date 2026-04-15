@@ -21,9 +21,4 @@ public class CreateProductBatchDto
     /// Id of the storage unit that the product batch is placed in.
     /// </summary>
     public required Guid StorageUnitId { get; set; }
-
-    /// <summary>
-    /// Id of the warehouse where the product batch is stored.
-    /// </summary>
-    public required Guid WarehouseId { get; set; }
 }

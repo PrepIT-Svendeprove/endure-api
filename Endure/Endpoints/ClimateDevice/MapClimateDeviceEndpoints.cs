@@ -6,7 +6,10 @@ public static class MapClimateDeviceEndpoints
     {
         var group = route.MapGroup("/climatedevice").WithTags("ClimateDevice");
 
+        group.MapGet("/available", GetClimateDevice.GetAvailableClimateDeviceAsync);
         group.MapGet("/paginated", GetClimateDevice.GetPaginatedClimateDevicesAsync);
+        group.MapGet("/{warehouseId}/count", GetClimateDevice.GetClimateDeviceCountAsync);
+        group.MapGet("/{warehouseId}/{storageunitId}", GetClimateDevice.GetClimateDevicesByStorageIdAsync);
 
         group.MapPost("/", PostClimateDevice.CreateClimateDeviceAsync);
 

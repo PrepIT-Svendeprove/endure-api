@@ -13,7 +13,9 @@ public static class MapStorageUnitEndpoints
 
         group.MapGet("/{id}", GetStorageUnit.GetStorageUnitByIdAsync);
         group.MapGet("/paginated", GetStorageUnit.GetPaginatedStorageUnitsAsync);
-        group.MapGet("/{id}/fromparent", GetStorageUnit.GetStorageUnitsByParentIdAsync);
+        group.MapGet("/parent/{id}", GetStorageUnit.GetStorageUnitsByParentIdAsync);
+        group.MapGet("/{warehouseId}/count", GetStorageUnit.GetStorageUnitCountAsync);
+        group.MapGet("/{warehouseId}/select", GetStorageUnit.GetSelectStorageUnitAsync);
 
         group.MapDelete("/{id}", DeleteStorageUnit.DeleteStorageUnitAsync);
 

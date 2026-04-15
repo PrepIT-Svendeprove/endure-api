@@ -14,11 +14,13 @@ namespace Endure.Service.Services;
 
 internal class ProductBatchService(
         IDispatcherProductBatchService dispatcherProductBatchService,
+        IWarehouseService warehouseService,
         DatabaseContext context
     )
     : BaseService<ProductBatch>(context), IProductBatchService
 {
     private readonly IDispatcherProductBatchService _dispatcherProductBatchService = dispatcherProductBatchService;
+    private readonly IWarehouseService _warehouseService = warehouseService;
 
     protected override IQueryable<ProductBatch> MakePaginatedQuery(BasePaginatedFilter filter)
         => base.MakePaginatedQuery(filter).OrderByDescending(x => x.BestBefore);
@@ -30,10 +32,10 @@ internal class ProductBatchService(
 
     public async Task<Result> CreateProductBatch(CreateProductBatchDto productBatch)
     {
-        if (await IsDeleted<Warehouse>(productBatch.WarehouseId) || await IsDeleted<StorageUnit>(productBatch.StorageUnitId) || await IsDeleted<Product>(productBatch.ProductId))
+        if (await IsDeleted<StorageUnit>(productBatch.StorageUnitId) || await IsDeleted<Product>(productBatch.ProductId))
             return Result.Failed([ProductBatchStatusCodes.RELATION_DOES_NOT_EXIST]);
 
-        var mapppedEntity = productBatch.MapToProductBatch();
+        var mapppedEntity = productBatch.MapToProductBatch(await _warehouseService.GetRootWarehouseIdAsync());
 
         return await _dispatcherProductBatchService.CreateProductBatchAsync(mapppedEntity) ? Result.Success() : Result.Failed([]);
     }
@@ -82,6 +84,16 @@ internal class ProductBatchService(
         return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
     }
 
+    public async Task<List<Top10ProductBatchDto>> GetTop10ProductBatchesInWarehouseId(Guid warehouseId)
+    {
+        return await _context
+                .ProductBatch
+                .OrderByDescending(x => x.CreatedAt)
+                .Where(x => x.WarehouseId == warehouseId)
+                .Take(10)
+                .MapTotop10ProductBatchDto()
+                .ToListAsync();
+    }
 
     private async Task<bool> IsDeleted<TModel>(Guid id)
         => !await _context.ProductBatch.AnyAsync(x => x.Id == id && !x.IsDeleted);
@@ -113,4 +125,5 @@ public interface IProductBatchService : IBaseService
     /// Retrieves a specific productbatch by its id.
     /// </summary>
     Task<ProductBatchDto?> GetProductBatchById(Guid id);
+    Task<List<Top10ProductBatchDto>> GetTop10ProductBatchesInWarehouseId(Guid warehouseId);
 }

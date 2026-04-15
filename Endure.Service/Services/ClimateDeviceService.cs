@@ -2,6 +2,7 @@
 using Endure.Data.Models;
 using Endure.Dispatcher.Mqtt;
 using Endure.Dispatcher.Mqtt.Topic.ClimateDevice;
+using Endure.Dispatcher.RabbitMQ.Connection;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.ClimateDeviceDtos;
 using Endure.Service.Models.Enums;
@@ -9,6 +10,7 @@ using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
 using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
 
@@ -37,7 +39,7 @@ internal sealed class ClimateDeviceService(
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
         // If the storage unit is specified and it is not a slot, we should not be able to update the climate device to use that storage unit.
-        if (device.StorageUnitId.HasValue && !await _context.StorageUnit.AnyAsync(x => x.IsSlot && x.Id == device.StorageUnitId.Value && x.WarehouseId == rootWarehouseId))
+        if (device.StorageUnitId.HasValue && !await _context.StorageUnit.AnyAsync(x => x.Id == device.StorageUnitId.Value && x.WarehouseId == rootWarehouseId))
             return Result.Failed([]);
 
         var mappedEntity = device.MapToClimateDevice();
@@ -73,8 +75,8 @@ internal sealed class ClimateDeviceService(
             await _mqttPublisher.PublishAsync(new ClimateRegulateTopic
             {
                 Id = device.Id,
-                Humidity = device.Humidity,
-                Temperature = device.Temperature
+                Humidity = device.SetHumidity,
+                Temperature = device.SetTemperature
             });
 
         return result;
@@ -103,6 +105,34 @@ internal sealed class ClimateDeviceService(
 
         return new PaginatedResult<ClimateDeviceDto>(entities, maxPages);
     }
+
+    public async Task<List<ClimateDeviceDto>> GetClimateDevicesByStorageUnitId(Guid warehouseId, Guid storageUnitId)
+    {
+        return await _context
+                .ClimateDevice
+                .Where(x => x.WareHouseId == warehouseId && x.StorageUnitId == storageUnitId && !x.IsDeleted)
+                .MapToClimateDeviceDto()
+                .ToListAsync();
+    }
+
+    public async Task<List<ClimateDeviceDto>> GetAvailableClimateDevices()
+    {
+        var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+
+        return await _context
+                .ClimateDevice
+                .Where(x => x.WareHouseId == rootWarehouseId && !x.IsDeleted && (x.StorageUnit == null || x.StorageUnit.IsDeleted))
+                .MapToClimateDeviceDto()
+                .ToListAsync();
+    }
+
+    public async Task<int> GetClimateDeviceCountAsync(Guid warehouseId)
+    {
+        return await _context
+                .ClimateDevice
+                .Where(x => x.WareHouseId == warehouseId && !x.IsDeleted)
+                .CountAsync();
+    }
 }
 
 public interface IClimateDeviceService : IBaseService
@@ -111,6 +141,13 @@ public interface IClimateDeviceService : IBaseService
     /// Creates a new climatedevice, and publishes the desired temp and humidity on the queue for that climate device.
     /// </summary>
     Task<Result> CreateClimateDevice(CreateClimateDeviceDto device);
+
+    /// <summary>
+    /// Retrieves all climates that are available on the root warehouse, to be added into a storage unit.
+    /// </summary>
+    Task<List<ClimateDeviceDto>> GetAvailableClimateDevices();
+    Task<int> GetClimateDeviceCountAsync(Guid warehouseId);
+    Task<List<ClimateDeviceDto>> GetClimateDevicesByStorageUnitId(Guid warehouseId, Guid storageUnitId);
 
     /// <summary>
     /// Retrieves a list of ClimateDevices, and the amount of pages that the filter could produce.

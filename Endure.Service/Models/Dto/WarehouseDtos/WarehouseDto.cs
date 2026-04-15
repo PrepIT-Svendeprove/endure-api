@@ -35,5 +35,5 @@ public sealed class WarehouseDto
     /// The parentwarehouse, it is only defined if the warehouse is not a sub-warehouse.
     /// </summary>
     [JsonPropertyName(WarehouseConstants.PARENTWAREHOUSEID)]
-    public Guid? ParentWarehouseId { get; set; }
+    public Guid? ParentId { get; set; }
 }

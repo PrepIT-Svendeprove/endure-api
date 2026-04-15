@@ -56,4 +56,43 @@ public class GetProduct
             return Results.InternalServerError();
         }
     }
+
+    [EndpointName("GetTop10Products")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType<List<Top10ProductDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetTop10ProductsAsync(
+            [FromServices] IProductService productService,
+            [FromRoute] string id
+        )
+    {
+        try
+        {
+            if (Guid.TryParse(id, out Guid parsedId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await productService.GetTop10ProductsInWarehouseId(parsedId));
+        }
+        catch(Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    [EndpointName("GetAvailableProducts")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<List<SelectProductDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetAvailableProductsAsync(
+            [FromServices] IProductService productService
+        )
+    {
+        try
+        {
+            return Results.Ok(await productService.GetAvailableProductsAsync());
+        }
+        catch (Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
 }

@@ -38,7 +38,7 @@ internal class DispatcherProductService(
         return result;
     }
 
-    public async Task<bool> CreateProductAsync(ProductCreateEventMessage entity)
+    public async Task<bool> CreateProductAsync(ProductCreatedEventMessage entity)
     {
         var mappedEntity = entity.MapToProduct();
 
@@ -100,7 +100,7 @@ internal class DispatcherProductService(
 
 public interface IDispatcherProductService
 {
-    Task<bool> CreateProductAsync(ProductCreateEventMessage entity);
+    Task<bool> CreateProductAsync(ProductCreatedEventMessage entity);
     Task<bool> CreateProductAsync(Product entity);
     Task<bool> DeleteProductAsync(ProductDeleteEventMessage message);
     Task<ServiceResult> DeleteProductAsync(Guid id);

@@ -27,7 +27,7 @@ internal static class ProductMapper
         };
     }
 
-    internal static Product MapToProduct(this ProductCreateEventMessage message)
+    internal static Product MapToProduct(this ProductCreatedEventMessage message)
     {
         return new Product
         {
@@ -39,6 +39,15 @@ internal static class ProductMapper
             UpdatedAt = message.UpdatedAt,
             WarehouseId = message.WarehouseId
         };
+    }
+
+    internal static IQueryable<SelectProductDto> MapToSelectProductDto(this IQueryable<Product> query)
+    {
+        return query.Select(x => new SelectProductDto
+        {
+            Id = x.Id,
+            Name = x.Name
+        });
     }
 
     internal static Product MapToProduct(this ProductUpdateEventMessage message)
@@ -66,6 +75,17 @@ internal static class ProductMapper
         };
     }
 
+    internal static IQueryable<Top10ProductDto> MapToTop10ProductDto(this IQueryable<Product> query)
+    {
+        return query.Select(x => new Top10ProductDto
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Ean = x.EAN,
+            BatchCount = x.ProductBatches.Count
+        });
+    }
+
     internal static ProductUpdateEventMessage MapToProductUpdateEventMessage(this Product message)
     {
         return new ProductUpdateEventMessage
@@ -80,9 +100,9 @@ internal static class ProductMapper
         };
     }
 
-    internal static ProductCreateEventMessage MapToProductCreateEventMessage(this Product message)
+    internal static ProductCreatedEventMessage MapToProductCreateEventMessage(this Product message)
     {
-        return new ProductCreateEventMessage
+        return new ProductCreatedEventMessage
         {
             Id = message.Id,
             Ean = message.EAN,

@@ -6,6 +6,7 @@ using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
 using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 namespace Endure.Service.Services;
 
@@ -24,6 +25,23 @@ internal class WarehouseService(
                 .Where(x => x.IsRoot)
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync();
+    }
+
+    public async Task<int> GetSubWarehouseCountByWarehouseIdAsync(Guid warehouseId)
+    {
+        return await _context
+                .Warehouse
+                .Where(x => x.ParentId == warehouseId && !x.IsDeleted)
+                .CountAsync();
+    }
+
+    public async Task<List<WarehouseDto>> GetAllWarehousesAsync()
+    {
+        return await _context
+                .Warehouse
+                .Where(x => !x.IsDeleted)
+                .MapToWarehouseDto()
+                .ToListAsync();
     }
 
     public async Task<WarehouseDto?> GetRootWarehouseAsync()
@@ -53,16 +71,6 @@ internal class WarehouseService(
                 .OrderByDescending(x => x.CreatedAt)
                 .MapToWarehouseDto()
                 .ToListAsync();
-    }
-
-    public async Task<List<WarehouseDto>> GetAllByParentIdAsync(Guid id)
-    {
-        return await _context
-                    .Warehouse
-                    .Where(x => !x.IsRoot && !x.IsDeleted && x.ParentId == id)
-                    .OrderByDescending(x => x.CreatedAt)
-                    .MapToWarehouseDto()
-                    .ToListAsync();
     }
 
     public async Task<WarehouseDto?> CreateWarehouseAsync(CreateWarehouseDto entity)
@@ -113,7 +121,6 @@ public interface IWarehouseService : IBaseService
     /// <returns></returns>
     Task<List<WarehouseDto>> GetAllSubWarehousesAsync();
     Task<List<WarehouseDto>> GetAllByIdAsync(Guid id);
-    Task<List<WarehouseDto>> GetAllByParentIdAsync(Guid id);
 
     /// <summary>
     /// Retrieves the current warehouse that is marked as the root warehouse.
@@ -129,4 +136,6 @@ public interface IWarehouseService : IBaseService
     /// Retrieves the root warehouses ID.
     /// </summary>
     Task<Guid> GetRootWarehouseIdAsync();
+    Task<List<WarehouseDto>> GetAllWarehousesAsync();
+    Task<int> GetSubWarehouseCountByWarehouseIdAsync(Guid warehouseId);
 }

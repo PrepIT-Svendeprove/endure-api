@@ -33,7 +33,7 @@ public class StorageUnitDto
     /// The parent storage unit, is only set if the unit is a sub-unit.
     /// </summary>
     [JsonPropertyName(StorageUnitConstants.PARENTSTORAGEUNITID_NAME)]
-    public Guid? ParentStorageUnitId { get; set; }
+    public Guid? ParentId { get; set; }
 
     /// <summary>
     /// The type of products that the storage unit is supposed to be used for.
@@ -46,4 +46,10 @@ public class StorageUnitDto
     /// </summary>
     [JsonPropertyName(StorageUnitConstants.ISSLOT_NAME)]
     public bool IsSlot { get; set; }
+
+    /// <summary>
+    /// True if the storage unit contains any storage units or if they contain products.
+    /// </summary>
+    [JsonPropertyName(StorageUnitConstants.HAS_CONTENT)]
+    public bool HasContent { get; set; }
 }

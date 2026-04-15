@@ -1,6 +1,7 @@
 ﻿using Endure.Data.Models;
 using Endure.Dispatcher.RabbitMQ.EventMessage.StorageUnit;
 using Endure.Service.Models.Dto.StorageUnitDtos;
+using Endure.Service.Models.Dto.StorageUnitDtose;
 
 namespace Endure.Service.Mappers;
 
@@ -13,7 +14,7 @@ internal static class StorageUnitMapper
             Name = entity.Name,
             ShortName = entity.ShortName,
             Description = entity.Description,
-            ParentId = entity.ParentStorageUnitId,
+            ParentId = entity.ParentId,
             StorageType = entity.StorageType,
             IsSlot = entity.IsSlot,
             WarehouseId = warehouseId
@@ -68,6 +69,15 @@ internal static class StorageUnitMapper
         };
     }
 
+    internal static IQueryable<SelectStorageUnitDto> MapToSelectStorageDto(this IQueryable<StorageUnit> query)
+    {
+        return query.Select(x => new SelectStorageUnitDto
+        {
+            Id = x.Id,
+            Name = x.Name
+        });
+    }
+
     internal static IQueryable<StorageUnitDto> MapToStorageUnitDto(this IQueryable<StorageUnit> query)
     {
         return query.Select(x => new StorageUnitDto
@@ -78,7 +88,8 @@ internal static class StorageUnitMapper
             ShortName = x.ShortName,
             IsSlot = x.IsSlot,
             StorageType = x.StorageType,
-            ParentStorageUnitId = x.ParentId
+            ParentId = x.ParentId,
+            HasContent = x.Products.Any(x => !x.IsDeleted) || x.ChildStorageUnits.Any(x => !x.IsDeleted)
         });
     }
 }

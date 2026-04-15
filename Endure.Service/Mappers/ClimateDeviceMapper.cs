@@ -121,7 +121,11 @@ internal static class ClimateDeviceMapper
             IsDisabled = x.IsDisabled,
             StorageUnitId = x.StorageUnitId,
             SetHumidity = x.SetHumidity,
-            SetTemperature = x.SetTemperature
+            SetTemperature = x.SetTemperature,
+            LatestClimate = x.ClimateTelemetry
+                .OrderByDescending(x => x.CreatedAt)
+                .MapToClimateTelemetryDto()
+                .FirstOrDefault()
         });
     }
 }

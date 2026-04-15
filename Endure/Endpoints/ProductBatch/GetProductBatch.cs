@@ -1,4 +1,5 @@
 ﻿using Endure.Service.Models.Dto.ProductBatchDtos;
+using Endure.Service.Models.Dto.ProductDtos;
 using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
 using Endure.Service.Services;
@@ -92,6 +93,28 @@ public class GetProductBatch
             var result = await productBatchService.GetPaginatedProductsByStorageUnitId(filter);
 
             return Results.Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    [EndpointName("GetTop10ProductBatches")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType<List<Top10ProductBatchDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetTop10ProductsAsync(
+            [FromServices] IProductBatchService productBatchService,
+            [FromRoute] string id
+        )
+    {
+        try
+        {
+            if (Guid.TryParse(id, out Guid parsedId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await productBatchService.GetTop10ProductBatchesInWarehouseId(parsedId));
         }
         catch (Exception ex)
         {

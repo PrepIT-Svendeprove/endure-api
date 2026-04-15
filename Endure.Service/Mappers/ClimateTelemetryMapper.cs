@@ -47,6 +47,17 @@ internal static class ClimateTelemetryMapper
         };
     }
 
+    internal static IEnumerable<ClimateTelemetryDto> MapToClimateTelemetryDto(this IEnumerable<ClimateTelemetry> list)
+    {
+        return list.Select(x => new ClimateTelemetryDto
+        {
+            Id = x.Id,
+            CreatedAt = DateTimeOffset.FromUnixTimeSeconds(x.CreatedAt),
+            Humidity = x.Humidity,
+            Temperature = x.Temperature
+        });
+    }
+
     internal static IQueryable<ClimateTelemetryDto> MapToClimateTelemetryDto(this IQueryable<ClimateTelemetry> query)
     {
         return query.Select(x => new ClimateTelemetryDto

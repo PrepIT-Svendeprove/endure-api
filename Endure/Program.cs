@@ -30,6 +30,7 @@ app.MapScalarApiReference("/api-docs", options =>
             .ForceLightMode();
 });
 
-app.UseHttpsRedirection();
+if (builder.Environment.IsProduction())
+    app.UseHttpsRedirection();
 
 app.Run();

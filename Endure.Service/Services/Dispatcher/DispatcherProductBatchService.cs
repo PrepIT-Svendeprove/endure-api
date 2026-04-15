@@ -41,7 +41,7 @@ internal class DispatcherProductBatchService(
                     WarehouseId = batch.WarehouseId,
                     CreatedAt = batch.CreatedAt,
                     UpdatedAt = batch.UpdatedAt,
-                    Product = new ProductCreateEventMessage
+                    Product = new ProductCreatedEventMessage
                     {
                         Id = product.Id,
                         Name = product.Name,

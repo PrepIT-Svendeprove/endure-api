@@ -9,7 +9,7 @@ internal sealed class ConsumeProductCreated(
         IServiceScopeFactory serviceScopeFactory,
         ILogger<ConsumeProductCreated> loggerService
     )
-    : BaseRabbitMqConsumer<ProductCreateEventMessage>(
+    : BaseRabbitMqConsumer<ProductCreatedEventMessage>(
         rabbitMqConnection,
         serviceScopeFactory,
         loggerService
@@ -17,7 +17,7 @@ internal sealed class ConsumeProductCreated(
 {
     private readonly ILogger<ConsumeProductCreated> _loggerService = loggerService;
 
-    protected override async Task HandleMessageAsync(ProductCreateEventMessage message, Guid requestId, CancellationToken cancellationToken)
+    protected override async Task HandleMessageAsync(ProductCreatedEventMessage message, Guid requestId, CancellationToken cancellationToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
         var productService = scope.ServiceProvider.GetRequiredService<IDispatcherProductService>();
@@ -26,7 +26,7 @@ internal sealed class ConsumeProductCreated(
         {
             _loggerService.LogWarning($"""
                     Could not delete entity
-                        Type: {typeof(ProductCreateEventMessage).Name}
+                        Type: {typeof(ProductCreatedEventMessage).Name}
                         RequestId: {requestId}
                 """);
             return;
@@ -34,7 +34,7 @@ internal sealed class ConsumeProductCreated(
 
         _loggerService.LogInformation($"""
                 Entity deleted
-                    Type: {typeof(ProductCreateEventMessage).Name}
+                    Type: {typeof(ProductCreatedEventMessage).Name}
                     RequestId: {requestId}
             """);
     }

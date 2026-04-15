@@ -2,6 +2,7 @@
 using Endure.Data.Models;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.StorageUnitDtos;
+using Endure.Service.Models.Dto.StorageUnitDtose;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
@@ -33,7 +34,7 @@ internal sealed class StorageUnitService(
     public async Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity)
     {
         // Ensure that the parent that is trying to be added, is actually eligible as a parent.
-        if (entity.ParentStorageUnitId.HasValue && !await IsStorageUnitEligibleAsParentAsync(entity.ParentStorageUnitId.Value))
+        if (entity.ParentId.HasValue && !await IsStorageUnitEligibleAsParentAsync(entity.ParentId.Value))
             return Result.Failed([StorageUnitStatusCodes.PARENT_NOT_ELIGIBLE]);
 
         var rootId = await _warehouseService.GetRootWarehouseIdAsync();
@@ -60,6 +61,7 @@ internal sealed class StorageUnitService(
             return Result.Failed([StorageUnitStatusCodes.PARENT_NOT_ELIGIBLE]);
 
         var mappedEntity = entity.MapToStorageUnit();
+        mappedEntity.WarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
         return await _dispatcherStorageUnitService.UpdateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
@@ -80,6 +82,14 @@ internal sealed class StorageUnitService(
                 .ToListAsync();
     }
 
+    public async Task<int> GetStorageUnitCountAsync(Guid warehouseId)
+    {
+        return await _context
+                .StorageUnit
+                .Where(x => x.WarehouseId == warehouseId && !x.IsDeleted)
+                .CountAsync();
+    }
+
     public async Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id)
     {
         return await _context
@@ -93,9 +103,10 @@ internal sealed class StorageUnitService(
     {
         var context = MakePaginatedQuery(filter)
             .OrderByDescending(x => x.Name)
-            .ThenBy(x => x.ShortName);
+            .ThenBy(x => x.ShortName)
+            .Where(x => x.WarehouseId == filter.WarehouseId);
 
-        var maxPages = await context.CountAsync();
+        var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<StorageUnitDto>(await context.MapToStorageUnitDto().ToListAsync(), maxPages);
     }
@@ -107,6 +118,15 @@ internal sealed class StorageUnitService(
                 .Where(x => x.Id == id && !x.IsDeleted && x.Warehouse.IsRoot)
                 .AnyAsync(x => !x.IsSlot);
     }
+
+    public async Task<List<SelectStorageUnitDto>> GetSelectStorageUnitAsync(Guid warehouseId)
+    {
+        return await _context
+                .StorageUnit
+                .Where(x => x.WarehouseId == warehouseId && !x.IsDeleted && !x.IsSlot)
+                .MapToSelectStorageDto()
+                .ToListAsync();
+    }
 }
 
 public interface IStorageUnitService : IBaseService
@@ -116,7 +136,9 @@ public interface IStorageUnitService : IBaseService
     /// </summary>
     Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity);
     Task<PaginatedResult<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter);
+    Task<List<SelectStorageUnitDto>> GetSelectStorageUnitAsync(Guid warehouseId);
     Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id);
+    Task<int> GetStorageUnitCountAsync(Guid warehouseId);
     Task<List<StorageUnitDto>> GetStorageUnitsByParentIdAsync(Guid id);
 
     /// <summary>

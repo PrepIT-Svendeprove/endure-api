@@ -17,28 +17,35 @@ internal sealed class MqttPublisher(
     public async Task PublishAsync<T>(T message, CancellationToken cancellationToken = default)
         where T : BasePublishTopic
     {
-        ArgumentNullException.ThrowIfNull(message);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(message);
 
-        var payload = JsonSerializer.Serialize(message, DispatchSerializerOptions.Options);
+            var payload = JsonSerializer.Serialize(message, DispatchSerializerOptions.Options);
 
-        var topicAttr = typeof(T).GetCustomAttribute<TopicAttribute>();
+            var topicAttr = typeof(T).GetCustomAttribute<TopicAttribute>();
 
-        ArgumentNullException.ThrowIfNull(topicAttr);
-        ArgumentException.ThrowIfNullOrWhiteSpace(topicAttr.TopicName);
+            ArgumentNullException.ThrowIfNull(topicAttr);
+            ArgumentException.ThrowIfNullOrWhiteSpace(topicAttr.TopicName);
 
-        var mqttClient = await _mqttClientHelper.CreateMqttClientAsync();
+            var mqttClient = await _mqttClientHelper.CreateMqttClientAsync();
 
-        await mqttClient.ConnectAsync(_mqttClientHelper.MqttOptions, cancellationToken);
+            await mqttClient.ConnectAsync(_mqttClientHelper.MqttOptions, cancellationToken);
 
-        var applicationMessage = new MqttApplicationMessageBuilder()
-                .WithTopic(message.ConvertTopic(topicAttr.TopicName))
-                .WithPayload(payload)
-                .WithRetainFlag(true)
-                .Build();
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                    .WithTopic(message.ConvertTopic(topicAttr.TopicName))
+                    .WithPayload(payload)
+                    .WithRetainFlag(true)
+                    .Build();
 
-        await mqttClient.PublishAsync(applicationMessage, cancellationToken);
+            await mqttClient.PublishAsync(applicationMessage, cancellationToken);
 
-        await mqttClient.DisconnectAsync(cancellationToken: cancellationToken);
+            await mqttClient.DisconnectAsync(cancellationToken: cancellationToken);
+        }
+        catch (ArgumentException)
+        {
+            throw;
+        }
 
     }
 }

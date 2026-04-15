@@ -27,7 +27,7 @@ public class CreateStorageUnitDto
     /// The parent storage unit, is only set if the unit is a sub-unit.
     /// </summary>
     [JsonPropertyName(StorageUnitConstants.PARENTSTORAGEUNITID_NAME)]
-    public Guid? ParentStorageUnitId { get; set; }
+    public Guid? ParentId { get; set; }
 
     /// <summary>
     /// The type of products that the storage unit is supposed to be used for.

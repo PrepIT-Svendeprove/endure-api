@@ -7,7 +7,9 @@ public static class MapProductEndpoints
         var group = route.MapGroup("/product").WithTags("Product");
 
         group.MapGet("/paginated", GetProduct.GetPaginatedProductsAsync);
+        group.MapGet("/available", GetProduct.GetAvailableProductsAsync);
         group.MapGet("/{id}", GetProduct.GetProductByIdAsync);
+        group.MapGet("/{id}/top10", GetProduct.GetTop10ProductsAsync);
 
         group.MapPost("/", PostProduct.CreateProductAsync);
 

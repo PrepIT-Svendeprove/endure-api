@@ -16,7 +16,7 @@ public abstract class BaseService<T>(DatabaseContext context) : IBaseService
     protected virtual IQueryable<T> MakePaginatedQuery(BasePaginatedFilter filter)
         => _context
             .Set<T>()
-            .Take(filter.Take)
+            .Take(filter.Take >= 100 ? 100 : filter.Take)
             .Skip((filter.Page <= 0 ? 0 : filter.Page - 1) * filter.Take)
             .Where(x => !x.IsDeleted);
 

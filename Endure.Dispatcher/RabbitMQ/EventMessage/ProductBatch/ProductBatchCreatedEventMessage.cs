@@ -21,5 +21,5 @@ public class ProductBatchCreatedEventMessage : BaseEventMessage
     /// <summary>
     /// The product that the batch is attached to, is included in case that the consumer does not have the product.
     /// </summary>
-    public ProductCreateEventMessage Product { get; set; }
+    public ProductCreatedEventMessage Product { get; set; }
 }

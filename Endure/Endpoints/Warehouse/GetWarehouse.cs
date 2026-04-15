@@ -86,30 +86,44 @@ public class GetWarehouse
         }
     }
 
-    [EndpointName("GetWarehouses")]
-    [EndpointSummary("Retrieves all warehouses with the parent id.")]
+    [EndpointName("GetAllWarehouses")]
+    [EndpointSummary("Retrieves all warehouses.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not founda ny warehouses with the parent id.")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetAllWarehousesByParentIdAsync(
-            [FromServices] IWarehouseService warehouseService,
-            [FromRoute] string id
+    [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetAllWarehousesAsync(
+            [FromServices] IWarehouseService warehouseService
         )
     {
         try
         {
-            if (!Guid.TryParse(id, out Guid parsedId))
-                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
-
-            var warehouses = await warehouseService.GetAllByParentIdAsync(parsedId);
-
-            if (warehouses.Count <= 0)
-                return Results.NoContent();
+            var warehouses = await warehouseService.GetAllWarehousesAsync();
 
             return Results.Ok(warehouses);
         }
         catch
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    [EndpointName("GetSubwarehouseCount")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetSubWarehouseCountByWarehouseIdAsync(
+            [FromServices] IWarehouseService warehouseService,
+            [FromRoute] string warehouseId
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(warehouseId, out Guid parsedId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await warehouseService.GetSubWarehouseCountByWarehouseIdAsync(parsedId));
+        }
+        catch (Exception ex)
         {
             return Results.InternalServerError();
         }

@@ -17,7 +17,18 @@ internal static class ProductBatchMapper
         });
     }
 
-    internal static ProductBatch MapToProductBatch(this CreateProductBatchDto entity)
+    internal static IQueryable<Top10ProductBatchDto> MapTotop10ProductBatchDto(this IQueryable<ProductBatch> query)
+    {
+        return query.Select(x => new Top10ProductBatchDto
+        {
+            Id = x.Id,
+            ProductEAN = x.Product.EAN,
+            BestBeforeUtc = DateTimeOffset.FromUnixTimeSeconds(x.BestBefore),
+            Count = x.Count
+        });
+    }
+
+    internal static ProductBatch MapToProductBatch(this CreateProductBatchDto entity, Guid warehouseId)
     {
         return new ProductBatch
         {
@@ -25,7 +36,7 @@ internal static class ProductBatchMapper
             Count = entity.Count,
             ProductId = entity.ProductId,
             StorageUnitId = entity.StorageUnitId,
-            WarehouseId = entity.WarehouseId
+            WarehouseId = warehouseId
         };
     }
 
