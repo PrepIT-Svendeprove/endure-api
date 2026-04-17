@@ -13,7 +13,8 @@ internal static class ProductBatchMapper
             Id = x.Id,
             BestBeforeUtc = DateTimeOffset.FromUnixTimeSeconds(x.BestBefore),
             Count = x.Count,
-            Product = x.Product.MapToProductDto()
+            Product = x.Product.MapToProductDto(),
+            StorageUnit = x.StorageUnit.MapToSelectStorageUnitDto()
         });
     }
 
@@ -32,7 +33,7 @@ internal static class ProductBatchMapper
     {
         return new ProductBatch
         {
-            BestBefore = entity.BestBefore,
+            BestBefore = entity.BestBeforeUtc,
             Count = entity.Count,
             ProductId = entity.ProductId,
             StorageUnitId = entity.StorageUnitId,

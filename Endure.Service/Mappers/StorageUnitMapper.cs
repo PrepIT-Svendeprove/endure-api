@@ -52,6 +52,15 @@ internal static class StorageUnitMapper
         };
     }
 
+    internal static SelectStorageUnitDto MapToSelectStorageUnitDto(this StorageUnit entity)
+    {
+        return new SelectStorageUnitDto
+        {
+            Id = entity.Id,
+            Name = entity.Name
+        };
+    }
+
     public static StorageUnit MapToStorageUnit(this StorageUnitUpdatedEventMessage entity)
     {
         return new StorageUnit

@@ -20,7 +20,7 @@ public class PutProduct
         {
             var result = await productService.UpdateProductAsync(product);
 
-            if (result is not { ServiceResult: ServiceResult.Failed })
+            if (result is not { ServiceResult: ServiceResult.Success })
                 return Results.BadRequest(result.StatusCodes);
 
             return Results.NoContent();

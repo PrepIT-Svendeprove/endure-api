@@ -52,19 +52,18 @@ internal class ProductService(
         if (dbEntity is null)
             return Result.Failed([ProductStatusCodes.ENTITY_MISSING]);
 
-        if (!dbEntity.EAN.Equals(entity.EAN))
-            return Result.Failed([ProductStatusCodes.EAN_CANNOT_BE_CHANGED]);
-
         var mappedEntity = entity.MapToProduct();
+        mappedEntity.WarehouseId = dbEntity.WarehouseId;
 
         return await _dispatcherProductService.UpdateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
     }
 
-    public async Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter)
+    public async Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter, Guid warehouseId)
     {
         var context = MakePaginatedQuery(filter)
             .OrderByDescending(x => x.Name)
-            .ThenBy(x => x.EAN);
+            .ThenBy(x => x.EAN)
+            .Where(x => x.WarehouseId == warehouseId);
 
         var maxPages = await context.CountAsync();
 
@@ -118,7 +117,7 @@ public interface IProductService : IBaseService
     /// <summary>
     /// Retrieves a paginated list of products.
     /// </summary>
-    Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter);
+    Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter, Guid warehouseId);
 
     /// <summary>
     /// Retrives a single product, by ID.

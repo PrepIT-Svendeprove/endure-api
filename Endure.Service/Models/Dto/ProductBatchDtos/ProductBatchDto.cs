@@ -1,4 +1,5 @@
 ﻿using Endure.Service.Models.Dto.ProductDtos;
+using Endure.Service.Models.Dto.StorageUnitDtose;
 
 namespace Endure.Service.Models.Dto.ProductBatchDtos;
 
@@ -23,4 +24,6 @@ public class ProductBatchDto
     /// The batches product.
     /// </summary>
     public ProductDto Product { get; set; }
+
+    public SelectStorageUnitDto StorageUnit { get; set; }
 }

@@ -10,16 +10,21 @@ public class GetProduct
 {
     [EndpointName("GetPaginatedProducts")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "No entities were found")]
     [ProducesResponseType<PaginatedResult<ProductDto>>(StatusCodes.Status200OK, Description = "Returns a list of entities")]
     public static async Task<IResult> GetPaginatedProductsAsync(
             [FromServices] IProductService productService,
+            [FromRoute] string warehouseId,
             [AsParameters] ProductPaginatedFilter filter 
         )
     {
         try
         {
-            var result = await productService.GetPaginatedProducts(filter);
+            if (!Guid.TryParse(warehouseId, out Guid parsedId))
+                return Results.InternalServerError();
+
+            var result = await productService.GetPaginatedProducts(filter, parsedId);
 
             return Results.Ok(result);
         }

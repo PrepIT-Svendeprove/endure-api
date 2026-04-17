@@ -6,7 +6,7 @@ public static class MapClimateTelemetryEndpoints
     {
         var group = route.MapGroup("/climatetelemetry").WithTags("ClimateTelemetry");
 
-        group.MapGet("/paginated", GetClimateTelemetry.GetPaginatedClimateTelemetryAsync);
+        group.MapGet("/range", GetClimateTelemetry.GetDateRangeClimateTelemetryAsync);
 
         return route;
     }

@@ -19,10 +19,7 @@ internal class ClimateTelemetryConsumer(
         using var scope = _serviceScopeFactory.CreateScope();
         var dispatcherService = scope.ServiceProvider.GetRequiredService<IDispatcherClimateTelemetryService>();
 
-        if (!Guid.TryParse(clientId, out Guid result))
-            return;
-
-        if (!await dispatcherService.CreateClimateTelemetryAsync(message, result))
+        if (!await dispatcherService.CreateClimateTelemetryAsync(message, message.ClimateDeviceId))
         {
             _loggerService.LogWarning($"""
                     Could not create ClimateTelemetry data.

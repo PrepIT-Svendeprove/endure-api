@@ -61,7 +61,6 @@ public class GetWarehouse
     [EndpointSummary("Retrieves a warehouse and its sub warehouses.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any warehouse with the identifier.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAllWarehousesByIdAsync(
             [FromServices] IWarehouseService warehouseService,
@@ -74,9 +73,6 @@ public class GetWarehouse
                 return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
 
             var warehouses = await warehouseService.GetAllByIdAsync(parsedId);
-
-            if (warehouses.Count <= 0)
-                return Results.NoContent();
 
             return Results.Ok(warehouses);
         }

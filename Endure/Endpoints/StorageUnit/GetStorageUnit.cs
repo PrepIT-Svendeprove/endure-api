@@ -117,7 +117,8 @@ public class GetStorageUnit
     [ProducesResponseType<List<SelectStorageUnitDto>>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetSelectStorageUnitAsync(
             [FromServices] IStorageUnitService storageUnitService,
-            [FromRoute] string warehouseId
+            [FromRoute] string warehouseId,
+            [FromQuery] bool allowSlot = false
         )
     {
         try
@@ -125,7 +126,7 @@ public class GetStorageUnit
             if (!Guid.TryParse(warehouseId, out Guid parsedId))
                 return Results.UnprocessableEntity();
 
-            return Results.Ok(await storageUnitService.GetSelectStorageUnitAsync(parsedId));
+            return Results.Ok(await storageUnitService.GetSelectStorageUnitAsync(parsedId, allowSlot));
         }
         catch (Exception ex)
         {

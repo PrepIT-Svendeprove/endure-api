@@ -52,24 +52,21 @@ internal class ProductBatchService(
     public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter)
     {
         var context = MakePaginatedQuery(filter)
+                .OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.ProductId == filter.Id);
 
-        var maxPages = await context.CountAsync();
+        var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
-
-        //return await MakePaginatedQuery(filter)
-        //        .Where(x => x.ProductId == filter.Id)
-        //        .MapToProductBatchDto()
-        //        .ToListAsync();
     }
 
     public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByWarehouseId(ProductBatchFilter filter)
     {
         var context = MakePaginatedQuery(filter)
+                .OrderByDescending(x => x.BestBefore)
                 .Where(x => x.WarehouseId == filter.Id);
 
-        var maxPages = await context.CountAsync();
+        var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
     }
@@ -79,7 +76,7 @@ internal class ProductBatchService(
         var context = MakePaginatedQuery(filter)
                 .Where(x => x.StorageUnitId == filter.Id && x.WarehouseId == filter.WarehouseId);
 
-        var maxPages = await context.CountAsync();
+        var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
     }
@@ -96,7 +93,8 @@ internal class ProductBatchService(
     }
 
     private async Task<bool> IsDeleted<TModel>(Guid id)
-        => !await _context.ProductBatch.AnyAsync(x => x.Id == id && !x.IsDeleted);
+            where TModel : BaseModel
+        => await _context.Set<TModel>().AnyAsync(x => x.Id == id && x.IsDeleted);
 }
 
 public interface IProductBatchService : IBaseService

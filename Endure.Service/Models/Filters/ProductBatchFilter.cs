@@ -5,7 +5,7 @@ public class ProductBatchFilter : BasePaginatedFilter
     public Guid Id { get; set; }
 
     /// <summary>
-    /// This is only required to be set, when retrieving the product batch from a storage unit, otherwise its value will be ignored.
+    /// This is only required to be set, when retrieving the product batch from a storage unit or a product, otherwise its value will be ignored.
     /// </summary>
     public Guid? WarehouseId { get; set; }
 }

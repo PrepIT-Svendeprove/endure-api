@@ -88,4 +88,44 @@ public class GetClimateDevice
             return Results.InternalServerError();
         }
     }
+
+    [EndpointName("GetClimateDevice")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "The parameter could not be converted into a guid.")]
+    [ProducesResponseType<ClimateDeviceDto>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetClimateDeviceAsync(
+            [FromServices] IClimateDeviceService climateDeviceService,
+            [FromRoute] string warehouseId,
+            [FromRoute] string climateDeviceId
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(warehouseId, out Guid parsedWarehouseId) || !Guid.TryParse(climateDeviceId, out Guid parsedClimateId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await climateDeviceService.GetClimateDeviceAsync(parsedWarehouseId, parsedClimateId));
+        }
+        catch(Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    [EndpointName("GetSelectClimateDevices")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<List<SelectClimateDeviceDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetSelectClimateDevicesAsync(
+            [FromServices] IClimateDeviceService climateDeviceService
+        )
+    {
+        try
+        {
+            return Results.Ok(await climateDeviceService.GetSelectClimateDeviceDtoAsync());
+        }
+        catch(Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
 }

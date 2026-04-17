@@ -3,7 +3,7 @@
 public class ClimateDevice : BaseModel
 {
     public string Name { get; set; }
-    public long LastReceived { get; set; }
+    public long? LastReceived { get; set; }
     public bool IsConnected { get; set; }
     public bool IsDisabled { get; set; }
 

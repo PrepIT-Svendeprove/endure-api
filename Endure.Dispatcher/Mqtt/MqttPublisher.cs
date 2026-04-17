@@ -17,16 +17,16 @@ internal sealed class MqttPublisher(
     public async Task PublishAsync<T>(T message, CancellationToken cancellationToken = default)
         where T : BasePublishTopic
     {
+        var topicAttr = typeof(T).GetCustomAttribute<TopicAttribute>();
+
+        ArgumentNullException.ThrowIfNull(topicAttr);
+        ArgumentException.ThrowIfNullOrWhiteSpace(topicAttr.TopicName);
         try
         {
             ArgumentNullException.ThrowIfNull(message);
 
             var payload = JsonSerializer.Serialize(message, DispatchSerializerOptions.Options);
 
-            var topicAttr = typeof(T).GetCustomAttribute<TopicAttribute>();
-
-            ArgumentNullException.ThrowIfNull(topicAttr);
-            ArgumentException.ThrowIfNullOrWhiteSpace(topicAttr.TopicName);
 
             var mqttClient = await _mqttClientHelper.CreateMqttClientAsync();
 
@@ -42,9 +42,13 @@ internal sealed class MqttPublisher(
 
             await mqttClient.DisconnectAsync(cancellationToken: cancellationToken);
         }
-        catch (ArgumentException)
+        catch (ArgumentException) when (topicAttr is null || string.IsNullOrWhiteSpace(topicAttr.TopicName))
         {
             throw;
+        }
+        catch
+        {
+
         }
 
     }

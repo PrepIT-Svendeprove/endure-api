@@ -3,6 +3,7 @@ using Endure.Data.Models;
 using Endure.Service.Models.Dto.ProductBatchDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

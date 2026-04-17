@@ -25,18 +25,13 @@ internal abstract class BaseMqttConsumer<TTopic>(
 
     protected IMqttClient? _mqttClient;
 
-    public async Task RegisterAsync(CancellationToken cancellationToken)
+    public async Task RegisterAsync(CancellationToken cancellationToken, IMqttClient mqttClient)
     {
         // We only want to consume topics that are marked as subscribers.
         if (Topic.Type is not TopicAttribute.TopicType.Subscribe)
             return;
 
-        _mqttClient ??= await _mqttClientHelper.CreateMqttClientAsync();
-
-        _mqttClient.ApplicationMessageReceivedAsync += RecievedMessageAsync;
-
-        // Connect to the broker
-        await _mqttClient.ConnectAsync(_mqttClientHelper.MqttOptions, cancellationToken);
+        mqttClient.ApplicationMessageReceivedAsync += RecievedMessageAsync;
 
         var subOptions = _mqttClientHelper.Factory
                 .CreateSubscribeOptionsBuilder()
@@ -47,46 +42,72 @@ internal abstract class BaseMqttConsumer<TTopic>(
                 )
                 .Build();
 
-        await _mqttClient.SubscribeAsync(subOptions, cancellationToken);
+        await mqttClient.SubscribeAsync(subOptions, cancellationToken);
 
         Console.WriteLine($"Subscribed to topic: {Topic.TopicName}");
     }
 
     private async Task RecievedMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
-        var cancellationToken = new CancellationTokenSource().Token;
-
+        var cancellationToken = CancellationToken.None;
         var requestId = Guid.NewGuid();
+        var incomingTopic = arg.ApplicationMessage.Topic;
+
+        if (!TopicMatches(Topic.TopicName, incomingTopic))
+            return;
 
         _loggerService.LogInformation($"""
-                Receied Topic Message
-                    Type: {typeof(TTopic).Name}
-                    RequestId: {requestId}
-            """);
+            Received Topic Message
+                Type: {typeof(TTopic).Name}
+                Topic: {incomingTopic}
+                RequestId: {requestId}
+        """);
 
         try
         {
             var json = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-            var message = JsonSerializer.Deserialize<TTopic>(json, DispatchSerializerOptions.Options);
+            var message = JsonSerializer.Deserialize<TTopic>(json, DispatchSerializerOptions.Options)
+                ?? throw new InvalidOperationException("Failed to deserialize MQTT payload.");
 
             _loggerService.LogInformation($"""
-                    Beginning to handle message
-                        Type: {typeof(TTopic).Name}
-                        RequestId: {requestId}
-                """);
-            
-            await HandleMessageAsync(message, arg.ClientId, requestId, cancellationToken);
+                Beginning to handle message
+                    Type: {typeof(TTopic).Name}
+                    Topic: {incomingTopic}
+                    RequestId: {requestId}
+            """);
 
+            await HandleMessageAsync(message, arg.ClientId, requestId, cancellationToken);
         }
         catch (Exception ex)
         {
             _loggerService.LogError($"""
-                    Failed while handling message
-                        Type: {typeof(TTopic).Name}
-                        RequestId: {requestId}
-                        Exception: {ex.Message}
-                """);
+                Failed while handling message
+                    Type: {typeof(TTopic).Name}
+                    Topic: {incomingTopic}
+                    RequestId: {requestId}
+                    Exception: {ex}
+            """);
         }
+    }
+
+    private static bool TopicMatches(string subscribedTopic, string incomingTopic)
+    {
+        var subscribedParts = subscribedTopic.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var incomingParts = incomingTopic.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (subscribedParts.Length != incomingParts.Length)
+            return false;
+
+        for (int i = 0; i < subscribedParts.Length; i++)
+        {
+            if (subscribedParts[i] == "+")
+                continue;
+
+            if (!string.Equals(subscribedParts[i], incomingParts[i], StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        return true;
     }
 
     protected abstract Task HandleMessageAsync(TTopic message, string clientId, Guid requestId, CancellationToken cancellationToken);
@@ -94,5 +115,5 @@ internal abstract class BaseMqttConsumer<TTopic>(
 
 internal interface IMqttConsumer
 {
-    Task RegisterAsync(CancellationToken cancellationToken);
+    Task RegisterAsync(CancellationToken cancellationToken, IMqttClient mqttClient);
 }

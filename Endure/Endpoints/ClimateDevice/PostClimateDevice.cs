@@ -9,7 +9,7 @@ public class PostClimateDevice
 {
     [EndpointName("CreateClimateDevice")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<List<string>>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public static async Task<IResult> CreateClimateDeviceAsync(
             [FromServices] IClimateDeviceService climateDeviceService,
@@ -23,9 +23,9 @@ public class PostClimateDevice
             if (result.ServiceResult is ServiceResult.Success)
                 return Results.NoContent();
 
-            return Results.BadRequest();
+            return Results.BadRequest(result.StatusCodes);
         }
-        catch
+        catch(Exception ex)
         {
             return Results.InternalServerError();
         }

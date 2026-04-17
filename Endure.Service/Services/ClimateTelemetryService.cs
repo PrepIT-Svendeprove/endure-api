@@ -13,18 +13,18 @@ internal sealed class ClimateTelemetryService(
     )
     : BaseService<ClimateTelemetry>(context), IClimateTelemetryService
 {
-    public async Task<PaginatedResult<ClimateTelemetryDto>> GetPaginatedClimateTelemetryAsync(ClimateTelemetryPaginatedFilter filter)
+    public async Task<List<ClimateTelemetryDto>> GetClimateTelemetryFromDateRange(ClimateTelemetryDateRangeFilter filter)
     {
-        var context = MakePaginatedQuery(filter)
-                .OrderByDescending(x => x.CreatedAt);
-
-        var maxPages = await context.CountAsync();
-
-        return new PaginatedResult<ClimateTelemetryDto>(await context.MapToClimateTelemetryDto().ToListAsync(), maxPages);
+        return await _context
+                .ClimateTelemetry
+                .OrderBy(x => x.CreatedAt)
+                .Where(x => x.CreatedAt >= filter.From.ToUnixTimeSeconds() && x.CreatedAt <= filter.To.ToUnixTimeSeconds())
+                .MapToClimateTelemetryDto()
+                .ToListAsync();
     }
 }
 
 public interface IClimateTelemetryService
 {
-    Task<PaginatedResult<ClimateTelemetryDto>> GetPaginatedClimateTelemetryAsync(ClimateTelemetryPaginatedFilter filter);
+    Task<List<ClimateTelemetryDto>> GetClimateTelemetryFromDateRange(ClimateTelemetryDateRangeFilter filter);
 }

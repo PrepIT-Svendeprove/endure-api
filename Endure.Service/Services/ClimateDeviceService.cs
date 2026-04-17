@@ -1,18 +1,18 @@
 ﻿using Endure.Data;
+using Endure.Data.Migrations;
 using Endure.Data.Models;
 using Endure.Dispatcher.Mqtt;
 using Endure.Dispatcher.Mqtt.Topic.ClimateDevice;
-using Endure.Dispatcher.RabbitMQ.Connection;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Dto.ClimateDeviceDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
 using Endure.Service.Models.Results;
+using Endure.Service.Models.StatusCodes;
 using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
-using RabbitMQ.Client;
+using Microsoft.EntityFrameworkCore.Update;
 using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Endure.Service.Services;
 
@@ -38,9 +38,9 @@ internal sealed class ClimateDeviceService(
     {
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        // If the storage unit is specified and it is not a slot, we should not be able to update the climate device to use that storage unit.
+        // If the storage unit is specified, but it does not exist we should not be able to add it.
         if (device.StorageUnitId.HasValue && !await _context.StorageUnit.AnyAsync(x => x.Id == device.StorageUnitId.Value && x.WarehouseId == rootWarehouseId))
-            return Result.Failed([]);
+            return Result.Failed([ClimateDeviceStatusCodes.RELATION_DOES_NOT_EXIST]);
 
         var mappedEntity = device.MapToClimateDevice();
         mappedEntity.WareHouseId = rootWarehouseId;
@@ -62,8 +62,7 @@ internal sealed class ClimateDeviceService(
     {
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        // If the storage unit is specified and it is not a slot, we should not be able to update the climate device to use that storage unit.
-        if (device.StorageUnitId.HasValue && !await _context.StorageUnit.AnyAsync(x => x.IsSlot && x.Id == device.StorageUnitId.Value && x.WarehouseId == rootWarehouseId))
+        if (device.StorageUnitId.HasValue && !await _context.StorageUnit.AnyAsync(x => x.Id == device.StorageUnitId.Value && x.WarehouseId == rootWarehouseId && !x.IsDeleted))
             return Result.Failed([]);
 
         var mappedEntity = device.MapToClimateDevice();
@@ -80,6 +79,34 @@ internal sealed class ClimateDeviceService(
             });
 
         return result;
+    }
+
+    public async Task<Result> UpdateStorageUnitOnClimateDevice(Guid climateDeviceId, Guid storageUnitId)
+    {
+        var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+
+        if (!await _context.StorageUnit.AnyAsync(x => x.Id == storageUnitId && x.WarehouseId == rootWarehouseId && !x.IsDeleted))
+            return Result.Failed([ClimateDeviceStatusCodes.RELATION_DOES_NOT_EXIST]);
+
+        var dbEntity = await _context.ClimateDevice.FirstOrDefaultAsync(x => x.Id == climateDeviceId && x.WareHouseId == rootWarehouseId && !x.IsDeleted);
+
+        if (dbEntity is null)
+            return Result.Failed([ClimateDeviceStatusCodes.ENTITY_MISSING]);
+
+        dbEntity.StorageUnitId = storageUnitId;
+
+        return await _dispatcherClimateDeviceService.UpdateClimateDeviceAsync(dbEntity) ? Result.Success() : Result.Failed([]);
+    }
+
+    public async Task<List<SelectClimateDeviceDto>> GetSelectClimateDeviceDtoAsync()
+    {
+        var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+
+        return await _context
+                .ClimateDevice
+                .Where(x => x.WareHouseId == rootWarehouseId && x.StorageUnitId == null && !x.IsDeleted)
+                .MapToSelectClimateDeviceDto()
+                .ToListAsync();
     }
 
     public async Task<PaginatedResult<ClimateDeviceDto>> GetPaginatedClimateDevice(ClimateDevicePaginatedFilter filter)
@@ -126,6 +153,15 @@ internal sealed class ClimateDeviceService(
                 .ToListAsync();
     }
 
+    public async Task<ClimateDeviceDto?> GetClimateDeviceAsync(Guid warehouseId, Guid climateDeviceId)
+    {
+        return await _context
+                .ClimateDevice
+                .Where(x => x.WareHouseId == warehouseId && x.Id == climateDeviceId && !x.IsDeleted)
+                .MapToClimateDeviceDto()
+                .FirstOrDefaultAsync();
+    }
+
     public async Task<int> GetClimateDeviceCountAsync(Guid warehouseId)
     {
         return await _context
@@ -146,6 +182,7 @@ public interface IClimateDeviceService : IBaseService
     /// Retrieves all climates that are available on the root warehouse, to be added into a storage unit.
     /// </summary>
     Task<List<ClimateDeviceDto>> GetAvailableClimateDevices();
+    Task<ClimateDeviceDto?> GetClimateDeviceAsync(Guid warehouseId, Guid climateDeviceId);
     Task<int> GetClimateDeviceCountAsync(Guid warehouseId);
     Task<List<ClimateDeviceDto>> GetClimateDevicesByStorageUnitId(Guid warehouseId, Guid storageUnitId);
 
@@ -153,10 +190,12 @@ public interface IClimateDeviceService : IBaseService
     /// Retrieves a list of ClimateDevices, and the amount of pages that the filter could produce.
     /// </summary>
     Task<PaginatedResult<ClimateDeviceDto>> GetPaginatedClimateDevice(ClimateDevicePaginatedFilter filter);
+    Task<List<SelectClimateDeviceDto>> GetSelectClimateDeviceDtoAsync();
 
     /// <summary>
     /// Updates a climate device, and publishes the desired temp and humidity on the queue for that climate device.
     /// </summary>
     Task<Result> UpdateClimateDevice(UpdateClimateDeviceDto device);
+    Task<Result> UpdateStorageUnitOnClimateDevice(Guid climateDeviceId, Guid storageUnitId);
 }
 

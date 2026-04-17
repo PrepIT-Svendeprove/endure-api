@@ -30,4 +30,33 @@ public class PutClimateDevice
             return Results.InternalServerError();
         }
     }
+
+    [EndpointName("UpdateClimateDeviceStorageUnit")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public static async Task<IResult> UpdateClimateDeviceStorageUnitAsync(
+            [FromServices] IClimateDeviceService climateDeviceService,
+            [FromRoute] string climateDeviceId,
+            [FromQuery] string storageUnitId
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(climateDeviceId, out Guid parsedClimateDeviceId) || !Guid.TryParse(storageUnitId, out Guid parsedStorageUnitId))
+                return Results.UnprocessableEntity();
+
+            var result = await climateDeviceService.UpdateStorageUnitOnClimateDevice(parsedClimateDeviceId, parsedStorageUnitId);
+
+            if (result.ServiceResult is not ServiceResult.Success)
+                return Results.BadRequest(result.StatusCodes);
+
+            return Results.NoContent();
+        }
+        catch (Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
 }

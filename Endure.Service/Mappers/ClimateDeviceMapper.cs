@@ -24,6 +24,15 @@ internal static class ClimateDeviceMapper
         };
     }
 
+    internal static IQueryable<SelectClimateDeviceDto> MapToSelectClimateDeviceDto(this IQueryable<ClimateDevice> query)
+    {
+        return query.Select(x => new SelectClimateDeviceDto
+        {
+            Id = x.Id,
+            Name = x.Name
+        });
+    }
+
     internal static ClimateDevice MapToClimateDevice(this ClimateDeviceDeleteEventMessage message)
     {
         return new ClimateDevice
@@ -116,7 +125,7 @@ internal static class ClimateDeviceMapper
         {
             Id = x.Id,
             Name = x.Name,
-            LastReceived = DateTimeOffset.FromUnixTimeSeconds(x.LastReceived),
+            LastReceived = x.LastReceived == null || x.LastReceived == 0 ? null : DateTimeOffset.FromUnixTimeSeconds((long)x.LastReceived),
             IsConnected = x.IsConnected,
             IsDisabled = x.IsDisabled,
             StorageUnitId = x.StorageUnitId,

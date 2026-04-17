@@ -3,6 +3,7 @@ using System;
 using Endure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Endure.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260416140415_nullable_lastreceived")]
+    partial class nullable_lastreceived
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,8 +150,6 @@ namespace Endure.Data.Migrations
                         .HasColumnName("xmin");
 
                     b.HasKey("WarehouseId", "Id");
-
-                    b.HasIndex("WarehouseId", "ClimateDeviceId");
 
                     b.ToTable("ClimateTelemetry");
                 });
@@ -353,7 +354,7 @@ namespace Endure.Data.Migrations
                 {
                     b.HasOne("Endure.Data.Models.ClimateDevice", "ClimateDevice")
                         .WithMany("ClimateTelemetry")
-                        .HasForeignKey("WarehouseId", "ClimateDeviceId")
+                        .HasForeignKey("WarehouseId", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

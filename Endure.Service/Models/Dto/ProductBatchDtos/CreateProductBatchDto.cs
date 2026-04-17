@@ -5,7 +5,7 @@ public class CreateProductBatchDto
     /// <summary>
     /// Best before date, formatted as unix epoch time.
     /// </summary>
-    public long BestBefore { get; set; }
+    public long BestBeforeUtc { get; set; }
 
     /// <summary>
     /// Amount of items that is within the product batch.

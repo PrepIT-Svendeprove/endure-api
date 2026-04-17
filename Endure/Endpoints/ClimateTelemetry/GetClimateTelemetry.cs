@@ -8,17 +8,17 @@ namespace Endure.Endpoints.ClimateTelemetry;
 
 public class GetClimateTelemetry
 {
-    [EndpointName("GetPaginatedClimateTelemetry")]
+    [EndpointName("GetDateRangeClimateTelemetry")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType<PaginatedResult<ClimateTelemetryDto>>(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetPaginatedClimateTelemetryAsync(
+    [ProducesResponseType<List<ClimateTelemetryDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetDateRangeClimateTelemetryAsync(
             [FromServices] IClimateTelemetryService climateTelemetryService,
-            [AsParameters] ClimateTelemetryPaginatedFilter filter
+            [AsParameters] ClimateTelemetryDateRangeFilter filter
         )
     {
         try
         {
-            return Results.Ok(await climateTelemetryService.GetPaginatedClimateTelemetryAsync(filter));
+            return Results.Ok(await climateTelemetryService.GetClimateTelemetryFromDateRange(filter));
         }
         catch (Exception ex)
         {

@@ -9,7 +9,7 @@ public class ClimateDeviceUpdatedEventMessage : BaseEventMessage
 
     public required string Name { get; set; }
 
-    public long LastReceived { get; set; }
+    public long? LastReceived { get; set; }
 
     public bool IsConnected { get; set; }
 

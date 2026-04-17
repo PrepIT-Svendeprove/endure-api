@@ -13,6 +13,7 @@ public static class ServiceRegistration
         services.ConfigureDatabaseContext(config.GetConnectionString("DefaultConnection") ?? throw new NullReferenceException("Could not get DefaultConnection string."));
 
         services.AddScoped<IDispatcherClimateDeviceService, DispatcherClimateDeviceService>();
+        services.AddScoped<IDispatcherClimateTelemetryService, DispatcherClimateTelemetryService>();
         services.AddScoped<IDispatcherAuditLogService, DispatcherAuditLogService>();
         services.AddScoped<IDispatcherProductBatchService, DispatcherProductBatchService>();
         services.AddScoped<IDispatcherProductService, DispatcherProductService>();

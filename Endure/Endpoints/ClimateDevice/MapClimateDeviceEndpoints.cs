@@ -6,14 +6,17 @@ public static class MapClimateDeviceEndpoints
     {
         var group = route.MapGroup("/climatedevice").WithTags("ClimateDevice");
 
+        group.MapGet("/select", GetClimateDevice.GetSelectClimateDevicesAsync);
         group.MapGet("/available", GetClimateDevice.GetAvailableClimateDeviceAsync);
         group.MapGet("/paginated", GetClimateDevice.GetPaginatedClimateDevicesAsync);
         group.MapGet("/{warehouseId}/count", GetClimateDevice.GetClimateDeviceCountAsync);
-        group.MapGet("/{warehouseId}/{storageunitId}", GetClimateDevice.GetClimateDevicesByStorageIdAsync);
+        group.MapGet("/{warehouseId}/{storageunitId}/storageunit", GetClimateDevice.GetClimateDevicesByStorageIdAsync);
+        group.MapGet("/{warehouseId}/{climateDeviceId}", GetClimateDevice.GetClimateDeviceAsync);
 
         group.MapPost("/", PostClimateDevice.CreateClimateDeviceAsync);
 
         group.MapPut("/", PutClimateDevice.UpdateClimateDeviceAsync);
+        group.MapPut("/{climateDeviceId}/updatestorageunit", PutClimateDevice.UpdateClimateDeviceStorageUnitAsync);
 
         group.MapDelete("/{id}", DeleteClimateDevice.DeleteClimateDeviceAsync);
 

@@ -29,7 +29,7 @@ internal abstract class BaseRabbitMqConnection(BaseRabbitMqOptions options)
                 UserName = _options.UserName,
                 Password = _options.Password,
                 VirtualHost = _options.VirtualHost,
-                ClientProvidedName = "Endure.Api"
+                ClientProvidedName = BaseRabbitMqOptions.ClientName
             };
 
             _connection = await factory.CreateConnectionAsync(ctx);

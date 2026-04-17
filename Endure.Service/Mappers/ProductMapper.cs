@@ -121,7 +121,8 @@ internal static class ProductMapper
             Id = x.Id,
             Name = x.Name,
             Description = x.Description,
-            EAN = x.EAN
+            EAN = x.EAN,
+            HasProductBatches = x.ProductBatches.Any(x => !x.IsDeleted)
         });
     }
 }
