@@ -8,6 +8,7 @@ using Endure.Service.Models.Results;
 using Endure.Service.Models.StatusCodes;
 using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using System.Linq.Expressions;
 
 namespace Endure.Service.Services;
@@ -97,8 +98,17 @@ internal class ProductService(
         return await _context
                 .Product
                 .OrderByDescending(x => x.Name)
+                .Where(x => !x.IsDeleted)
                 .MapToSelectProductDto()
                 .ToListAsync();
+    }
+
+    public async Task<int> GetProductCountAsync(Guid warehouseId)
+    {
+        return await _context
+                .Product
+                .Where(x => x.WarehouseId == warehouseId && !x.IsDeleted)
+                .CountAsync();
     }
 }
 
@@ -130,4 +140,5 @@ public interface IProductService : IBaseService
     /// <returns></returns>
     Task<List<Top10ProductDto>> GetTop10ProductsInWarehouseId(Guid warehouseId);
     Task<List<SelectProductDto>> GetAvailableProductsAsync();
+    Task<int> GetProductCountAsync(Guid warehouseId);
 }

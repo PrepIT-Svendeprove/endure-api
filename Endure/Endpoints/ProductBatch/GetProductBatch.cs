@@ -100,21 +100,22 @@ public class GetProductBatch
         }
     }
 
-    [EndpointName("GetTop10ProductBatches")]
+
+    [EndpointName("GetProductBatchCountInWarehouse")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType<List<Top10ProductBatchDto>>(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetTop10ProductsAsync(
-            [FromServices] IProductBatchService productBatchService,
-            [FromRoute] string id
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetProductBatchCountAsync(
+            [FromServices] IProductBatchService productService,
+            [FromRoute] string warehouseId
         )
     {
         try
         {
-            if (Guid.TryParse(id, out Guid parsedId))
+            if (!Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
                 return Results.UnprocessableEntity();
 
-            return Results.Ok(await productBatchService.GetTop10ProductBatchesInWarehouseId(parsedId));
+            return Results.Ok(await productService.GetProductBatchCountAsync(parsedWarehouseId));
         }
         catch (Exception ex)
         {

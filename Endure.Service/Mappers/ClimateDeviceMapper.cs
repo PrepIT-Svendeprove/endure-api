@@ -116,6 +116,9 @@ internal static class ClimateDeviceMapper
             Id = device.Id,
             Name = device.Name,
             StorageUnitId = device.StorageUnitId,
+            IsDisabled = device.IsDisabled,
+            SetHumidity = device.SetHumidity,
+            SetTemperature = device.SetTemperature
         };
     }
 

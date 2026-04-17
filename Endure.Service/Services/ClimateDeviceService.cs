@@ -70,7 +70,7 @@ internal sealed class ClimateDeviceService(
 
         var result = await _dispatcherClimateDeviceService.UpdateClimateDeviceAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
 
-        if (result.ServiceResult is ServiceResult.Success)
+        if (result.ServiceResult is ServiceResult.Success && !mappedEntity.IsDisabled)
             await _mqttPublisher.PublishAsync(new ClimateRegulateTopic
             {
                 Id = device.Id,

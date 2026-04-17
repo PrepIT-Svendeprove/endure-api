@@ -92,6 +92,14 @@ internal class ProductBatchService(
                 .ToListAsync();
     }
 
+    public async Task<int> GetProductBatchCountAsync(Guid warehouseId)
+    {
+        return await _context
+                .ProductBatch
+                .Where(x => x.WarehouseId == warehouseId && !x.IsDeleted)
+                .CountAsync();
+    }
+
     private async Task<bool> IsDeleted<TModel>(Guid id)
             where TModel : BaseModel
         => await _context.Set<TModel>().AnyAsync(x => x.Id == id && x.IsDeleted);
@@ -124,4 +132,5 @@ public interface IProductBatchService : IBaseService
     /// </summary>
     Task<ProductBatchDto?> GetProductBatchById(Guid id);
     Task<List<Top10ProductBatchDto>> GetTop10ProductBatchesInWarehouseId(Guid warehouseId);
+    Task<int> GetProductBatchCountAsync(Guid warehouseId);
 }

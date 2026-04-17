@@ -22,6 +22,9 @@ public class UpdateClimateDeviceDto
     [JsonPropertyName(ClimateDeviceConstants.SET_TEMPERATURE_NAME)]
     public required double SetTemperature { get; set; }
 
+    [JsonPropertyName(ClimateDeviceConstants.IS_DISABLED_NAME)]
+    public bool IsDisabled { get; set; }
+
     [JsonPropertyName(ClimateDeviceConstants.STORAGEUNITID_NAME)]
     public Guid? StorageUnitId { get; set; }
 }

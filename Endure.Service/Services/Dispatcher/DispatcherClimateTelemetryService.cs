@@ -4,6 +4,7 @@ using Endure.Dispatcher.Mqtt.Topic.ClimateTelemetry;
 using Endure.Dispatcher.RabbitMQ.EventMessage.ClimateTelemetry;
 using Endure.Dispatcher.RabbitMQ.Publisher;
 using Endure.Service.Mappers;
+using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 
 namespace Endure.Service.Services.Dispatcher;
@@ -39,6 +40,9 @@ internal sealed class DispatcherClimateTelemetryService(
     public async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetryTopic topic, Guid clientDeviceId)
     {
         var rootwarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+
+        if (!await _context.ClimateDevice.AnyAsync(x => x.Id == topic.ClimateDeviceId && x.WareHouseId == rootwarehouseId && !x.IsDeleted && !x.IsDisabled))
+            return false;
 
         var mappedEntity = topic.MapToClimateClimateTelemetry(clientDeviceId, rootwarehouseId);
 
