@@ -38,6 +38,9 @@ public sealed class ClimateDeviceDto
     [JsonPropertyName(ClimateDeviceConstants.SET_TEMPERATURE_NAME)]
     public double? SetTemperature { get; set; }
 
+    [JsonPropertyName(ClimateDeviceConstants.CLIMATEDEVICECODE_NAME)]
+    public string ClimateDeviceCode { get; set; }
+
     /// <summary>
     /// Defines the storageunit that the climatedevice is used in.
     /// </summary>

@@ -71,11 +71,11 @@ internal class ProductService(
         return new PaginatedResult<ProductDto>(await context.MapToProductDto().ToListAsync(), maxPages);
     }
 
-    public async Task<ProductDto?> GetProductById(Guid id)
+    public async Task<ProductDto?> GetProductById(Guid productId, Guid warehouseId)
     {
         return await _context
                 .Product
-                .Where(x => x.Id == id && !x.IsDeleted)
+                .Where(x => x.Id == productId && x.WarehouseId == warehouseId && !x.IsDeleted)
                 .MapToProductDto()
                 .FirstOrDefaultAsync();
     }
@@ -132,7 +132,7 @@ public interface IProductService : IBaseService
     /// <summary>
     /// Retrives a single product, by ID.
     /// </summary>
-    Task<ProductDto?> GetProductById(Guid id);
+    Task<ProductDto?> GetProductById(Guid productId, Guid warehouseId);
 
     /// <summary>
     /// Retrieves the 10 products with the most product batches.

@@ -8,7 +8,7 @@ public static class MapProductEndpoints
 
         group.MapGet("/{warehouseId}/paginated", GetProduct.GetPaginatedProductsAsync);
         group.MapGet("/available", GetProduct.GetAvailableProductsAsync);
-        group.MapGet("/{id}", GetProduct.GetProductByIdAsync);
+        group.MapGet("/{warehouseId}/{productId}", GetProduct.GetProductByIdAsync);
         group.MapGet("/{warehouseId}/count", GetProduct.GetProductCountAsync);
 
         group.MapPost("/", PostProduct.CreateProductAsync);

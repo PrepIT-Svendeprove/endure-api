@@ -1,5 +1,4 @@
 ﻿using Endure.Dispatcher.Mqtt;
-using Endure.Dispatcher.Mqtt.Topic.ClimateDevice;
 using Endure.Dispatcher.Mqtt.Topic.ClimateTelemetry;
 using Endure.Service.Services.Dispatcher;
 
@@ -19,7 +18,7 @@ internal class ClimateTelemetryConsumer(
         using var scope = _serviceScopeFactory.CreateScope();
         var dispatcherService = scope.ServiceProvider.GetRequiredService<IDispatcherClimateTelemetryService>();
 
-        if (!await dispatcherService.CreateClimateTelemetryAsync(message, message.ClimateDeviceId))
+        if (!await dispatcherService.CreateClimateTelemetryAsync(message))
         {
             _loggerService.LogWarning($"""
                     Could not create ClimateTelemetry data.

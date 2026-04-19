@@ -18,10 +18,7 @@ internal class ClimateLastWillConsumer(
         using var scope = _serviceScopeFactory.CreateScope();
         var dispatcherServie = scope.ServiceProvider.GetRequiredService<IDispatcherClimateDeviceService>();
 
-        if (!Guid.TryParse(clientId, out Guid result))
-            return;
-
-        if (!await dispatcherServie.DisconnectClimateDeviceAsync(result))
+        if (!await dispatcherServie.DisconnectClimateDeviceAsync(message.ClimateDeviceCode))
         {
             _loggerService.LogWarning($"""
                     Could not mark ClimateDevice as disconnected

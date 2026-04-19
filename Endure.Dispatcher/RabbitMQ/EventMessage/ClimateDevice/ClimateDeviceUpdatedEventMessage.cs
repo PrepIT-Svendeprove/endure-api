@@ -15,9 +15,11 @@ public class ClimateDeviceUpdatedEventMessage : BaseEventMessage
 
     public bool IsDisabled { get; set; }
 
-    public double? SetTemperature { get; set; }
+    public required double? SetTemperature { get; set; }
 
-    public double? SetHumidity { get; set; }
+    public required double? SetHumidity { get; set; }
+
+    public required string ClimateDeviceCode { get; set; }
 
     public Guid? StorageUnitId { get; set; }
 

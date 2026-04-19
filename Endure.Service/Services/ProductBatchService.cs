@@ -40,15 +40,6 @@ internal class ProductBatchService(
         return await _dispatcherProductBatchService.CreateProductBatchAsync(mapppedEntity) ? Result.Success() : Result.Failed([]);
     }
 
-    public async Task<ProductBatchDto?> GetProductBatchById(Guid id)
-    {
-        return await _context
-                .ProductBatch
-                .Where(x => x.Id == id)
-                .MapToProductBatchDto()
-                .FirstOrDefaultAsync();
-    }
-
     public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter)
     {
         var context = MakePaginatedQuery(filter)
@@ -79,17 +70,6 @@ internal class ProductBatchService(
         var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<ProductBatchDto>(await context.MapToProductBatchDto().ToListAsync(), maxPages);
-    }
-
-    public async Task<List<Top10ProductBatchDto>> GetTop10ProductBatchesInWarehouseId(Guid warehouseId)
-    {
-        return await _context
-                .ProductBatch
-                .OrderByDescending(x => x.CreatedAt)
-                .Where(x => x.WarehouseId == warehouseId)
-                .Take(10)
-                .MapTotop10ProductBatchDto()
-                .ToListAsync();
     }
 
     public async Task<int> GetProductBatchCountAsync(Guid warehouseId)
@@ -127,10 +107,5 @@ public interface IProductBatchService : IBaseService
     /// </summary>
     Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByStorageUnitId(ProductBatchFilter filter);
 
-    /// <summary>
-    /// Retrieves a specific productbatch by its id.
-    /// </summary>
-    Task<ProductBatchDto?> GetProductBatchById(Guid id);
-    Task<List<Top10ProductBatchDto>> GetTop10ProductBatchesInWarehouseId(Guid warehouseId);
     Task<int> GetProductBatchCountAsync(Guid warehouseId);
 }

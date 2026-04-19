@@ -70,6 +70,7 @@ internal static class ClimateDeviceMapper
             SetTemperature = device.SetTemperature,
             CreatedAt = device.CreatedAt,
             UpdatedAt = device.UpdatedAt,
+            ClimateDeviceCode = device.ClimateDeviceCode
         };
     }
 
@@ -96,7 +97,8 @@ internal static class ClimateDeviceMapper
             SetTemperature = device.SetTemperature,
             SetHumidity = device.SetHumidity,
             CreatedAt = device.CreatedAt,
-            UpdatedAt = device.UpdatedAt
+            UpdatedAt = device.UpdatedAt,
+            ClimateDeviceCode = device.ClimateDeviceCode,
         };
     }
 
@@ -105,7 +107,9 @@ internal static class ClimateDeviceMapper
         return new ClimateDevice
         {
             Name = device.Name,
-            StorageUnitId = device.StorageUnitId
+            StorageUnitId = device.StorageUnitId,
+            SetHumidity = device.SetHumidity,
+            SetTemperature = device.SetTemperature
         };
     }
 
@@ -137,7 +141,8 @@ internal static class ClimateDeviceMapper
             LatestClimate = x.ClimateTelemetry
                 .OrderByDescending(x => x.CreatedAt)
                 .MapToClimateTelemetryDto()
-                .FirstOrDefault()
+                .FirstOrDefault(),
+            ClimateDeviceCode = x.ClimateDeviceCode
         });
     }
 }

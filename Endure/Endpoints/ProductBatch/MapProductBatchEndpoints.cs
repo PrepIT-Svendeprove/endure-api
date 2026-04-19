@@ -6,7 +6,6 @@ public static class MapProductBatchEndpoints
     {
         var group = route.MapGroup("/productbatch").WithTags("ProductBatch");
 
-        group.MapGet("/{id}", GetProductBatch.GetProductBatchByIdAsync);
         group.MapGet("/paginatedbyproduct", GetProductBatch.GetPaginatedProductsByProductIdAsync);
         group.MapGet("/paginatedbystorage", GetProductBatch.GetPaginatedProductsByStorageUnitIdAsync);
         group.MapGet("/paginatedbywarehouse", GetProductBatch.GetPaginatedProductsByWarehouseIdAsync);

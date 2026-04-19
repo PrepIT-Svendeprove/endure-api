@@ -51,7 +51,7 @@ internal abstract class BaseRabbitMqConsumer<TMessage>(
             cancellationToken
         );
 
-        Console.WriteLine($"Setup Declared: {typeof(TMessage).Name}");
+        Console.WriteLine($"Setup Declared: {typeof(TMessage).Name} - {QueueName}");
     }
 
     private async Task RecievedMessageAsync(object sender, BasicDeliverEventArgs eventArgs)

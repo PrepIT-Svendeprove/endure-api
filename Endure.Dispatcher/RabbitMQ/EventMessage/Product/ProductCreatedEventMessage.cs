@@ -2,7 +2,7 @@
 
 namespace Endure.Dispatcher.RabbitMQ.EventMessage.Product;
 
-[EventQueue("product.create")]
+[EventQueue("product.created")]
 public class ProductCreatedEventMessage : BaseEventMessage
 {
     public Guid Id { get; set; }

@@ -41,15 +41,16 @@ public class GetProduct
     [ProducesResponseType<ProductDto>(StatusCodes.Status200OK, Description = "Succesfully found the requested entity.")]
     public static async Task<IResult> GetProductByIdAsync(
             [FromServices] IProductService productService,
-            [FromRoute] string id
+            [FromRoute] string warehouseId,
+            [FromRoute] string productId
         )
     {
         try
         {
-            if (!Guid.TryParse(id, out Guid parsedId))
+            if (!Guid.TryParse(productId, out Guid parsedProductId) || !Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
                 return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
 
-            var result = await productService.GetProductById(parsedId);
+            var result = await productService.GetProductById(parsedProductId, parsedWarehouseId);
 
             if (result is null)
                 return Results.BadRequest();

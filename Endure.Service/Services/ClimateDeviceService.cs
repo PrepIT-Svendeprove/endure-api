@@ -13,6 +13,8 @@ using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Update;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Endure.Service.Services;
 
@@ -45,15 +47,26 @@ internal sealed class ClimateDeviceService(
         var mappedEntity = device.MapToClimateDevice();
         mappedEntity.WareHouseId = rootWarehouseId;
 
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            var bytes = new byte[5];
+            rng.GetBytes(bytes);
+            mappedEntity.ClimateDeviceCode = Convert.ToHexString(bytes);
+        }
+
         var result = await _dispatcherClimateDeviceService.CreateClimateDeviceAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
 
         if (result.ServiceResult is ServiceResult.Success)
+        {
+            var climateDevice = await _context.ClimateDevice.Select(x => new { x.WareHouseId, x.Id, x.ClimateDeviceCode }).FirstOrDefaultAsync(x => x.WareHouseId == rootWarehouseId && x.Id == mappedEntity.Id);
+
             await _mqttPublisher.PublishAsync(new ClimateRegulateTopic
             {
-                Id = mappedEntity.Id,
+                ClimateDeviceCode = climateDevice!.ClimateDeviceCode,
                 Humidity = mappedEntity.SetHumidity,
                 Temperature = mappedEntity.SetTemperature
             });
+        }
 
         return result;
     }
@@ -71,12 +84,16 @@ internal sealed class ClimateDeviceService(
         var result = await _dispatcherClimateDeviceService.UpdateClimateDeviceAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
 
         if (result.ServiceResult is ServiceResult.Success && !mappedEntity.IsDisabled)
+        {
+            var climateDevice = await _context.ClimateDevice.Select(x => new { x.WareHouseId, x.Id, x.ClimateDeviceCode }).FirstOrDefaultAsync(x => x.WareHouseId == rootWarehouseId && x.Id == device.Id);
+
             await _mqttPublisher.PublishAsync(new ClimateRegulateTopic
             {
-                Id = device.Id,
+                ClimateDeviceCode = climateDevice!.ClimateDeviceCode,
                 Humidity = device.SetHumidity,
                 Temperature = device.SetTemperature
             });
+        }
 
         return result;
     }

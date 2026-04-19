@@ -7,7 +7,7 @@ namespace Endure.Dispatcher.Mqtt.Topic.ClimateDevice;
 public class ClimateRegulateTopic : BasePublishTopic
 {
     [JsonIgnore]
-    public Guid Id { get; set; }
+    public string ClimateDeviceCode { get; set; }
 
     public double Humidity { get; set; }
 
@@ -17,5 +17,5 @@ public class ClimateRegulateTopic : BasePublishTopic
     /// Formats the topic from climate/control/{id} -> climate/control/Id.
     /// </summary>
     public override string ConvertTopic(string topic)
-        => topic.Replace("{id}", Id.ToString());
+        => topic.Replace("{id}", ClimateDeviceCode);
 }

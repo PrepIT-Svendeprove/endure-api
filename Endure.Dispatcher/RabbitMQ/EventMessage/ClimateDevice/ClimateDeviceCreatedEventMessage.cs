@@ -13,6 +13,8 @@ public class ClimateDeviceCreatedEventMessage : BaseEventMessage
 
     public required double SetHumidity { get; set; }
 
+    public required string ClimateDeviceCode { get; set; }
+
     public Guid? StorageUnitId { get; set; }
 
     public required Guid WarehouseId { get; set; }

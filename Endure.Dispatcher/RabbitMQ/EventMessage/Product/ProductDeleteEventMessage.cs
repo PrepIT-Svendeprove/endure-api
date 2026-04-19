@@ -2,7 +2,7 @@
 
 namespace Endure.Dispatcher.RabbitMQ.EventMessage.Product;
 
-[EventQueue("product.delete")]
+[EventQueue("product.deleted")]
 public class ProductDeleteEventMessage : BaseEventMessage
 {
     public Guid Id { get; set; }

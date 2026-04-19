@@ -69,17 +69,17 @@ internal sealed class DispatcherClimateDeviceService(
 
 
 
-    public async Task<bool> DisconnectClimateDeviceAsync(Guid climateDeviceId)
+    public async Task<bool> DisconnectClimateDeviceAsync(string climateDeviceCode)
     {
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        var entity = await _context.ClimateDevice.FirstOrDefaultAsync(x => x.Id == climateDeviceId && x.WareHouseId == rootWarehouseId);
+        var entity = await _context.ClimateDevice.FirstOrDefaultAsync(x => x.ClimateDeviceCode == climateDeviceCode  && x.WareHouseId == rootWarehouseId);
 
         if (entity is null)
         {
             _loggerService.LogWarning($"""
                     Could not mark ClimateDevice as Disconnected, because it does not exist.
-                        RequestedEntityId: {climateDeviceId}
+                        RequestedEntityId: {climateDeviceCode}
                 """);
             return true;
         }
@@ -139,5 +139,5 @@ public interface IDispatcherClimateDeviceService
     /// <summary>
     /// Marks the ClimateDevice as disconnected.
     /// </summary>
-    Task<bool> DisconnectClimateDeviceAsync(Guid climateDevice);
+    Task<bool> DisconnectClimateDeviceAsync(string climateDeviceCode);
 }

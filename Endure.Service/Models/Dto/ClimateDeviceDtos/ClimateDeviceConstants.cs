@@ -11,4 +11,5 @@ internal class ClimateDeviceConstants
     internal const string SET_TEMPERATURE_NAME = "setTemperature";
     internal const string STORAGEUNITID_NAME = "storageUnitId";
     internal const string LATESTCLIMATE_NAME = "latestClimate";
+    internal const string CLIMATEDEVICECODE_NAME = "climateDeviceCode";
 }

@@ -73,24 +73,6 @@ internal class WarehouseService(
                 .ToListAsync();
     }
 
-    public async Task<WarehouseDto?> CreateWarehouseAsync(CreateWarehouseDto entity)
-    {
-        var mappedEntity = entity.MapToWarehouse();
-        Warehouse? rootWarehouse;
-
-        if (entity.ParentWarehouseId is null)
-        {
-            rootWarehouse = await _context.Warehouse.FirstOrDefaultAsync(x => x.Id == mappedEntity.Id && !x.IsDeleted);
-
-            mappedEntity.ParentId = rootWarehouse?.ParentId;
-        }
-
-        await _context.AddAsync(mappedEntity);
-
-
-        return await _context.SaveChangesAsync() > 0 ? mappedEntity.MapToWarehouseDto() : null;
-    }
-
     public async Task<Result> UpdateWarehouseAsync(UpdateWarehouseDto entity)
     {
         var mappedEntity = entity.MapToWarehouse();
@@ -109,12 +91,6 @@ internal class WarehouseService(
 /// </summary>
 public interface IWarehouseService : IBaseService
 {
-    /// <summary>
-    /// Creates a new warehouse, if <see cref="CreateWarehouseDto.IsRoot" /> is set on the <paramref name="entity"/> it will set the current root warehouse and set the newly created as the root warehouse.
-    /// </summary>
-    /// <returns>The mapped entity of CreateWarehouseDto.</returns>
-    Task<WarehouseDto?> CreateWarehouseAsync(CreateWarehouseDto entity);
-
     /// <summary>
     /// Retrievs all the warehouses that are not marked as the root warehouse.
     /// </summary>

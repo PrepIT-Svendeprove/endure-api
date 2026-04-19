@@ -5,7 +5,6 @@ using Endure.Dispatcher.RabbitMQ.EventMessage.ClimateTelemetry;
 using Endure.Dispatcher.RabbitMQ.Publisher;
 using Endure.Service.Mappers;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
 namespace Endure.Service.Services.Dispatcher;
 
@@ -18,14 +17,23 @@ internal sealed class DispatcherClimateTelemetryService(
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
 
-    private async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetry telemetry)
+    private async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetry telemetry, Guid climateDeviceId)
     {
         await _context.AddAsync(telemetry);
 
         var result = await _context.SaveChangesAsync() > 0;
 
         if (result)
+        {
+            await _context
+                .ClimateDevice
+                .Where(x => x.WareHouseId == telemetry.WarehouseId && x.Id == climateDeviceId)
+                .ExecuteUpdateAsync(x =>
+                    x.SetProperty(y => y.LastReceived, DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                );
+
             await SynchronizeWithParent(telemetry.MapToClimateTelemetryCreatedEventMessage());
+        }
 
         return result;
     }
@@ -34,19 +42,27 @@ internal sealed class DispatcherClimateTelemetryService(
     {
         var mappedEntity = message.MapToClimateTelemetry();
 
-        return await CreateClimateTelemetryAsync(mappedEntity);
+        return await CreateClimateTelemetryAsync(mappedEntity, message.ClimateDeviceId);
     }
 
-    public async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetryTopic topic, Guid clientDeviceId)
+    public async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetryTopic topic)
     {
         var rootwarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+        var climateDevice = await _context.ClimateDevice.Select(x => new
+        {
+            x.Id,
+            x.ClimateDeviceCode,
+            x.WareHouseId,
+            x.IsDisabled,
+            x.IsDeleted
+        }).FirstOrDefaultAsync(x => x.ClimateDeviceCode == topic.ClimateDeviceCode && x.WareHouseId == rootwarehouseId && !x.IsDeleted && !x.IsDisabled);
 
-        if (!await _context.ClimateDevice.AnyAsync(x => x.Id == topic.ClimateDeviceId && x.WareHouseId == rootwarehouseId && !x.IsDeleted && !x.IsDisabled))
+        if (climateDevice is null)
             return false;
 
-        var mappedEntity = topic.MapToClimateClimateTelemetry(clientDeviceId, rootwarehouseId);
+        var mappedEntity = topic.MapToClimateClimateTelemetry(climateDevice.Id, rootwarehouseId);
 
-        return await CreateClimateTelemetryAsync(mappedEntity);
+        return await CreateClimateTelemetryAsync(mappedEntity, climateDevice.Id);
     }
 }
 
@@ -62,5 +78,5 @@ public interface IDispatcherClimateTelemetryService
     /// <summary>
     /// Creates a new ClimateTelemetry entity, from a topic and publishes it with AMQP. The WarehouseId will always be the root's warehouseId!
     /// </summary>
-    Task<bool> CreateClimateTelemetryAsync(ClimateTelemetryTopic topic, Guid clientDeviceId);
+    Task<bool> CreateClimateTelemetryAsync(ClimateTelemetryTopic topic);
 }

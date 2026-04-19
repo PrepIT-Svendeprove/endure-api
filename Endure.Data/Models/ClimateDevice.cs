@@ -11,6 +11,8 @@ public class ClimateDevice : BaseModel
 
     public double SetTemperature { get; set; }
 
+    public string ClimateDeviceCode { get; set; }
+
     public Guid? StorageUnitId { get; set; }
     public Guid WareHouseId { get; set; }
 

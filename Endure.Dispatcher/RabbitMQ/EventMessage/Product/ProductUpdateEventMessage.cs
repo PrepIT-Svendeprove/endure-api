@@ -2,7 +2,7 @@
 
 namespace Endure.Dispatcher.RabbitMQ.EventMessage.Product;
 
-[EventQueue("product.update")]
+[EventQueue("product.updated")]
 public class ProductUpdateEventMessage : BaseEventMessage
 {
     public Guid Id { get; set; }
