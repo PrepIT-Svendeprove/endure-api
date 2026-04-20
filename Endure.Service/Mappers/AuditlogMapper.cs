@@ -12,7 +12,6 @@ internal static class AuditlogMapper
         return entity.Select(x => new AuditLogDto
         {
             Id = x.Id,
-            WarehouseId = x.WarehouseId,
             LogLevel = (LogLevel)x.LogLevel,
             LogData = x.Log,
             RequestId = x.RequestId,

@@ -12,12 +12,6 @@ public sealed class AuditLogDto
     public required Guid Id { get; set; }
 
     /// <summary>
-    /// The identifier of the warehouse were the auditlog occoured.
-    /// </summary>
-    [JsonPropertyName(AuditLogConstants.WAREHOUSEID_NAME)]
-    public required Guid WarehouseId { get; set; }
-
-    /// <summary>
     /// Represents how critical the Auditlog were.
     /// </summary>
     [JsonPropertyName(AuditLogConstants.LOGLEVEL_NAME)]

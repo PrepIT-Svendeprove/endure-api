@@ -11,8 +11,6 @@ public static class MapAuditlogEndpoints
         group.MapGet("/{id}", GetAuditlog.GetAuditlogAsync);
         group.MapGet("/paginated", GetAuditlog.GetPaginatedAuditlogsAsync);
 
-        group.MapPost("/", PostAuditlog.CreateAuditLogAsync);
-
         return route;
     }
 }

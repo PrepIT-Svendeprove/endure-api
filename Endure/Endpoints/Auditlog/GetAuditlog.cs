@@ -54,7 +54,7 @@ public class GetAuditlog
         {
             var auditLogs = await auditlogService.GetPaginatedAuditLogAsync(filter);
 
-            return Results.Ok();
+            return Results.Ok(auditLogs);
         }
         catch
         {

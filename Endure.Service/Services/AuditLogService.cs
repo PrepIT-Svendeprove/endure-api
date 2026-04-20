@@ -31,6 +31,8 @@ internal class AuditLogService(
 
     public async Task<PaginatedResult<AuditLogDto>> GetPaginatedAuditLogAsync(AuditlogPaginatedFilter filter)
     {
+        var _ = await _context.AuditLog.Where(x => x.WarehouseId == filter.WarehouseId).ToListAsync();
+
         var context = MakePaginatedQuery(filter)
             .OrderByDescending(x => x.CreatedAt)
             .AsQueryable();
@@ -46,6 +48,14 @@ internal class AuditLogService(
         var maxPages = await context.CountAsync();
 
         return new PaginatedResult<AuditLogDto>(await context.MapToAuditLogDto().ToListAsync(), maxPages);
+    }
+
+    public async Task<int> GetAuditLogCount(Guid warehouseId)
+    {
+        return await _context
+                .AuditLog
+                .Where(x => x.WarehouseId == warehouseId)
+                .CountAsync();
     }
 
     public async Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity)
