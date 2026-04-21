@@ -13,6 +13,6 @@ internal class ClimateTelemetryTypeConfiguration : BaseTypeConfiguration<Climate
 
         builder.HasOne(x => x.ClimateDevice)
             .WithMany(x => x.ClimateTelemetry)
-            .HasForeignKey(x => new { x.WarehouseId, x.Id });
+            .HasForeignKey(x => new { x.WarehouseId, x.ClimateDeviceId });
     }   
 }

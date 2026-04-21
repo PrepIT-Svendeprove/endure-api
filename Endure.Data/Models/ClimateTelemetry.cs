@@ -2,8 +2,8 @@
 
 public class ClimateTelemetry : BaseModel
 {
-    public double? Temperature { get; set; }
-    public double? Humidity { get; set; }
+    public required double Temperature { get; set; }
+    public required double Humidity { get; set; }
 
     public required Guid ClimateDeviceId { get; set; }
     public required Guid WarehouseId { get; set; }

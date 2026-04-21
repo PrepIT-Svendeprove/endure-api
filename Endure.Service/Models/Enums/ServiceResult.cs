@@ -20,5 +20,10 @@ public enum ServiceResult
     /// <summary>
     /// 
     /// </summary>
-    AlreadyExists = 3
+    AlreadyExists = 3,
+
+    /// <summary>
+    /// The service did not make any changes.
+    /// </summary>
+    NoChanges = 4,
 }

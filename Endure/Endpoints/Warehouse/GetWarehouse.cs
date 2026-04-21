@@ -39,12 +39,16 @@ public class GetWarehouse
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any sub warehouse.")]
     [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK, Description = "Succesfully retrieved the subwarehouses.")]
     public static async Task<IResult> GetSubWarehousesAsync(
-            [FromServices] IWarehouseService warehouseService
+            [FromServices] IWarehouseService warehouseService,
+            [FromRoute] string warehouseId
         )
     {
         try
         {
-            var warehouse = await warehouseService.GetAllSubWarehousesAsync();
+            if (!Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
+                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
+
+            var warehouse = await warehouseService.GetAllSubWarehousesAsync(parsedWarehouseId);
 
             if (warehouse is { Count: <= 0 })
                 return Results.NoContent();
@@ -61,7 +65,6 @@ public class GetWarehouse
     [EndpointSummary("Retrieves a warehouse and its sub warehouses.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any warehouse with the identifier.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAllWarehousesByIdAsync(
             [FromServices] IWarehouseService warehouseService,
@@ -75,8 +78,26 @@ public class GetWarehouse
 
             var warehouses = await warehouseService.GetAllByIdAsync(parsedId);
 
-            if (warehouses.Count <= 0)
-                return Results.NoContent();
+            return Results.Ok(warehouses);
+        }
+        catch
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    [EndpointName("GetAllWarehouses")]
+    [EndpointSummary("Retrieves all warehouses.")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetAllWarehousesAsync(
+            [FromServices] IWarehouseService warehouseService
+        )
+    {
+        try
+        {
+            var warehouses = await warehouseService.GetAllWarehousesAsync();
 
             return Results.Ok(warehouses);
         }
@@ -86,30 +107,23 @@ public class GetWarehouse
         }
     }
 
-    [EndpointName("GetWarehouses")]
-    [EndpointSummary("Retrieves all warehouses with the parent id.")]
+    [EndpointName("GetSubwarehouseCount")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not founda ny warehouses with the parent id.")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetAllWarehousesByParentIdAsync(
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetSubWarehouseCountByWarehouseIdAsync(
             [FromServices] IWarehouseService warehouseService,
-            [FromRoute] string id
+            [FromRoute] string warehouseId
         )
     {
         try
         {
-            if (!Guid.TryParse(id, out Guid parsedId))
-                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
+            if (!Guid.TryParse(warehouseId, out Guid parsedId))
+                return Results.UnprocessableEntity();
 
-            var warehouses = await warehouseService.GetAllByParentIdAsync(parsedId);
-
-            if (warehouses.Count <= 0)
-                return Results.NoContent();
-
-            return Results.Ok(warehouses);
+            return Results.Ok(await warehouseService.GetSubWarehouseCountByWarehouseIdAsync(parsedId));
         }
-        catch
+        catch (Exception ex)
         {
             return Results.InternalServerError();
         }

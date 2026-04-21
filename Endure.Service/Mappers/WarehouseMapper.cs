@@ -1,4 +1,5 @@
 ﻿using Endure.Data.Models;
+using Endure.Dispatcher.RabbitMQ.EventMessage.Warehouse;
 using Endure.Service.Models.Dto.WarehouseDtos;
 
 namespace Endure.Service.Mappers;
@@ -14,7 +15,7 @@ internal static class WarehouseMapper
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.CreatedAt),
             UpdatedAt = DateTimeOffset.FromUnixTimeSeconds(warehouse.UpdatedAt),
             IsRoot = warehouse.IsRoot,
-            ParentWarehouseId = warehouse.ParentWarehouseId,
+            ParentId = warehouse.ParentId,
         });
     }
 
@@ -24,6 +25,17 @@ internal static class WarehouseMapper
         {
             Name = entity.Name,
             ShortName = entity.ShortName
+        };
+    }
+
+    public static Warehouse MapToWarehouse(this UpdateWarehouseDto entity)
+    {
+        return new Warehouse
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            ParentId = entity.ParentId
         };
     }
 
@@ -37,18 +49,20 @@ internal static class WarehouseMapper
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.CreatedAt),
             IsRoot = entity.IsRoot,
             UpdatedAt = DateTimeOffset.FromUnixTimeSeconds(entity.UpdatedAt),
-            ParentWarehouseId = entity.ParentWarehouseId
+            ParentId = entity.ParentId
         };
     }
 
-    public static Warehouse MapToWarehouse(this UpdateWarehouseDto entity)
+    public static Warehouse MapToWarehouse(this WarehouseUpdatedEventMessage message)
     {
         return new Warehouse
         {
-            Id = entity.Id,
-            Name = entity.Name,
-            ShortName = entity.ShortName,
-            ParentWarehouseId = entity.ParentWarehouseId
+            Id = message.Id,
+            Name = message.Name,
+            ShortName = message.ShortName,
+            CreatedAt = message.CreatedAt,
+            UpdatedAt = message.UpdatedAt,
+            ParentId = message.ParentId,
         };
     }
 }

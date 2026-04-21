@@ -9,7 +9,7 @@ public class PostProductBatch
 {
 	[EndpointName("CreateProductBatch")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity were not created, returns a list of statuscodes that indicates what went wrong.")]
+    [ProducesResponseType<List<string>>(StatusCodes.Status400BadRequest, Description = "The entity were not created, returns a list of statuscodes that indicates what went wrong.")]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The entity were created.")]
     public static async Task<IResult> CreateProductBatchAsync(
             [FromServices] IProductBatchService productBatchService,

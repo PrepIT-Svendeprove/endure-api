@@ -1,6 +1,6 @@
 ﻿using Endure.Endpoints.Auditlog;
-using Endure.Endpoints.DietaryRestriction;
-using Endure.Endpoints.DietaryRestrictionType;
+using Endure.Endpoints.ClimateDevice;
+using Endure.Endpoints.ClimateTelemetry;
 using Endure.Endpoints.Product;
 using Endure.Endpoints.ProductBatch;
 using Endure.Endpoints.StorageUnit;
@@ -13,14 +13,12 @@ public static class MinimalApiConfiguration
 {
     public static WebApplication MapMinimalApiRoutes(this WebApplication app)
     {
-        app.UseMiddleware<TraceMiddleware>();
-
         var appGroup = app.MapGroup("/api");
 
-        appGroup.MapDietaryRestrictionsTypeApiRoutes();
-        appGroup.MapDietaryRestrictionsApiRoutes();
         appGroup.MapProductBatchApiRoutes();
+        appGroup.MapClimateTelemetryApiRoutes();
         appGroup.MapProductApiRoutes();
+        appGroup.MapClimateDeviceApiRoutes();
         appGroup.MapStorageUnitApiRoutes();
         appGroup.MapWarehouseApiRoutes();
         appGroup.MapAuditlogApiRoutes();

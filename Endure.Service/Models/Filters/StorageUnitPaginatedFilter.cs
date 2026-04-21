@@ -2,4 +2,5 @@
 
 public class StorageUnitPaginatedFilter : BasePaginatedFilter
 {
+    public required Guid WarehouseId { get; set; }
 }

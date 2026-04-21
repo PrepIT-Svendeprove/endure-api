@@ -1,4 +1,6 @@
-﻿namespace Endure.Endpoints.Product;
+﻿using Endure.Constants;
+
+namespace Endure.Endpoints.Product;
 
 public static class MapProductEndpoints
 {
@@ -6,14 +8,16 @@ public static class MapProductEndpoints
     {
         var group = route.MapGroup("/product").WithTags("Product");
 
-        group.MapGet("/paginated", GetProduct.GetPaginatedProductsAsync);
-        group.MapGet("/{id}", GetProduct.GetProductByIdAsync);
+        group.MapGet("/{warehouseId}/paginated", GetProduct.GetPaginatedProductsAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_READ);
+        group.MapGet("/available", GetProduct.GetAvailableProductsAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_READ);
+        group.MapGet("/{warehouseId}/{productId}", GetProduct.GetProductByIdAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_READ);
+        group.MapGet("/{warehouseId}/count", GetProduct.GetProductCountAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_READ);
 
-        group.MapPost("/", PostProduct.CreateProductAsync);
+        group.MapPost("/", PostProduct.CreateProductAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_MODIFY);
 
-        group.MapPut("/", PutProduct.UpdateProductAsync);
+        group.MapPut("/", PutProduct.UpdateProductAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_MODIFY);
 
-        group.MapDelete("/{id}", DeleteProduct.DeleteProductAsync);
+        group.MapDelete("/{id}", DeleteProduct.DeleteProductAsync).RequireAuthorization(PolicyConstants.WAREHOUSE_MODIFY);
 
         return route;
     }

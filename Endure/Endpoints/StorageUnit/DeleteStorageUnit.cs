@@ -44,7 +44,6 @@ public class DeleteStorageUnit
             {
                 LogData = ex.Message,
                 LogLevel = Service.Models.Enums.LogLevel.Error,
-                ModuleType = Service.Models.Enums.ModuleType.Inventory,
             });
 
             return Results.InternalServerError();

@@ -6,7 +6,6 @@ public class AuditLog : BaseModel
 {
     public required Guid WarehouseId { get; set; }
     public LogLevel LogLevel { get; set; }
-    public ModuleType ModuleType { get; set; }
 
     public required string Log { get; set; }
 
@@ -15,5 +14,5 @@ public class AuditLog : BaseModel
     /// </summary>
     public string? RequestId { get; set; }
 
-    public new long UpdatedAt { get; private set; }
+    public Warehouse? Warehouse { get; set; }
 }

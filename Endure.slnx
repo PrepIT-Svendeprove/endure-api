@@ -3,6 +3,8 @@
     <File Path="Docker/docker-compose.yaml" />
   </Folder>
   <Project Path="Endure.Data/Endure.Data.csproj" />
+  <Project Path="Endure.Dispatcher/Endure.Dispatcher.csproj" Id="47f031a9-037a-49f2-8ebe-d841e7f694ac" />
+  <Project Path="Endure.Messaging/Endure.Messaging.csproj" Id="d3aca6df-e85f-4351-b42e-b9ab920ce8bd" />
   <Project Path="Endure.Service/Endure.Service.csproj" Id="0bd730fb-dbab-4905-9b1e-f67cf978f220" />
   <Project Path="Endure/Endure.csproj" Id="fc695816-5516-43df-94ed-35f1b8f38995" />
 </Solution>

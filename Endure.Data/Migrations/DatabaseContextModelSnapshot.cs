@@ -41,9 +41,6 @@ namespace Endure.Data.Migrations
                     b.Property<int>("LogLevel")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ModuleType")
-                        .HasColumnType("integer");
-
                     b.Property<string>("RequestId")
                         .HasColumnType("text");
 
@@ -58,17 +55,23 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("WarehouseId");
+
                     b.ToTable("AuditLog");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
                 {
-                    b.Property<Guid>("WarehouseId")
+                    b.Property<Guid>("WareHouseId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ClimateDeviceCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
@@ -82,12 +85,18 @@ namespace Endure.Data.Migrations
                     b.Property<bool>("IsDisabled")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("LastReceived")
+                    b.Property<long?>("LastReceived")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<double>("SetHumidity")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("SetTemperature")
+                        .HasColumnType("double precision");
 
                     b.Property<Guid?>("StorageUnitId")
                         .HasColumnType("uuid");
@@ -101,9 +110,9 @@ namespace Endure.Data.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
-                    b.HasKey("WarehouseId", "Id");
+                    b.HasKey("WareHouseId", "Id");
 
-                    b.HasIndex("WarehouseId", "StorageUnitId");
+                    b.HasIndex("WareHouseId", "StorageUnitId");
 
                     b.ToTable("ClimateDevice");
                 });
@@ -123,13 +132,13 @@ namespace Endure.Data.Migrations
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
 
-                    b.Property<double?>("Humidity")
+                    b.Property<double>("Humidity")
                         .HasColumnType("double precision");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<double?>("Temperature")
+                    b.Property<double>("Temperature")
                         .HasColumnType("double precision");
 
                     b.Property<long>("UpdatedAt")
@@ -143,74 +152,16 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("WarehouseId", "Id");
 
+                    b.HasIndex("WarehouseId", "ClimateDeviceId");
+
                     b.ToTable("ClimateTelemetry");
-                });
-
-            modelBuilder.Entity("Endure.Data.Models.DietaryRestriction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("CreatedAt")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("DietaryRestrictionTypeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("HashedCpr")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<long?>("UpdatedAt")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Version")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DietaryRestrictionTypeId");
-
-                    b.ToTable("DietaryRestriction");
-                });
-
-            modelBuilder.Entity("Endure.Data.Models.DietaryRestrictionType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("CreatedAt")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long?>("UpdatedAt")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Version")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DietaryRestrictionType");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.Product", b =>
                 {
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
@@ -242,7 +193,7 @@ namespace Endure.Data.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
-                    b.HasKey("Id");
+                    b.HasKey("WarehouseId", "Id");
 
                     b.ToTable("Product");
                 });
@@ -285,7 +236,7 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("WarehouseId", "Id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("WarehouseId", "ProductId");
 
                     b.HasIndex("WarehouseId", "StorageUnitId");
 
@@ -317,7 +268,7 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ParentStorageUnitId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortName")
@@ -337,7 +288,7 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("WarehouseId", "Id");
 
-                    b.HasIndex("WarehouseId", "ParentStorageUnitId");
+                    b.HasIndex("WarehouseId", "ParentId");
 
                     b.ToTable("StorageUnit");
                 });
@@ -361,7 +312,7 @@ namespace Endure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ParentWarehouseId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortName")
@@ -378,16 +329,25 @@ namespace Endure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentWarehouseId");
-
                     b.ToTable("Warehouse");
+                });
+
+            modelBuilder.Entity("Endure.Data.Models.AuditLog", b =>
+                {
+                    b.HasOne("Endure.Data.Models.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
                 {
                     b.HasOne("Endure.Data.Models.StorageUnit", "StorageUnit")
                         .WithMany("ClimateDevices")
-                        .HasForeignKey("WarehouseId", "StorageUnitId")
+                        .HasForeignKey("WareHouseId", "StorageUnitId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("StorageUnit");
@@ -397,29 +357,24 @@ namespace Endure.Data.Migrations
                 {
                     b.HasOne("Endure.Data.Models.ClimateDevice", "ClimateDevice")
                         .WithMany("ClimateTelemetry")
-                        .HasForeignKey("WarehouseId", "Id")
+                        .HasForeignKey("WarehouseId", "ClimateDeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ClimateDevice");
                 });
 
-            modelBuilder.Entity("Endure.Data.Models.DietaryRestriction", b =>
+            modelBuilder.Entity("Endure.Data.Models.ProductBatch", b =>
                 {
-                    b.HasOne("Endure.Data.Models.DietaryRestrictionType", "DietaryRestrictionType")
-                        .WithMany("DietaryRestrictions")
-                        .HasForeignKey("DietaryRestrictionTypeId")
+                    b.HasOne("Endure.Data.Models.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DietaryRestrictionType");
-                });
-
-            modelBuilder.Entity("Endure.Data.Models.ProductBatch", b =>
-                {
                     b.HasOne("Endure.Data.Models.Product", "Product")
                         .WithMany("ProductBatches")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("WarehouseId", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -432,6 +387,8 @@ namespace Endure.Data.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("StorageUnit");
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.StorageUnit", b =>
@@ -444,7 +401,7 @@ namespace Endure.Data.Migrations
 
                     b.HasOne("Endure.Data.Models.StorageUnit", "ParentStorageUnit")
                         .WithMany("ChildStorageUnits")
-                        .HasForeignKey("WarehouseId", "ParentStorageUnitId")
+                        .HasForeignKey("WarehouseId", "ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentStorageUnit");
@@ -452,24 +409,9 @@ namespace Endure.Data.Migrations
                     b.Navigation("Warehouse");
                 });
 
-            modelBuilder.Entity("Endure.Data.Models.Warehouse", b =>
-                {
-                    b.HasOne("Endure.Data.Models.Warehouse", "ParentWarehouse")
-                        .WithMany("ChildWarehouses")
-                        .HasForeignKey("ParentWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ParentWarehouse");
-                });
-
             modelBuilder.Entity("Endure.Data.Models.ClimateDevice", b =>
                 {
                     b.Navigation("ClimateTelemetry");
-                });
-
-            modelBuilder.Entity("Endure.Data.Models.DietaryRestrictionType", b =>
-                {
-                    b.Navigation("DietaryRestrictions");
                 });
 
             modelBuilder.Entity("Endure.Data.Models.Product", b =>
@@ -488,8 +430,6 @@ namespace Endure.Data.Migrations
 
             modelBuilder.Entity("Endure.Data.Models.Warehouse", b =>
                 {
-                    b.Navigation("ChildWarehouses");
-
                     b.Navigation("StorageUnits");
                 });
 #pragma warning restore 612, 618

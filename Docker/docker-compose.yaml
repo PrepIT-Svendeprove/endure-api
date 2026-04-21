@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: endure
     volumes:
       - postgres:/var/lib/postgresql/18/docker
+      - ./postgres-init:/docker-entrypoint-initdb.d # Ensures the creation of the Authentik user and database.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U endure -d endure -h localhost"]
       interval: 10s
@@ -16,9 +17,9 @@ services:
       retries: 5
     ports:
       - "5432:5432"
- 
+
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:9
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: passw0rd
@@ -41,7 +42,7 @@ services:
     ports:
       - "5672:5672"     # AMQP protocol
       - "15672:15672"   # Management UI
-      - "8883:8883"     # MQTT protocol
+      - "1883:1883"     # MQTTS protocol
 
   authentik_server:
       image: authentik/server:2026.2.1

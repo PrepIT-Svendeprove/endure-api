@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Endure.Data\Endure.Data.csproj" />
+    <ProjectReference Include="..\Endure.Dispatcher\Endure.Dispatcher.csproj" />
   </ItemGroup>
 
 </Project>

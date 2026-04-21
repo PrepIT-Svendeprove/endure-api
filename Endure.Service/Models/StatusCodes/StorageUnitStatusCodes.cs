@@ -16,7 +16,7 @@ internal class StorageUnitStatusCodes
     internal const string CONTAINING_SUBUNITS = "20002";
 
     /// <summary>
-    /// The parent storageunit is not eligible as a parent, either because IsSlot is true or because it is deleted._
+    /// The parent storageunit is not eligible as a parent, either because IsSlot is true or because it is deleted.
     /// </summary>
     internal const string PARENT_NOT_ELIGIBLE = "20003";
 }

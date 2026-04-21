@@ -1,4 +1,7 @@
-﻿using Endure.Service.Models.Filters;
+﻿using Endure.Service.Models.Dto.StorageUnitDtos;
+using Endure.Service.Models.Dto.StorageUnitDtose;
+using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,8 +40,7 @@ public class GetStorageUnit
     [EndpointName("GetPaginatedStorageUnits")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<PaginatedResult<StorageUnitDto>>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetPaginatedStorageUnitsAsync(
             [FromServices] IStorageUnitService storageUnitService,
             [AsParameters] StorageUnitPaginatedFilter id
@@ -47,9 +49,6 @@ public class GetStorageUnit
         try
         {
             var result = await storageUnitService.GetPaginatedStorageUnitsAsync(id);
-
-            if (result.Count <= 0)
-                return Results.NoContent();
 
             return Results.Ok(result);
         }
@@ -63,25 +62,78 @@ public class GetStorageUnit
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<StorageUnitDto>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetStorageUnitByIdAsync(
             [FromServices] IStorageUnitService storageUnitService,
-            [FromRoute] string id
+            [FromRoute] string id,
+            [FromRoute] string warehouseId
         )
     {
         try
         {
-            if (!Guid.TryParse(id, out Guid parsedId))
+            if (!Guid.TryParse(id, out Guid parsedId) || !Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
                 return Results.UnprocessableEntity("Could not parse identifier to Guid.");
 
-            var result = await storageUnitService.GetStorageUnitByIdAsync(parsedId);
+            var result = await storageUnitService.GetStorageUnitByIdAsync(parsedId, parsedWarehouseId);
+
+            Console.WriteLine(result);
 
             if (result is null)
                 return Results.BadRequest();
 
             return Results.Ok(result);
         }
-        catch
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            return Results.InternalServerError();
+        }
+    }
+
+
+    [EndpointName("GetStorageUnitCount")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetStorageUnitCountAsync(
+            [FromServices] IStorageUnitService storageUnitService,
+            [FromRoute] string warehouseId
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(warehouseId, out Guid parsedId))
+                return Results.UnprocessableEntity();
+
+            var count = await storageUnitService.GetStorageUnitCountAsync(parsedId);
+
+            return Results.Ok(count);
+        }
+        catch(Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    [EndpointName("GetSelectStorageUnit")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType<List<SelectStorageUnitDto>>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetSelectStorageUnitAsync(
+            [FromServices] IStorageUnitService storageUnitService,
+            [FromRoute] string warehouseId,
+            [FromQuery] bool allowSlot = false
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(warehouseId, out Guid parsedId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await storageUnitService.GetSelectStorageUnitAsync(parsedId, allowSlot));
+        }
+        catch (Exception ex)
         {
             return Results.InternalServerError();
         }

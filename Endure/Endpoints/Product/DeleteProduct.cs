@@ -6,6 +6,7 @@ namespace Endure.Endpoints.Product;
 
 public class DeleteProduct
 {
+    [EndpointName("DeleteProduct")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The entity could not be removed, this could be because the product is being relied on by another one or more productbatches.")]

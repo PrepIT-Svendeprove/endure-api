@@ -3,6 +3,7 @@ using Endure.Data.Models;
 using Endure.Service.Models.Dto.ProductBatchDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -16,7 +17,7 @@ public abstract class BaseService<T>(DatabaseContext context) : IBaseService
     protected virtual IQueryable<T> MakePaginatedQuery(BasePaginatedFilter filter)
         => _context
             .Set<T>()
-            .Take(filter.Take)
+            .Take(filter.Take >= 100 ? 100 : filter.Take)
             .Skip((filter.Page <= 0 ? 0 : filter.Page - 1) * filter.Take)
             .Where(x => !x.IsDeleted);
 
@@ -38,26 +39,25 @@ public abstract class BaseService<T>(DatabaseContext context) : IBaseService
         if (result > 0)
             return ServiceResult.Success;
 
+        if (result == 0)
+            return ServiceResult.NoChanges;
+
         return ServiceResult.Failed;
     }
 
     public async Task<ServiceResult> SoftDeleteEntity(Guid id)
-        => await SoftDeleteEntity(id);
+        => await SoftDeleteEntity(id, null);
 
-    public virtual async Task<bool> IsDeleted<T>(Guid id)
-        where T : BaseModel
+    /// <summary>
+    /// Checks if the warehouseId is a root warehouse, and if it has a parentId.
+    /// </summary>
+    protected async Task<bool> ShouldSynchronizeWithParent(Guid warehouseId)
     {
-        return await _context.Set<T>().AnyAsync(x => x.Id == id && !x.IsDeleted);
-    }
-
-    public virtual async Task<bool> IsDeleted(Guid id)
-    {
-        return await _context.Set<T>().AnyAsync(x => x.Id == id && !x.IsDeleted);
+        return await _context.Warehouse.AnyAsync(x => x.Id == warehouseId && x.ParentId != null);
     }
 }
 
 public interface IBaseService
 {
-    Task<bool> IsDeleted(Guid id);
     Task<ServiceResult> SoftDeleteEntity(Guid id);
 }

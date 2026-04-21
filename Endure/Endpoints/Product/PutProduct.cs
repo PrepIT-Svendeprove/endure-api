@@ -13,14 +13,14 @@ public class PutProduct
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The entity succesfully has been updated.")]
     public static async Task<IResult> UpdateProductAsync(
             [FromServices] IProductService productService,
-            [FromBody] ProductDto product
+            [FromBody] UpdateProductDto product
         )
     {
         try
         {
             var result = await productService.UpdateProductAsync(product);
 
-            if (result is not { ServiceResult: ServiceResult.Failed })
+            if (result is not { ServiceResult: ServiceResult.Success })
                 return Results.BadRequest(result.StatusCodes);
 
             return Results.NoContent();

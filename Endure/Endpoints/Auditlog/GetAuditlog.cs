@@ -1,5 +1,6 @@
 ﻿using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Filters;
+using Endure.Service.Models.Results;
 using Endure.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +11,29 @@ namespace Endure.Endpoints.Auditlog;
 /// </summary>
 public class GetAuditlog
 {
-    /// <summary>
-    /// Retrives a single auditlog.
-    /// </summary>
+
+    [EndpointName("GetAuditLogCount")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType<AuditLogDto>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetAuditLogCountAsync(
+            [FromServices] IAuditLogService auditlogService,
+            [FromRoute] string warehouseId
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await auditlogService.GetAuditLogCount(parsedWarehouseId));
+        }
+        catch(Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
     [EndpointName("GetAuditlog")]
     [EndpointDescription("Retrieves a auditlog by id.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -20,7 +41,7 @@ public class GetAuditlog
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<AuditLogDto>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAuditlogAsync(
-            [FromServices] IAuditLogService auditlogService, 
+            [FromServices] IAuditLogService auditlogService,
             [FromRoute] string id
         )
     {
@@ -42,14 +63,11 @@ public class GetAuditlog
         }
     }
 
-    /// <summary>
-    /// Retrives a paginated list of auditlogs, from both the root and sub-warehouses.
-    /// </summary>
     [EndpointName("GetPaginatedAuditlogs")]
     [EndpointDescription("Retrieves auditlogs as a paginated list.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<List<AuditLogDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PaginatedResult<AuditLogDto>>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetPaginatedAuditlogsAsync(
             [FromServices] IAuditLogService auditlogService,
             [AsParameters] AuditlogPaginatedFilter filter
@@ -59,10 +77,7 @@ public class GetAuditlog
         {
             var auditLogs = await auditlogService.GetPaginatedAuditLogAsync(filter);
 
-            if (auditLogs.Count <= 0)
-                return Results.NoContent();
-
-            return Results.Ok();
+            return Results.Ok(auditLogs);
         }
         catch
         {

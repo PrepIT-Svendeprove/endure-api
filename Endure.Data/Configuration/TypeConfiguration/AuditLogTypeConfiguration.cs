@@ -13,11 +13,10 @@ internal class AuditLogTypeConfiguration : BaseTypeConfiguration<AuditLog>
         builder.Property(x => x.LogLevel)
             .IsRequired();
 
-        builder.Property(x => x.ModuleType)
-            .IsRequired();
-
         builder.Property(x => x.Log)
             .HasColumnType("jsonb")
             .IsRequired();
+
+        builder.HasKey(x => new { x.WarehouseId, x.Id });
     }
 }

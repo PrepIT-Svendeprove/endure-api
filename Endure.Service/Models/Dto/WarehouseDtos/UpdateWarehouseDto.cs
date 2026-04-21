@@ -17,5 +17,5 @@ public class UpdateWarehouseDto
     public string? ShortName { get; set; }
 
     [JsonPropertyName(WarehouseConstants.PARENTWAREHOUSEID)]
-    public Guid? ParentWarehouseId { get; set; }
+    public Guid? ParentId { get; set; }
 }
