@@ -19,6 +19,12 @@ internal sealed class DispatcherClimateTelemetryService(
 
     private async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetry telemetry, Guid climateDeviceId)
     {
+        if (await _context.ClimateTelemetry.AnyAsync(x => x.Id == telemetry.Id && x.WarehouseId == telemetry.WarehouseId && x.ClimateDeviceId == climateDeviceId))
+        {
+            await SynchronizeWithParent(telemetry.MapToClimateTelemetryCreatedEventMessage());
+            return true;
+        }
+
         await _context.AddAsync(telemetry);
 
         var result = await _context.SaveChangesAsync() > 0;

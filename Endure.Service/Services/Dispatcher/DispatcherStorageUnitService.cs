@@ -21,26 +21,17 @@ internal class DispatcherStorageUnitService(
     {
         // The entity already exists, so dont try to recreate it.
         if (await _context.StorageUnit.AnyAsync(x => x.Id == entity.Id && x.WarehouseId == entity.WarehouseId))
+        {
+            await SynchronizeWithParent(entity.MapToStorageUnitCreatedEventMessage());
             return true;
+        }
 
         await _context.AddAsync(entity);
 
         var result = await _context.SaveChangesAsync() > 0;
 
         if (result)
-            await SynchronizeWithParent(new StorageUnitCreatedEventMessage
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                ShortName = entity.ShortName,
-                StorageType = entity.StorageType,
-                Description = entity.Description,
-                IsSlot = entity.IsSlot,
-                ParentId = entity.ParentId,
-                WarehouseId = entity.WarehouseId,
-                CreatedAt = entity.CreatedAt,
-                UpdatedAt = entity.UpdatedAt,
-            });
+            await SynchronizeWithParent(entity.MapToStorageUnitCreatedEventMessage());
 
         return result;
     }

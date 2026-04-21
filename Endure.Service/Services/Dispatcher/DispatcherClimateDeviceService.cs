@@ -1,12 +1,12 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
-using Endure.Dispatcher.Mqtt.Topic.ClimateDevice;
 using Endure.Dispatcher.RabbitMQ.EventMessage.ClimateDevice;
 using Endure.Dispatcher.RabbitMQ.Publisher;
 using Endure.Service.Mappers;
 using Endure.Service.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Endure.Service.Services.Dispatcher;
 
@@ -23,6 +23,17 @@ internal sealed class DispatcherClimateDeviceService(
 
     public async Task<bool> CreateClimateDeviceAsync(ClimateDevice device)
     {
+        _loggerService.LogInformation("""
+                Creating ClimateDevice:
+                    {0}
+            """, JsonSerializer.Serialize(device));
+
+        if (await _context.ClimateDevice.AnyAsync(x => x.Id == device.Id && x.WareHouseId == device.WareHouseId))
+        {
+            await SynchronizeWithParent(device.MapToClimateDeviceCreatedEventMessage());
+            return true;
+        }
+
         await _context.AddAsync(device);
 
         var result = await _context.SaveChangesAsync() > 0;
@@ -73,7 +84,7 @@ internal sealed class DispatcherClimateDeviceService(
     {
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        var entity = await _context.ClimateDevice.FirstOrDefaultAsync(x => x.ClimateDeviceCode == climateDeviceCode  && x.WareHouseId == rootWarehouseId);
+        var entity = await _context.ClimateDevice.FirstOrDefaultAsync(x => x.ClimateDeviceCode == climateDeviceCode && x.WareHouseId == rootWarehouseId);
 
         if (entity is null)
         {

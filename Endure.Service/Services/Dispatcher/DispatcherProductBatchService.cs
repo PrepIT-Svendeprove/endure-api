@@ -25,6 +25,34 @@ internal class DispatcherProductBatchService(
         if (product is null)
             return false;
 
+        if (await _context.ProductBatch.AnyAsync(x => x.Id == batch.Id && x.WarehouseId == batch.WarehouseId))
+        {
+            await SynchronizeWithParent(
+                new ProductBatchCreatedEventMessage
+                {
+                    Id = batch.Id,
+                    Count = batch.Count,
+                    BestBefore = batch.BestBefore,
+                    ProductId = batch.ProductId,
+                    StorageUnitId = batch.StorageUnitId,
+                    WarehouseId = batch.WarehouseId,
+                    CreatedAt = batch.CreatedAt,
+                    UpdatedAt = batch.UpdatedAt,
+                    Product = new ProductCreatedEventMessage
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Name,
+                        Ean = product.EAN,
+                        WarehouseId = product.WarehouseId,
+                        CreatedAt = product.CreatedAt,
+                        UpdatedAt = product.CreatedAt
+                    }
+                }
+            );
+            return true;
+        }
+
         await _context.AddAsync(batch);
 
         var result = await _context.SaveChangesAsync() > 0;

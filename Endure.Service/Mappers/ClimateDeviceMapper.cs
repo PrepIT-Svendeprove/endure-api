@@ -21,6 +21,7 @@ internal static class ClimateDeviceMapper
             IsDisabled = false,
             SetTemperature = message.SetTemperature,
             SetHumidity = message.SetHumidity,
+            ClimateDeviceCode = message.ClimateDeviceCode,
         };
     }
 
@@ -54,7 +55,8 @@ internal static class ClimateDeviceMapper
             IsConnected = message.IsConnected,
             IsDisabled = message.IsDisabled,
             CreatedAt = message.CreatedAt,
-            UpdatedAt = message.UpdatedAt
+            UpdatedAt = message.UpdatedAt,
+            ClimateDeviceCode = message.ClimateDeviceCode
         };
     }
 

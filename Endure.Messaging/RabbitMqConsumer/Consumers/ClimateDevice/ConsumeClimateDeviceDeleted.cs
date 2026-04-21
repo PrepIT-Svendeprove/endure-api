@@ -21,7 +21,7 @@ internal sealed class ConsumeClimateDeviceDeleted(
         if (!await dispatcherService.DeleteClimateDeviceAsync(message))
         {
             _loggerService.LogWarning($"""
-                    Could not create entity
+                    Could not delete entity
                         Type: {typeof(ClimateDeviceDeleteEventMessage).Name}
                         RequestId: {requestId}
                 """);
@@ -29,7 +29,7 @@ internal sealed class ConsumeClimateDeviceDeleted(
         }
 
         _loggerService.LogInformation($"""
-                Entity created:
+                Entity delete:
                     Type: {typeof(ClimateDeviceDeleteEventMessage).Name}
                     RequestId: {requestId}
             """);

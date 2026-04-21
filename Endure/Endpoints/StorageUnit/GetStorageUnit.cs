@@ -76,13 +76,17 @@ public class GetStorageUnit
 
             var result = await storageUnitService.GetStorageUnitByIdAsync(parsedId, parsedWarehouseId);
 
+            Console.WriteLine(result);
+
             if (result is null)
                 return Results.BadRequest();
 
             return Results.Ok(result);
         }
-        catch
+        catch(Exception ex)
         {
+            Console.WriteLine(ex);
+
             return Results.InternalServerError();
         }
     }

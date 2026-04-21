@@ -21,6 +21,23 @@ internal static class StorageUnitMapper
         };
     }
 
+    public static StorageUnitCreatedEventMessage MapToStorageUnitCreatedEventMessage(this StorageUnit entity)
+    {
+        return new StorageUnitCreatedEventMessage
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ShortName = entity.ShortName,
+            StorageType = entity.StorageType,
+            Description = entity.Description,
+            IsSlot = entity.IsSlot,
+            ParentId = entity.ParentId,
+            WarehouseId = entity.WarehouseId,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+        };
+    }
+
     public static StorageUnit MapToStorageUnit(this StorageUnitCreatedEventMessage entity)
     {
         return new StorageUnit
