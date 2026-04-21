@@ -11,6 +11,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Endure.Messaging/Endure.Messaging.csproj", "Endure.Messaging/"]
+COPY ["Endure.Dispatcher/Endure.Dispatcher.csproj", "Endure.Dispatcher/"]
+COPY ["Endure.Service/Endure.Service.csproj", "Endure.Service/"]
+COPY ["Endure.Data/Endure.Data.csproj", "Endure.Data/"]
 RUN dotnet restore "./Endure.Messaging/Endure.Messaging.csproj"
 COPY . .
 WORKDIR "/src/Endure.Messaging"

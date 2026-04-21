@@ -54,7 +54,7 @@ internal class AuditLogService(
     {
         return await _context
                 .AuditLog
-                .Where(x => x.WarehouseId == warehouseId)
+                .Where(x => x.WarehouseId == warehouseId && !x.IsDeleted)
                 .CountAsync();
     }
 
@@ -77,6 +77,7 @@ public interface IAuditLogService
     /// Retrieves a single auditlog.
     /// </summary>
     Task<AuditLogDto?> GetAuditLogAsync(Guid id);
+    Task<int> GetAuditLogCount(Guid warehouseId);
 
     /// <summary>
     /// Gets auditlogs in a paginated format, with the filter <paramref name="filter"/>

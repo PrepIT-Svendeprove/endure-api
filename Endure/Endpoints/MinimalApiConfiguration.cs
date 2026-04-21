@@ -13,8 +13,6 @@ public static class MinimalApiConfiguration
 {
     public static WebApplication MapMinimalApiRoutes(this WebApplication app)
     {
-        app.UseMiddleware<TraceMiddleware>();
-
         var appGroup = app.MapGroup("/api");
 
         appGroup.MapProductBatchApiRoutes();

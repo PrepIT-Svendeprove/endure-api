@@ -1,4 +1,6 @@
-﻿namespace Endure.Endpoints.ClimateDevice;
+﻿using Endure.Constants;
+
+namespace Endure.Endpoints.ClimateDevice;
 
 public static class MapClimateDeviceEndpoints
 {
@@ -6,19 +8,18 @@ public static class MapClimateDeviceEndpoints
     {
         var group = route.MapGroup("/climatedevice").WithTags("ClimateDevice");
 
-        group.MapGet("/select", GetClimateDevice.GetSelectClimateDevicesAsync);
-        group.MapGet("/available", GetClimateDevice.GetAvailableClimateDeviceAsync);
-        group.MapGet("/paginated", GetClimateDevice.GetPaginatedClimateDevicesAsync);
-        group.MapGet("/{warehouseId}/count", GetClimateDevice.GetClimateDeviceCountAsync);
-        group.MapGet("/{warehouseId}/{storageunitId}/storageunit", GetClimateDevice.GetClimateDevicesByStorageIdAsync);
-        group.MapGet("/{warehouseId}/{climateDeviceId}", GetClimateDevice.GetClimateDeviceAsync);
+        group.MapGet("/select", GetClimateDevice.GetSelectClimateDevicesAsync).RequireAuthorization(PolicyConstants.CLIMATE_READ);
+        group.MapGet("/paginated", GetClimateDevice.GetPaginatedClimateDevicesAsync).RequireAuthorization(PolicyConstants.CLIMATE_READ);
+        group.MapGet("/{warehouseId}/count", GetClimateDevice.GetClimateDeviceCountAsync).RequireAuthorization(PolicyConstants.CLIMATE_READ);
+        group.MapGet("/{warehouseId}/{storageunitId}/storageunit", GetClimateDevice.GetClimateDevicesByStorageIdAsync).RequireAuthorization(PolicyConstants.CLIMATE_READ);
+        group.MapGet("/{warehouseId}/{climateDeviceId}", GetClimateDevice.GetClimateDeviceAsync).RequireAuthorization(PolicyConstants.CLIMATE_READ);
 
-        group.MapPost("/", PostClimateDevice.CreateClimateDeviceAsync);
+        group.MapPost("/", PostClimateDevice.CreateClimateDeviceAsync).RequireAuthorization(PolicyConstants.CLIMATE_MODIFY);
 
-        group.MapPut("/", PutClimateDevice.UpdateClimateDeviceAsync);
-        group.MapPut("/{climateDeviceId}/updatestorageunit", PutClimateDevice.UpdateClimateDeviceStorageUnitAsync);
+        group.MapPut("/", PutClimateDevice.UpdateClimateDeviceAsync).RequireAuthorization(PolicyConstants.CLIMATE_MODIFY);
+        group.MapPut("/{climateDeviceId}/updatestorageunit", PutClimateDevice.UpdateClimateDeviceStorageUnitAsync).RequireAuthorization(PolicyConstants.CLIMATE_MODIFY);
 
-        group.MapDelete("/{id}", DeleteClimateDevice.DeleteClimateDeviceAsync);
+        group.MapDelete("/{id}", DeleteClimateDevice.DeleteClimateDeviceAsync).RequireAuthorization(PolicyConstants.CLIMATE_MODIFY);
 
         return route;
     }

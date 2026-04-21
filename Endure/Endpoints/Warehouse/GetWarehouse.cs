@@ -39,12 +39,16 @@ public class GetWarehouse
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The request were sucessful, but there was not found any sub warehouse.")]
     [ProducesResponseType<List<WarehouseDto>>(StatusCodes.Status200OK, Description = "Succesfully retrieved the subwarehouses.")]
     public static async Task<IResult> GetSubWarehousesAsync(
-            [FromServices] IWarehouseService warehouseService
+            [FromServices] IWarehouseService warehouseService,
+            [FromRoute] string warehouseId
         )
     {
         try
         {
-            var warehouse = await warehouseService.GetAllSubWarehousesAsync();
+            if (!Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
+                return Results.UnprocessableEntity("Could not parse the identifier to a Guid.");
+
+            var warehouse = await warehouseService.GetAllSubWarehousesAsync(parsedWarehouseId);
 
             if (warehouse is { Count: <= 0 })
                 return Results.NoContent();

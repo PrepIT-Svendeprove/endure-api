@@ -53,11 +53,11 @@ internal class WarehouseService(
                 .FirstOrDefaultAsync(x => x.IsRoot);
     }
 
-    public async Task<List<WarehouseDto>> GetAllSubWarehousesAsync()
+    public async Task<List<WarehouseDto>> GetAllSubWarehousesAsync(Guid warehouseId)
     {
         return await _context
                 .Warehouse
-                .Where(x => !x.IsRoot && !x.IsDeleted)
+                .Where(x => x.Id == warehouseId && !x.IsDeleted)
                 .OrderByDescending(x => x.CreatedAt)
                 .MapToWarehouseDto()
                 .ToListAsync();
@@ -95,7 +95,7 @@ public interface IWarehouseService : IBaseService
     /// Retrievs all the warehouses that are not marked as the root warehouse.
     /// </summary>
     /// <returns></returns>
-    Task<List<WarehouseDto>> GetAllSubWarehousesAsync();
+    Task<List<WarehouseDto>> GetAllSubWarehousesAsync(Guid warehouseId);
     Task<List<WarehouseDto>> GetAllByIdAsync(Guid id);
 
     /// <summary>

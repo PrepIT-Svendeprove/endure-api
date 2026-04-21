@@ -14,7 +14,6 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Endure/Endure.csproj", "Endure/"]
 COPY ["Endure.Service/Endure.Service.csproj", "Endure.Service/"]
-COPY ["Endure.Data/Endure.Data.csproj", "Endure.Data/"]
 RUN dotnet restore "./Endure/Endure.csproj"
 COPY . .
 WORKDIR "/src/Endure"

@@ -1,4 +1,6 @@
-﻿namespace Endure.Endpoints.ClimateTelemetry;
+﻿using Endure.Constants;
+
+namespace Endure.Endpoints.ClimateTelemetry;
 
 public static class MapClimateTelemetryEndpoints
 {
@@ -6,7 +8,7 @@ public static class MapClimateTelemetryEndpoints
     {
         var group = route.MapGroup("/climatetelemetry").WithTags("ClimateTelemetry");
 
-        group.MapGet("/range", GetClimateTelemetry.GetDateRangeClimateTelemetryAsync);
+        group.MapGet("/range", GetClimateTelemetry.GetDateRangeClimateTelemetryAsync).RequireAuthorization(PolicyConstants.CLIMATE_READ);
 
         return route;
     }

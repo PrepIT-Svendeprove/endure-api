@@ -11,6 +11,29 @@ namespace Endure.Endpoints.Auditlog;
 /// </summary>
 public class GetAuditlog
 {
+
+    [EndpointName("GetAuditLogCount")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Description = "Could not parse the parameter to a guid.")]
+    [ProducesResponseType<AuditLogDto>(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetAuditLogCountAsync(
+            [FromServices] IAuditLogService auditlogService,
+            [FromRoute] string warehouseId
+        )
+    {
+        try
+        {
+            if (!Guid.TryParse(warehouseId, out Guid parsedWarehouseId))
+                return Results.UnprocessableEntity();
+
+            return Results.Ok(await auditlogService.GetAuditLogCount(parsedWarehouseId));
+        }
+        catch(Exception ex)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
     [EndpointName("GetAuditlog")]
     [EndpointDescription("Retrieves a auditlog by id.")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -18,7 +41,7 @@ public class GetAuditlog
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<AuditLogDto>(StatusCodes.Status200OK)]
     public static async Task<IResult> GetAuditlogAsync(
-            [FromServices] IAuditLogService auditlogService, 
+            [FromServices] IAuditLogService auditlogService,
             [FromRoute] string id
         )
     {

@@ -90,11 +90,11 @@ internal sealed class StorageUnitService(
                 .CountAsync();
     }
 
-    public async Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id)
+    public async Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id, Guid warehouseId)
     {
         return await _context
                 .StorageUnit
-                .Where(x => x.Id == id && !x.IsDeleted)
+                .Where(x => x.Id == id && x.WarehouseId == warehouseId && !x.IsDeleted)
                 .MapToStorageUnitDto()
                 .FirstOrDefaultAsync();
     }
@@ -142,7 +142,7 @@ public interface IStorageUnitService : IBaseService
     Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity);
     Task<PaginatedResult<StorageUnitDto>> GetPaginatedStorageUnitsAsync(StorageUnitPaginatedFilter filter);
     Task<List<SelectStorageUnitDto>> GetSelectStorageUnitAsync(Guid warehouseId, bool allowSlot);
-    Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id);
+    Task<StorageUnitDto?> GetStorageUnitByIdAsync(Guid id, Guid warehouseId);
     Task<int> GetStorageUnitCountAsync(Guid warehouseId);
     Task<List<StorageUnitDto>> GetStorageUnitsByParentIdAsync(Guid id);
 
