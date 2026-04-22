@@ -28,6 +28,7 @@ internal static class AuditlogMapper
             Id = entity.Id,
             RequestId = entity.RequestId,
             LogLevel = entity.LogLevel,
+            LogType = entity.LogType,
             WarehouseId = entity.WarehouseId,
             Log = entity.Log,
             CreatedAt = entity.CreatedAt,
