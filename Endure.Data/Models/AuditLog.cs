@@ -4,10 +4,14 @@ namespace Endure.Data.Models;
 
 public class AuditLog : BaseModel
 {
-    public required Guid WarehouseId { get; set; }
+    public Guid WarehouseId { get; set; }
     public LogLevel LogLevel { get; set; }
 
+    public LogType LogType { get; set; }
+
     public required string Log { get; set; }
+
+    public string? UserId { get; set; }
 
     /// <summary>
     /// The request of the Audit, used to trace and chain auditlogs together.

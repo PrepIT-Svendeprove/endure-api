@@ -1,4 +1,6 @@
-﻿namespace Endure;
+﻿using System.Security.Claims;
+
+namespace Endure;
 
 public sealed class RequestContext : IRequestContext
 {
@@ -9,6 +11,8 @@ public sealed class RequestContext : IRequestContext
     /// </para>
     /// </summary>
     public required string TraceId { get; set; }
+
+    public required ClaimsPrincipal Principal { get; set; }
 }
 
 public interface IRequestContext
@@ -20,4 +24,6 @@ public interface IRequestContext
     /// </para>
     /// </summary>
     string TraceId { get; set; }
+
+    ClaimsPrincipal Principal { get; set; }
 }

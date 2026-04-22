@@ -56,10 +56,10 @@ var app = builder.Build();
 // Keep this for both development and product, as we will need it to demonstrate all of the endpoints available.
 app.MapOpenApi();
 
-app.UseMiddleware<TraceMiddleware>();
-
 app.UseAuthentication()
    .UseAuthorization();
+
+app.UseMiddleware<TraceMiddleware>();
 
 app.MapMinimalApiRoutes();
 

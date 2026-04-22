@@ -30,12 +30,6 @@ public class PostStorageUnit
         }
         catch(Exception e)
         {
-            await auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
-            {
-                LogData = e.Message,
-                LogLevel = LogLevel.Error,
-            });
-
             return Results.InternalServerError();
         }
     }

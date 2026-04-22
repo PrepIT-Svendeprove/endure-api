@@ -40,12 +40,6 @@ public class DeleteStorageUnit
         }
         catch(Exception ex)
         {
-            await auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
-            {
-                LogData = ex.Message,
-                LogLevel = Service.Models.Enums.LogLevel.Error,
-            });
-
             return Results.InternalServerError();
         }
     }

@@ -2,6 +2,7 @@
 using Endure.Dispatcher.RabbitMQ.EventMessage.AuditLog;
 using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Enums;
+using System.Text.Json;
 
 namespace Endure.Service.Mappers;
 
@@ -13,7 +14,8 @@ internal static class AuditlogMapper
         {
             Id = x.Id,
             LogLevel = (LogLevel)x.LogLevel,
-            LogData = x.Log,
+            LogType = (LogType)x.LogType,
+            Log = x.Log,
             RequestId = x.RequestId,
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(x.CreatedAt)
         });
@@ -27,7 +29,7 @@ internal static class AuditlogMapper
             RequestId = entity.RequestId,
             LogLevel = entity.LogLevel,
             WarehouseId = entity.WarehouseId,
-            Log = entity.LogData,
+            Log = entity.Log,
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt,
             IsDeleted = false
@@ -37,15 +39,14 @@ internal static class AuditlogMapper
     /// <summary>
     /// Maps the <see cref="AuditLogDto" /> to <see cref="AuditLog"/>
     /// </summary>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    public static AuditLog MapToAuditLog(this CreateAuditlogDto entity, Guid warehouseId)
+    public static AuditLog MapToAuditLog(this CreateAuditlogDto entity)
     {
         return new AuditLog
         {
-            Log = entity.LogData,
-            WarehouseId = warehouseId,
-            LogLevel = (Data.Models.Enums.LogLevel)entity.LogLevel
+            Log = JsonSerializer.Serialize(entity.Log),
+            LogLevel = (Data.Models.Enums.LogLevel)entity.LogLevel,
+            UserId = entity.UserId,
+            LogType = (Data.Models.Enums.LogType)entity.LogType,
         };
     }
 }

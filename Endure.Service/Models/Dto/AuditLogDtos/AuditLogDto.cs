@@ -11,6 +11,16 @@ public sealed class AuditLogDto
     [JsonPropertyName(AuditLogConstants.ID_NAME)]
     public required Guid Id { get; set; }
 
+
+    /// <summary>
+    /// Identifier of the user who initiated the audit.
+    /// </summary>
+    [JsonPropertyName(AuditLogConstants.USERID_NAME)]
+    public string? UserId { get; set; }
+
+    [JsonPropertyName(AuditLogConstants.LOGTYPE_NAME)]
+    public required LogType LogType { get; set; }
+
     /// <summary>
     /// Represents how critical the Auditlog were.
     /// </summary>
@@ -20,8 +30,8 @@ public sealed class AuditLogDto
     /// <summary>
     /// Defines the log data that were originally stored, this is in a json format.
     /// </summary>
-    [JsonPropertyName(AuditLogConstants.LOGDATA_NAME)]
-    public required string LogData { get; set; }
+    [JsonPropertyName(AuditLogConstants.LOG_NAME)]
+    public required string Log { get; set; }
 
     /// <summary>
     /// Identifier of the request, where the Auditlog was made.

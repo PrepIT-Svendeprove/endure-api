@@ -1,6 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Dto.ProductDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
@@ -16,12 +17,14 @@ namespace Endure.Service.Services;
 internal class ProductService(
         IDispatcherProductService dispatcherProductService,
         IWarehouseService warehouseService,
+        IAuditLogService auditLogService,
         DatabaseContext context
     )
     : BaseService<Product>(context), IProductService
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
     private readonly IDispatcherProductService _dispatcherProductService = dispatcherProductService;
+    private readonly IAuditLogService _auditLogService = auditLogService;
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<Product, bool>>? predicate = null)
     {
@@ -29,7 +32,21 @@ internal class ProductService(
         if (await _context.ProductBatch.AnyAsync(x => x.ProductId == id && !x.IsDeleted))
             return ServiceResult.Failed;
 
-        return await _dispatcherProductService.DeleteProductAsync(id);
+        var result = await _dispatcherProductService.DeleteProductAsync(id);
+
+        if (result is ServiceResult.Success)
+        {
+            var warehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = id },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Deleted,
+                WarehouseId = warehouseId
+            }, warehouseId);
+        }
+
+        return result;
     }
 
     public async Task<Result> CreateProductAsync(CreateProductDto entity)
@@ -43,7 +60,20 @@ internal class ProductService(
         var mappedEntity = entity.MapToProduct();
         mappedEntity.WarehouseId = warehouseRootId;
 
-        return await _dispatcherProductService.CreateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+        var result = await _dispatcherProductService.CreateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+
+        if (result.ServiceResult is ServiceResult.Success)
+        {
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = mappedEntity.Id, Entity = entity },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Created,
+                WarehouseId = warehouseRootId
+            }, warehouseRootId);
+        }
+
+        return result;
     }
 
     public async Task<Result> UpdateProductAsync(UpdateProductDto entity)
@@ -56,7 +86,18 @@ internal class ProductService(
         var mappedEntity = entity.MapToProduct();
         mappedEntity.WarehouseId = dbEntity.WarehouseId;
 
-        return await _dispatcherProductService.UpdateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+        var result = await _dispatcherProductService.UpdateProductAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+
+        if (result.ServiceResult is ServiceResult.Success)
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = mappedEntity.Id, Entity = entity },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Updated,
+                WarehouseId = mappedEntity.WarehouseId
+            }, mappedEntity.WarehouseId);
+
+        return result; 
     }
 
     public async Task<PaginatedResult<ProductDto>> GetPaginatedProducts(ProductPaginatedFilter filter, Guid warehouseId)
@@ -66,7 +107,7 @@ internal class ProductService(
             .ThenBy(x => x.EAN)
             .Where(x => x.WarehouseId == warehouseId);
 
-        var maxPages = await context.CountAsync();
+        var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<ProductDto>(await context.MapToProductDto().ToListAsync(), maxPages);
     }

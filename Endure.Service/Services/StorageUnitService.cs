@@ -1,6 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Dto.StorageUnitDtos;
 using Endure.Service.Models.Dto.StorageUnitDtose;
 using Endure.Service.Models.Enums;
@@ -16,19 +17,35 @@ namespace Endure.Service.Services;
 internal sealed class StorageUnitService(
         IWarehouseService warehouseService,
         IDispatcherStorageUnitService dispatcherStorageUnitService,
+        IAuditLogService auditLogService, 
         DatabaseContext context
     )
     : BaseService<StorageUnit>(context), IStorageUnitService
 {
     private readonly IWarehouseService _warehouseService = warehouseService;
     private readonly IDispatcherStorageUnitService _dispatcherStorageUnitService = dispatcherStorageUnitService;
+    private readonly IAuditLogService _auditLogService = auditLogService;
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<StorageUnit, bool>>? predicate = null)
     {
         if (await _context.ProductBatch.AnyAsync(x => x.StorageUnitId == id && !x.IsDeleted))
             return ServiceResult.Failed;
 
-        return await _dispatcherStorageUnitService.DeleteStorageUnitAsync(id);
+        var result = await _dispatcherStorageUnitService.DeleteStorageUnitAsync(id);
+
+        if (result is ServiceResult.Success)
+        {
+            var warehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = id },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Deleted,
+                WarehouseId = warehouseId
+            }, warehouseId);
+        }
+
+        return result;
     }
 
     public async Task<Result> CreateStorageUnitAsync(CreateStorageUnitDto entity)
@@ -42,7 +59,18 @@ internal sealed class StorageUnitService(
         var mappedEntity = entity.MapToStorageUnit(rootId);
         mappedEntity.WarehouseId = rootId;
 
-        return await _dispatcherStorageUnitService.CreateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+        var result = await _dispatcherStorageUnitService.CreateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+
+        if (result.ServiceResult is ServiceResult.Success)
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = mappedEntity.Id, Entity = entity },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Created,
+                WarehouseId = rootId
+            }, rootId);
+
+        return result;
     }
 
     public async Task<Result> UpdateStorageUnitAsync(UpdateStorageUnitDto entity)
@@ -63,7 +91,21 @@ internal sealed class StorageUnitService(
         var mappedEntity = entity.MapToStorageUnit();
         mappedEntity.WarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
 
-        return await _dispatcherStorageUnitService.UpdateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+        var result = await _dispatcherStorageUnitService.UpdateStorageUnitAsync(mappedEntity) ? Result.Success() : Result.Failed([]);
+
+        if (result.ServiceResult is ServiceResult.Success)
+        {
+            var warehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = mappedEntity.Id, Entity = entity },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Updated,
+                WarehouseId = warehouseId
+            }, warehouseId);
+        }
+
+        return result;
     }
 
     public async Task<bool> HasSubStorageUnitsAsync(Guid id)

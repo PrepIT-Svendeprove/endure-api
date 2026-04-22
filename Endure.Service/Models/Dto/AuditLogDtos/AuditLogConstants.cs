@@ -8,8 +8,9 @@ internal class AuditLogConstants
     internal const string ID_NAME = "id";
     internal const string WAREHOUSEID_NAME = "warehouseId";
     internal const string LOGLEVEL_NAME = "logLevel";
-    internal const string MODULETYPE_NAME = "moduletype";
-    internal const string LOGDATA_NAME = "log";
+    internal const string USERID_NAME = "userId";
+    internal const string LOGTYPE_NAME = "logType";
+    internal const string LOG_NAME = "log";
     internal const string REQUESTID_NAME = "requestId";
     internal const string CREATEDAT_NAME = "createdAt";
 }

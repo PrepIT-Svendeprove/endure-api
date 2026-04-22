@@ -4,6 +4,7 @@ using Endure.Data.Models;
 using Endure.Dispatcher.Mqtt;
 using Endure.Dispatcher.Mqtt.Topic.ClimateDevice;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Dto.ClimateDeviceDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
@@ -13,6 +14,8 @@ using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Update;
 using System.Linq.Expressions;
+using System.Reflection.PortableExecutable;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -22,19 +25,37 @@ internal sealed class ClimateDeviceService(
         DatabaseContext context,
         IDispatcherClimateDeviceService dispatcherClimateDeviceService,
         IMqttPublisher mqttPublisher,
-        IWarehouseService warehouseService
+        IWarehouseService warehouseService,
+        IAuditLogService auditLogService
     )
     : BaseService<ClimateDevice>(context), IClimateDeviceService
 {
     private readonly IDispatcherClimateDeviceService _dispatcherClimateDeviceService = dispatcherClimateDeviceService;
     private readonly IMqttPublisher _mqttPublisher = mqttPublisher;
     private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IAuditLogService _auditLogService = auditLogService;
 
     protected override IQueryable<ClimateDevice> MakePaginatedQuery(BasePaginatedFilter filter)
         => base.MakePaginatedQuery(filter).OrderByDescending(x => x.Name);
 
-    protected override Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<ClimateDevice, bool>>? predicate = null)
-        => _dispatcherClimateDeviceService.DeleteClimateDeviceAsync(id);
+    protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<ClimateDevice, bool>>? predicate = null)
+    {
+        var result = await _dispatcherClimateDeviceService.DeleteClimateDeviceAsync(id);
+
+        if (result is ServiceResult.Success)
+        {
+            var warehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = id },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Deleted,
+                WarehouseId = warehouseId
+            }, warehouseId);
+        }
+
+        return result;
+    }
 
     public async Task<Result> CreateClimateDevice(CreateClimateDeviceDto device)
     {
@@ -66,6 +87,17 @@ internal sealed class ClimateDeviceService(
                 Humidity = mappedEntity.SetHumidity,
                 Temperature = mappedEntity.SetTemperature
             });
+
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { 
+                    EntityId = mappedEntity.Id, 
+                    Entity = device 
+                },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Created,
+                WarehouseId = rootWarehouseId
+            }, rootWarehouseId);
         }
 
         return result;
@@ -93,6 +125,17 @@ internal sealed class ClimateDeviceService(
                 Humidity = device.SetHumidity,
                 Temperature = device.SetTemperature
             });
+
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { 
+                    EntityId = mappedEntity.Id, 
+                    Entity = device
+                },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Updated,
+                WarehouseId = rootWarehouseId
+            }, rootWarehouseId);
         }
 
         return result;
@@ -111,6 +154,20 @@ internal sealed class ClimateDeviceService(
             return Result.Failed([ClimateDeviceStatusCodes.ENTITY_MISSING]);
 
         dbEntity.StorageUnitId = storageUnitId;
+
+        await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+        {
+            Log = new Log { 
+                EntityId = dbEntity.Id, 
+                Entity = new
+                {
+                    dbEntity.StorageUnitId
+                }
+            },
+            LogLevel = LogLevel.Info,
+            LogType = LogType.Updated,
+            WarehouseId = rootWarehouseId
+        }, rootWarehouseId);
 
         return await _dispatcherClimateDeviceService.UpdateClimateDeviceAsync(dbEntity) ? Result.Success() : Result.Failed([]);
     }

@@ -1,6 +1,7 @@
 ﻿using Endure.Data;
 using Endure.Data.Models;
 using Endure.Service.Mappers;
+using Endure.Service.Models.Dto.AuditLogDtos;
 using Endure.Service.Models.Dto.ProductBatchDtos;
 using Endure.Service.Models.Enums;
 using Endure.Service.Models.Filters;
@@ -9,25 +10,42 @@ using Endure.Service.Models.StatusCodes;
 using Endure.Service.Services.Dispatcher;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Security.Principal;
 
 namespace Endure.Service.Services;
 
 internal class ProductBatchService(
         IDispatcherProductBatchService dispatcherProductBatchService,
         IWarehouseService warehouseService,
+        IAuditLogService auditLogService,
         DatabaseContext context
     )
     : BaseService<ProductBatch>(context), IProductBatchService
 {
     private readonly IDispatcherProductBatchService _dispatcherProductBatchService = dispatcherProductBatchService;
     private readonly IWarehouseService _warehouseService = warehouseService;
+    private readonly IAuditLogService _auditLogService = auditLogService;
 
     protected override IQueryable<ProductBatch> MakePaginatedQuery(BasePaginatedFilter filter)
         => base.MakePaginatedQuery(filter).OrderByDescending(x => x.BestBefore);
 
     protected override async Task<ServiceResult> SoftDeleteEntity(Guid id, Expression<Func<ProductBatch, bool>>? prediate = null)
     {
-        return await _dispatcherProductBatchService.DeleteProductBatchAsync(id);
+        var result = await _dispatcherProductBatchService.DeleteProductBatchAsync(id);
+
+        if (result is ServiceResult.Success)
+        {
+            var warehouseId = await _warehouseService.GetRootWarehouseIdAsync();
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = id },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Deleted,
+                WarehouseId = warehouseId
+            }, warehouseId);
+        }
+
+        return result;
     }
 
     public async Task<Result> CreateProductBatch(CreateProductBatchDto productBatch)
@@ -37,7 +55,20 @@ internal class ProductBatchService(
 
         var mapppedEntity = productBatch.MapToProductBatch(await _warehouseService.GetRootWarehouseIdAsync());
 
-        return await _dispatcherProductBatchService.CreateProductBatchAsync(mapppedEntity) ? Result.Success() : Result.Failed([]);
+        var result = await _dispatcherProductBatchService.CreateProductBatchAsync(mapppedEntity) ? Result.Success() : Result.Failed([]);
+
+        if (result.ServiceResult is ServiceResult.Success)
+        {
+            await _auditLogService.CreateAuditLogAsync(new CreateAuditlogDto
+            {
+                Log = new Log { EntityId = mapppedEntity.Id, Entity = productBatch },
+                LogLevel = LogLevel.Info,
+                LogType = LogType.Created,
+                WarehouseId = mapppedEntity.WarehouseId
+            }, mapppedEntity.WarehouseId);
+        }
+
+        return result;
     }
 
     public async Task<PaginatedResult<ProductBatchDto>> GetPaginatedProductsByProductId(ProductBatchFilter filter)

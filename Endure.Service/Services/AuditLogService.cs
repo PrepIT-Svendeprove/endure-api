@@ -12,13 +12,11 @@ namespace Endure.Service.Services;
 internal class AuditLogService(
         DatabaseContext context,
         IRequestContext requestContext,
-        IWarehouseService warehouseService,
         IDispatcherAuditLogService dispatcherAuditLogService
     )
     : BaseService<AuditLog>(context), IAuditLogService
 {
     private readonly IRequestContext _requestContext = requestContext;
-    private readonly IWarehouseService _warehouseService = warehouseService;
     private readonly IDispatcherAuditLogService _dispatcherAuditLogService = dispatcherAuditLogService;
 
     public async Task<AuditLogDto?> GetAuditLogAsync(Guid id)
@@ -58,12 +56,12 @@ internal class AuditLogService(
                 .CountAsync();
     }
 
-    public async Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity)
+    public async Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity, Guid warehouseId)
     {
-        entity.WarehouseId ??= await _warehouseService.GetRootWarehouseIdAsync();
-
-        var mappedEntity = entity.MapToAuditLog(entity.WarehouseId.Value);
+        var mappedEntity = entity.MapToAuditLog();
+        mappedEntity.WarehouseId = warehouseId;
         mappedEntity.RequestId = _requestContext.TraceId;
+        mappedEntity.UserId = _requestContext.Principal.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
 
         return await _dispatcherAuditLogService.CreateAuditLogAsync(mappedEntity);
     }
@@ -71,7 +69,7 @@ internal class AuditLogService(
 
 public interface IAuditLogService
 {
-    Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity);
+    Task<bool> CreateAuditLogAsync(CreateAuditlogDto entity, Guid warehouseId);
 
     /// <summary>
     /// Retrieves a single auditlog.

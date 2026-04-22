@@ -21,7 +21,7 @@ internal sealed class DispatcherAuditLogService(
             await SynchronizeWithParent(new AuditLogCreatedEventMessage
             {
                 Id = auditLog.Id,
-                LogData = auditLog.Log,
+                Log = auditLog.Log,
                 LogLevel = auditLog.LogLevel,
                 WarehouseId = auditLog.WarehouseId,
                 CreatedAt = auditLog.CreatedAt,
@@ -39,7 +39,7 @@ internal sealed class DispatcherAuditLogService(
             await SynchronizeWithParent(new AuditLogCreatedEventMessage
             {
                 Id = auditLog.Id,
-                LogData = auditLog.Log,
+                Log = auditLog.Log,
                 LogLevel = auditLog.LogLevel,
                 WarehouseId = auditLog.WarehouseId,
                 CreatedAt = auditLog.CreatedAt,

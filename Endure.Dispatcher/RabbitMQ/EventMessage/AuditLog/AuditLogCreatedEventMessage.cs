@@ -13,8 +13,8 @@ public class AuditLogCreatedEventMessage : BaseEventMessage
     [JsonPropertyName("logLevel")]
     public required LogLevel LogLevel { get; set; }
 
-    [JsonPropertyName("logData")]
-    public required string LogData { get; set; }
+    [JsonPropertyName("log")]
+    public required string Log { get; set; }
 
     [JsonPropertyName("requestId")]
     public string? RequestId { get; set; }

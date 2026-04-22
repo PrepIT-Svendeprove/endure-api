@@ -18,6 +18,7 @@ namespace Endure.Middleware
             context.Response.Headers[TRACE_HEADER_NAME] = traceId;
 
             _requestContext.TraceId = traceId;
+            _requestContext.Principal = context.User;
 
             return next(context);
         }
