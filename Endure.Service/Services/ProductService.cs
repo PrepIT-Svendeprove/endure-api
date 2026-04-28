@@ -121,17 +121,6 @@ internal class ProductService(
                 .FirstOrDefaultAsync();
     }
 
-    public async Task<List<Top10ProductDto>> GetTop10ProductsInWarehouseId(Guid warehouseId)
-    {
-        return await _context
-                .Product
-                .OrderByDescending(x => x.ProductBatches.Count)
-                .Where(x => x.WarehouseId == warehouseId)
-                .Take(10)
-                .MapToTop10ProductDto()
-                .ToListAsync();
-    }
-
     public async Task<List<SelectProductDto>> GetAvailableProductsAsync()
     {
         var rootWarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
@@ -139,7 +128,7 @@ internal class ProductService(
         return await _context
                 .Product
                 .OrderByDescending(x => x.Name)
-                .Where(x => !x.IsDeleted)
+                .Where(x => !x.IsDeleted && x.WarehouseId == rootWarehouseId)
                 .MapToSelectProductDto()
                 .ToListAsync();
     }
@@ -174,12 +163,6 @@ public interface IProductService : IBaseService
     /// Retrives a single product, by ID.
     /// </summary>
     Task<ProductDto?> GetProductById(Guid productId, Guid warehouseId);
-
-    /// <summary>
-    /// Retrieves the 10 products with the most product batches.
-    /// </summary>
-    /// <returns></returns>
-    Task<List<Top10ProductDto>> GetTop10ProductsInWarehouseId(Guid warehouseId);
     Task<List<SelectProductDto>> GetAvailableProductsAsync();
     Task<int> GetProductCountAsync(Guid warehouseId);
 }

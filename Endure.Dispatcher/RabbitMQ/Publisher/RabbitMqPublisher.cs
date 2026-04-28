@@ -28,6 +28,8 @@ internal sealed class RabbitMqPublisher(IRabbitMqPublisherConnection rabbitMqCon
 
         var queue = typeof(T).GetCustomAttribute<EventQueueAttribute>();
 
+        Console.WriteLine("Publishing new message \t" + payload);
+
         ArgumentNullException.ThrowIfNull(queue);
         ArgumentException.ThrowIfNullOrWhiteSpace(queue.QueueName);
 

@@ -43,7 +43,7 @@ internal class AuditLogService(
         else
             context = context.Where(x => x.Warehouse!.IsRoot);
 
-        var maxPages = await context.CountAsync();
+        var maxPages = (await context.CountAsync() / filter.Take) + 1;
 
         return new PaginatedResult<AuditLogDto>(await context.MapToAuditLogDto().ToListAsync(), maxPages);
     }

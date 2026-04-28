@@ -5,6 +5,7 @@ using Endure.Dispatcher.RabbitMQ.EventMessage.ClimateTelemetry;
 using Endure.Dispatcher.RabbitMQ.Publisher;
 using Endure.Service.Mappers;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Endure.Service.Services.Dispatcher;
 
@@ -27,7 +28,11 @@ internal sealed class DispatcherClimateTelemetryService(
 
         await _context.AddAsync(telemetry);
 
+        Console.WriteLine("Creating telemetry \t" + JsonSerializer.Serialize(telemetry));
+
         var result = await _context.SaveChangesAsync() > 0;
+
+        Console.WriteLine("Result \t" + JsonSerializer.Serialize(result));
 
         if (result)
         {
@@ -53,6 +58,7 @@ internal sealed class DispatcherClimateTelemetryService(
 
     public async Task<bool> CreateClimateTelemetryAsync(ClimateTelemetryTopic topic)
     {
+        Console.WriteLine("Topic \t " + JsonSerializer.Serialize(topic));
         var rootwarehouseId = await _warehouseService.GetRootWarehouseIdAsync();
         var climateDevice = await _context.ClimateDevice.Select(x => new
         {
@@ -62,6 +68,8 @@ internal sealed class DispatcherClimateTelemetryService(
             x.IsDisabled,
             x.IsDeleted
         }).FirstOrDefaultAsync(x => x.ClimateDeviceCode == topic.ClimateDeviceCode && x.WareHouseId == rootwarehouseId && !x.IsDeleted && !x.IsDisabled);
+
+        Console.WriteLine("ClimateDevice \t" + JsonSerializer.Serialize(climateDevice));
 
         if (climateDevice is null)
             return false;

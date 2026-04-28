@@ -17,6 +17,7 @@ internal static class AuditlogMapper
             LogType = (LogType)x.LogType,
             Log = x.Log,
             RequestId = x.RequestId,
+            UserId = x.UserId,
             CreatedAt = DateTimeOffset.FromUnixTimeSeconds(x.CreatedAt)
         });
     }

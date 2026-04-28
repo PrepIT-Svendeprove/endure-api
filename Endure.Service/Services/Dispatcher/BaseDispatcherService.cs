@@ -24,6 +24,8 @@ internal class BaseDispatcherService<T>(
     protected async Task SynchronizeWithParent<T>(T message)
         where T : BaseEventMessage
     {
+        Console.WriteLine("Should synchronize " + await RootWarehouseHasParentAsync());
+
         // If the root warehouse has a parent set, we should try and synchronize with the parent.
         if (!await RootWarehouseHasParentAsync())
             return;

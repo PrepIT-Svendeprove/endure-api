@@ -70,7 +70,7 @@ internal sealed class ClimateDeviceService(
 
         using (var rng = RandomNumberGenerator.Create())
         {
-            var bytes = new byte[5];
+            var bytes = new byte[2];
             rng.GetBytes(bytes);
             mappedEntity.ClimateDeviceCode = Convert.ToHexString(bytes);
         }

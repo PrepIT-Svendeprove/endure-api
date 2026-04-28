@@ -56,49 +56,23 @@ internal abstract class BaseRabbitMqConsumer<TMessage>(
 
     private async Task RecievedMessageAsync(object sender, BasicDeliverEventArgs eventArgs)
     {
-        var cancellationToken = new CancellationTokenSource().Token;
+        var cancellationToken = new CancellationTokenSource();
 
         var requestId = Guid.NewGuid();
-        _loggerService.LogInformation($"""
-                Received Message
-                    Type: {typeof(TMessage).Name}
-                    RequestId: {requestId}
-            """);
-
+        
         try
         {
             var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
             var message = JsonSerializer.Deserialize<TMessage>(json, DispatchSerializerOptions.Options)
                 ?? throw new InvalidOperationException($"Could not deserialize {typeof(TMessage).Name}");
 
-            _loggerService.LogInformation($"""
-                    Beginning to handle message
-                        Type: {typeof(TMessage).Name}
-                        RequestId: {requestId}
-                """);
+            await HandleMessageAsync(message, requestId, cancellationToken.Token);
 
-            await HandleMessageAsync(message, requestId, cancellationToken);
-
-            _loggerService.LogInformation($"""
-                    Beginning AMQP Ack
-                        Type: {typeof(TMessage).Name}
-                        RequestId: {requestId}
-                """);
-
-            await _channel!.BasicAckAsync(eventArgs.DeliveryTag, false, cancellationToken);
+            await _channel!.BasicAckAsync(eventArgs.DeliveryTag, false, cancellationToken.Token);
         }
         catch (Exception ex)
         {
-            _loggerService.LogError($"""
-                    Failed while handling message
-                        Type: {typeof(TMessage).Name}
-                        RequestId: {requestId}
-                        Exception: {ex.Message}
-                """);
-
-            await OnError(ex, eventArgs, cancellationToken);
-            // There is no reason for it to requeue it, so we should just send it to the dead-letter queue instead.
-            await _channel!.BasicNackAsync(eventArgs.DeliveryTag, false, false, cancellationToken);
+            await _channel!.BasicNackAsync(eventArgs.DeliveryTag, false, false, cancellationToken.Token);
         }
     }
 
